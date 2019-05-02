@@ -127,11 +127,11 @@
     <QtMoc Include="CModel.h">
       <Filter>Tools\Model</Filter>
     </QtMoc>
+    <QtMoc Include="CFileDialog.h">
+      <Filter>Dialogs</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CFileDialog.h">
-      <Filter>Dialogs</Filter>
-    </ClInclude>
     <ClInclude Include="CImageProvider.h">
       <Filter>Tools\ImageProvider</Filter>
     </ClInclude>
