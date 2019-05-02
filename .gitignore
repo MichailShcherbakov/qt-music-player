@@ -119,8 +119,10 @@ bld/
 [Oo]bj/
 [Ll]og/
 
-# Visual C++ cache files
+# Files built by Visual Studio
 *.vcxproj.user
+
+# Visual C++ cache files
 ipch/
 *.aps
 *.ncb
