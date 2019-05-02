@@ -131,4 +131,5 @@ ipch/
 *.VC.VC.opendb
 *.suo
 
+*.vcxproj.user
 # End of https://www.gitignore.io/api/qt,windows,qtcreator
