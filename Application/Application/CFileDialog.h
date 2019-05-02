@@ -5,12 +5,10 @@
 
 #include "IDialog.h"
 
-#include <QStringList>
-
 #include "CImageProvider.h"
-#include "CMediaData.h"
 #include "CList.h"
 #include "CTagEditer.h"
+#include "CTable.h"
 
 #include <QFile>
 

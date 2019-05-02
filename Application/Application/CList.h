@@ -17,7 +17,7 @@ struct Item
 	QString playlist;
     QString time;
     QString size;
-    bool reserve;
+    QVariant reserve;
 };
 
 class CList : public QObject

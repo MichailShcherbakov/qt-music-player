@@ -142,6 +142,7 @@
     <QtMoc Include="CMain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="StdAfx.h" />
     <QtMoc Include="CFileDialog.h" />
     <ClInclude Include="CImageProvider.h" />
     <ClInclude Include="CQuery.h" />

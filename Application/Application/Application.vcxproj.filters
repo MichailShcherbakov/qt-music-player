@@ -144,5 +144,8 @@
     <ClInclude Include="CTagEditer.h">
       <Filter>Tools\TagEditer</Filter>
     </ClInclude>
+    <ClInclude Include="StdAfx.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

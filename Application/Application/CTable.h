@@ -2,7 +2,9 @@
 #define _C_TABLE_H_
 
 #include <QMap>
+#include <QList>
 #include <QVariant>
+#include <QPair>
 
 class Column
 {
@@ -24,6 +26,23 @@ private:
 	QMap<int, QVariant> m_list;
 };
 
+class Row
+{
+public:
+	Row();
+	~Row();
+
+public:
+	void Append(const QVariant& value);
+	int Size();
+	void InsertAt(const int& index, const QVariant& value);
+	void Remove(const int& index);
+	QList<QVariant> List();
+
+private:
+	QList<QVariant> m_list;
+};
+
 class CTable
 {
 public:
@@ -32,10 +51,11 @@ public:
 
 public:
 	void AddColumn(const QString& title);
-	void AddRow(const QString& title, const QVariant& row);
+	void AddRow(Row& row);
 	void RemoveColumn(const QString& title);
 	int Rows();
 	int Columns();
+	bool Contains(const QString& title);
 	void RemoveRow(const QString& title, const int& index);
 	void InsertAt(const QString& title, const int& index, const QVariant& row);
 	QVariant ValueAt(const QString& title, const int& index);
@@ -43,7 +63,10 @@ public:
 	void Clear();
 
 private:
-	QMap<QString, Column> m_list;
+	int IdColumn(const QString& title);
+
+private:
+	QList<QPair<QString, Column>> m_list;
 	int m_size = 0;
 };
 

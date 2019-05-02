@@ -43,6 +43,11 @@ namespace Tools
 		}
 		return p;
 	}
+
+	static QString tagEditerPath()
+	{
+		return Tools::absolutePath() + "/DesktopMusicPlayer/\"Tag Editor\"/Audio.exe";
+	}
 }
 
 

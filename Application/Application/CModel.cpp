@@ -90,7 +90,7 @@ bool CModel::setData(const QModelIndex &index, const QVariant &value, int role)
 		item.size = value.toString();
 		break;
 	case RESERVE:
-		item.reserve = value.toBool();
+		item.reserve = value;
 		break;
 
     }

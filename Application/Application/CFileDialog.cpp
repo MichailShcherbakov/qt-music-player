@@ -30,8 +30,6 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 
 		for (int i = path.length() - 1; path[i] != '/' && 0 < i; --i) nameFile.insert(0, path[i]);
 
-		
-			
 		QString p = Tools::absolutePath() +"/DesktopMusicPlayer/\"Tag Editor\"/Audio.exe";
 		QString cmd = "start " + p + " -path " + path.replace(' ', '_') + " -get";
 		system(cmd.toUtf8());
@@ -99,7 +97,7 @@ void CFileDialog::onClickedItem(QString fileName)
 
 			QByteArray imageDAta = m_list->At(i).image;
 
-			if (!imageDAta.isEmpty())
+			/*if (!imageDAta.isEmpty())
 			{
 				QImage image;
 				image.loadFromData(imageDAta);
@@ -111,8 +109,9 @@ void CFileDialog::onClickedItem(QString fileName)
 
 				++temp_count;
 			}
-			else
-				emit setImage("standard_cover");
+			else*/
+
+			emit setImage(imageDAta);
 
 			isClickedColor();
 			break;
@@ -148,11 +147,7 @@ void CFileDialog::saveImage(QString path)
 		item.reserve = m_list->At(m_currentSelectedItem).reserve;
 
 		QString localpath = path.remove(0, 8);
-
-		QFile img(localpath);
-		img.open(QIODevice::ReadOnly);
-		item.image = img.readAll();
-		img.close();
+		item.image = localpath.toUtf8();
 
 		m_list->RemoveItem(m_currentSelectedItem);
 		m_list->InsertItem(m_currentSelectedItem, item);
@@ -161,22 +156,53 @@ void CFileDialog::saveImage(QString path)
 
 void CFileDialog::finish()
 {
-	/*CMediaData data;
+	CTable table;
+	table.AddColumn("id");
+	table.AddColumn("title");
+	table.AddColumn("artist");
+	table.AddColumn("album");
+	table.AddColumn("genre");
+	table.AddColumn("year");
+	table.AddColumn("image");
+	table.AddColumn("time");
 
-	for (int i = 0; i < m_list->Size(); ++i)
+	int id = 0;
+
+	for (auto it : m_list->GetItems())
 	{
-		Data items;
+		Row row;
+		row.Append(id);
+		row.Append(it.title);
+		row.Append(it.artist);
+		row.Append(it.album);
+		row.Append(it.genre);
+		row.Append(it.year);
+		row.Append(it.image);
+		row.Append(it.time);
+		
+		++id;
 
-		items.title = m_list->At(i).title;
-		items.artist = m_list->At(i).artist;
-		items.album = m_list->At(i).album;
-		items.genre = m_list->At(i).genre;
-		items.year = m_list->At(i).year;
+		QString Title;
+		QString Artist;
+		QString Album;
+		QString Genre;
+		QString Year;
+		QString Bitrate;
+		QString Duraction;
 
-		data.SetMetaData(m_urls.value(m_list->At(i).nameFile), items);
-		QByteArray img = m_list->At(i).image;
-		data.SetImage(m_urls.value(m_list->At(i).nameFile), &img);
-	}*/
+		QString cmd = "start " + Tools::tagEditerPath() +
+			" -path " + m_urls.find(it.nameFile).value() +
+			" -image " + it.image +
+			" -title " + it.title +
+			" -artist " + it.artist +
+			" -album " + it.album +
+			" -genre " + it.genre+
+			" -year " + it.year;
+
+		system(cmd.toUtf8());
+
+		table.AddRow(row);
+	}
 }
 
 void CFileDialog::isClickedColor()
