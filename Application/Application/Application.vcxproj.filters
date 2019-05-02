@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{5eed3cd7-5b9f-4dec-b966-e075c8351cc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{c7be1426-9432-4651-9624-9cec309fcb7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Windows">
+      <UniqueIdentifier>{20a245b4-0687-495d-a1f1-c664a8f7760f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dialogs">
+      <UniqueIdentifier>{ae12e419-d494-4f2b-a46f-f316846e384d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{9e9cab5d-0fdd-4e21-9567-4f0d7cf6ac67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{0a138e55-65d3-4f23-ba18-bb0d39a4124f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\ImageProvider">
+      <UniqueIdentifier>{792c4d44-3ea9-49f5-8fa3-d47bbed5e3fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\List">
+      <UniqueIdentifier>{a79be31c-4027-4aee-ad32-e54bfe9b2dc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Model">
+      <UniqueIdentifier>{a2ab0bb3-13a0-4294-bdd7-f2e35ecbb993}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Query">
+      <UniqueIdentifier>{9f3ad9fe-f309-44bd-bbef-8c2023dd2c23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\Table">
+      <UniqueIdentifier>{0ca404e1-c639-4b05-bb91-f78825836965}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools\TagEditer">
+      <UniqueIdentifier>{91e33df6-1fb3-4503-bcad-9d198c21388a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="CSocket.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="CMain.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="CFileDialog.cpp">
+      <Filter>Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="CLogin.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayer.cpp">
+      <Filter>Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="CImageProvider.cpp">
+      <Filter>Tools\ImageProvider</Filter>
+    </ClCompile>
+    <ClCompile Include="CList.cpp">
+      <Filter>Tools\List</Filter>
+    </ClCompile>
+    <ClCompile Include="CModel.cpp">
+      <Filter>Tools\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="CQuery.cpp">
+      <Filter>Tools\Query</Filter>
+    </ClCompile>
+    <ClCompile Include="CTable.cpp">
+      <Filter>Tools\Table</Filter>
+    </ClCompile>
+    <ClCompile Include="CTagEditer.cpp">
+      <Filter>Tools\TagEditer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="IDialog.h">
+      <Filter>Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="IWindow.h">
+      <Filter>Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="CSocket.h">
+      <Filter>Network</Filter>
+    </QtMoc>
+    <QtMoc Include="CMain.h">
+      <Filter>Main</Filter>
+    </QtMoc>
+    <QtMoc Include="CLogin.h">
+      <Filter>Windows</Filter>
+    </QtMoc>
+    <QtMoc Include="CPlayer.h">
+      <Filter>Windows</Filter>
+    </QtMoc>
+    <QtMoc Include="CList.h">
+      <Filter>Tools\List</Filter>
+    </QtMoc>
+    <QtMoc Include="CModel.h">
+      <Filter>Tools\Model</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CFileDialog.h">
+      <Filter>Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="CImageProvider.h">
+      <Filter>Tools\ImageProvider</Filter>
+    </ClInclude>
+    <ClInclude Include="CQuery.h">
+      <Filter>Tools\Query</Filter>
+    </ClInclude>
+    <ClInclude Include="CTable.h">
+      <Filter>Tools\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="CTagEditer.h">
+      <Filter>Tools\TagEditer</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
