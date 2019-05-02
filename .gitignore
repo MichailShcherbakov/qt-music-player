@@ -104,6 +104,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.vcxproj.user
 
 # Build results
 [Dd]ebug/
@@ -130,6 +131,4 @@ ipch/
 *.VC.db
 *.VC.VC.opendb
 *.suo
-
-*.vcxproj.user
 # End of https://www.gitignore.io/api/qt,windows,qtcreator
