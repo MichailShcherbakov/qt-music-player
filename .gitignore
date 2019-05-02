@@ -104,7 +104,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-*.vcxproj.user
 
 # Build results
 [Dd]ebug/
@@ -121,6 +120,7 @@ bld/
 [Ll]og/
 
 # Visual C++ cache files
+*.vcxproj.user
 ipch/
 *.aps
 *.ncb
