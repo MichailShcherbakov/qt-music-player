@@ -44,10 +44,19 @@ namespace Tools
 		return p;
 	}
 
+	static QString applicationName()
+	{
+		QString programName;
+		for (int i = Tools::absolutePath().length() - 1; Tools::absolutePath()[i] != '/' && 0 < i; --i) programName.insert(0, Tools::absolutePath()[i]);
+		return programName;
+	}
+
 	static QString tagEditerPath()
 	{
-		return Tools::absolutePath() + "/DesktopMusicPlayer/\"Tag Editor\"/Audio.exe";
+		return Tools::absolutePath() + "/" + Tools::applicationName() + "/\"Tag Editor\"/Audio.exe";
 	}
+
+	
 }
 
 

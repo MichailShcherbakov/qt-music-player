@@ -13,7 +13,7 @@ public:
 	~Column();
 
 public:
-	void AddRow(const QVariant& row);
+	void AddRow(QVariant& row);
 	void RemoveRow(const int& index);
 	void InsertAt(const int& index, const QVariant& row);
 	bool isEmpty();

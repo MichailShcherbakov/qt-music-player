@@ -1,4 +1,33 @@
 <RCC>
-    <qresource prefix="Application">
+    <qresource prefix="/">
+        <file>Qml/Dialogs/dfile.qml</file>
+        <file>Qml/Styles/DottedRectangle.qml</file>
+        <file>Qml/Styles/Lable.qml</file>
+        <file>Qml/Styles/TextLine.qml</file>
+        <file>Qml/Windows/wlogin.qml</file>
+        <file>Qml/Windows/wplayer.qml</file>
+        <file>Themes/White/albums.svg</file>
+        <file>Themes/White/back_button.png</file>
+        <file>Themes/White/circle.png</file>
+        <file>Themes/White/cross_button.svg</file>
+        <file>Themes/White/delete_off.png</file>
+        <file>Themes/White/delete_on.png</file>
+        <file>Themes/White/folder.svg</file>
+        <file>Themes/White/heart.png</file>
+        <file>Themes/White/heart.svg</file>
+        <file>Themes/White/line_button.svg</file>
+        <file>Themes/White/microphone.svg</file>
+        <file>Themes/White/next_button.png</file>
+        <file>Themes/White/note.svg</file>
+        <file>Themes/White/play_button.png</file>
+        <file>Themes/White/red_heart.png</file>
+        <file>Themes/White/repeat_button.png</file>
+        <file>Themes/White/repeat_off_button.png</file>
+        <file>Themes/White/speaker.png</file>
+        <file>Themes/White/square_button.svg</file>
+        <file>Themes/White/standard_cover.jpg</file>
+        <file>Themes/White/standard_cover_x1000.jpg</file>
+        <file>Fonts/Gilroy.ttf</file>
+        <file>Tag Editor/Audio.exe</file>
     </qresource>
 </RCC>

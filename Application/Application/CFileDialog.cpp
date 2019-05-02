@@ -30,12 +30,12 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 
 		for (int i = path.length() - 1; path[i] != '/' && 0 < i; --i) nameFile.insert(0, path[i]);
 
-		QString p = Tools::absolutePath() +"/DesktopMusicPlayer/\"Tag Editor\"/Audio.exe";
+		QString p = Tools::absolutePath() +"/" + Tools::applicationName() + "/\"Tag Editor\"/Audio.exe";
 		QString cmd = "start " + p + " -path " + path.replace(' ', '_') + " -get";
 		system(cmd.toUtf8());
 
 		CTagEditer tagsEditer;
-		tagsEditer.Open(Tools::absolutePath() + "/DesktopMusicPlayer/tags.log");
+		tagsEditer.Open(Tools::absolutePath() + "/" + Tools::applicationName() +"/tags.log");
 		Tags tags = tagsEditer.GetTags(); 
 
 		Item item;
@@ -45,7 +45,7 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 		item.year = tags.Year;
 		item.genre = tags.Genre;
 
-		QFile image(Tools::absolutePath() + "/DesktopMusicPlayer/ArtCover.jpg");
+		QFile image(Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg");
 		image.open(QIODevice::ReadOnly);
 		QByteArray img = image.readAll();
 		image.close();
@@ -97,7 +97,7 @@ void CFileDialog::onClickedItem(QString fileName)
 
 			QByteArray imageDAta = m_list->At(i).image;
 
-			/*if (!imageDAta.isEmpty())
+			if (!imageDAta.isEmpty())
 			{
 				QImage image;
 				image.loadFromData(imageDAta);
@@ -109,9 +109,8 @@ void CFileDialog::onClickedItem(QString fileName)
 
 				++temp_count;
 			}
-			else*/
-
-			emit setImage(imageDAta);
+			else
+				emit setImage("standard_cover");
 
 			isClickedColor();
 			break;
@@ -190,9 +189,14 @@ void CFileDialog::finish()
 		QString Bitrate;
 		QString Duraction;
 
+		QFile img(Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg");
+		img.open(QIODevice::WriteOnly);
+		img.write(it.image);
+		img.close();
+
 		QString cmd = "start " + Tools::tagEditerPath() +
 			" -path " + m_urls.find(it.nameFile).value() +
-			" -image " + it.image +
+			" -image " + Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg" +
 			" -title " + it.title +
 			" -artist " + it.artist +
 			" -album " + it.album +

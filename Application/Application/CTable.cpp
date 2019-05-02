@@ -25,12 +25,8 @@ void CTable::AddColumn(const QString& title)
 
 void CTable::AddRow(Row& row)
 {
-	for (auto value : row.List())
+	for (int i = 0; i < m_list.size(); ++i)
 	{
-		for (auto it : m_list)
-		{
-			it.second.AddRow(value);
-		}
 	}
 }
 
@@ -129,7 +125,7 @@ Column::~Column()
 {
 }
 
-void Column::AddRow(const QVariant& row)
+void Column::AddRow(QVariant& row)
 {
 	m_list.insert(m_size++, row);
 }
