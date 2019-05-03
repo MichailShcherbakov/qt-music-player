@@ -13,37 +13,58 @@ CTable::~CTable()
 
 void CTable::AddColumn(const QString& title)
 {
-	if (this->Contains(title))
+	if (!this->Contains(title))
 	{
-		QPair<QString, Column> temp;
-		temp.first = title;
-		temp.second = Column();
-		m_list.append(temp);
-		m_size = m_list.size();
+		Column* col = new Column;
+		m_list.append(QPair<QString, Column*>(title, col));
 	}
 }
 
-void CTable::AddRow(Row& row)
+void CTable::AddRow(Row row)
 {
-	for (int i = 0; i < m_list.size(); ++i)
+	try
 	{
+		if (row.Size() != m_list.size())
+			throw QString("The size of the table does not match the size of the row");
+		else
+		{
+			int i = 0;
+			for (auto it : m_list)
+				it.second->AddRow(row.ValueAt(i++));
+		}
+	}
+	catch (QString e)
+	{
+		qDebug() << "[" +  QString(__FUNCTION__) + "] [Error] " + e;
 	}
 }
 
 void CTable::RemoveColumn(const QString& title)
 {
-	if (this->Contains(title))
-		m_list.removeAt(this->IdColumn(title));
+	try
+	{
+		int pos = this->Contains(title);
+
+		if (pos)
+			m_list.removeAt(this->IdColumn(title));
+		else
+			throw "No such column";
+	}
+	catch (QString e)
+	{
+		qDebug() << "[" + QString(__FUNCTION__) + "] [Error] " + e;
+	}
+	
 }
 
 int CTable::Rows()
 {
-	return 0;
+	return m_list.at(0).second->Size();
 }
 
 int CTable::Columns()
 {
-	return m_size;
+	return m_list.size();
 }
 
 bool CTable::Contains(const QString& title)
@@ -52,23 +73,28 @@ bool CTable::Contains(const QString& title)
 	{
 		if (it.first == title)
 		{
-			return false;
+			return true;
 			break;
 		}
 	}
-	return true;
+	return false;
 }
 
-void CTable::RemoveRow(const QString& title, const int& index)
+void CTable::RemoveRow(const int& index)
 {
-	/*if (m_list.contains(title))
-		m_list.find(title).value().RemoveRow(index);*/
+	if (m_list.at(0).second->Contains(index))
+	{
+		int pos = 0;
+		for (auto it : m_list)
+			m_list.at(pos++).second->RemoveRow(index);
+	}
 }
 
-void CTable::InsertAt(const QString& title, const int& index, const QVariant& row)
+void CTable::InsertAt(const int index, Row row)
 {
-	/*if (m_list.contains(title))
-		m_list.find(title).value().InsertAt(index, row);*/
+	for (auto it : m_list)
+		for (auto value : row.List())
+			it.second->InsertAt(index, value);
 }
 
 QVariant CTable::ValueAt(const QString& title, const int& index)
@@ -92,7 +118,6 @@ void CTable::Clear()
 	if (!m_list.isEmpty())
 	{
 		m_list.clear();
-		m_size = 0;
 	}
 }
 
@@ -125,15 +150,27 @@ Column::~Column()
 {
 }
 
-void Column::AddRow(QVariant& row)
+void Column::AddRow(QVariant row)
 {
 	m_list.insert(m_size++, row);
 }
 
 void Column::RemoveRow(const int& index)
 {
-	if (index >= 0 && index <= m_size)
-		m_list.remove(index);
+	try
+	{
+		if (index >= 0 && index <= m_size)
+		{
+			m_list.removeAt(index);
+			m_size -= 1;
+		}
+		else
+			throw "The index is beyond the array bounds";
+	}
+	catch (QString e)
+	{
+		qDebug() << "[" + QString(__FUNCTION__) + "] [Error] " + e;
+	}
 }
 
 void Column::InsertAt(const int& index, const QVariant& row)
@@ -154,16 +191,33 @@ bool Column::Contains(const int& index)
 
 QVariant Column::ValueAt(const int& index)
 {
-	if (m_list.contains(index))
-		return m_list.find(index).value();
-	else
-		return QVariant();
+	try
+	{
+		if (m_list.contains(index))
+			return m_list.at(index);
+		else
+			throw "No such index";
+	}
+	catch (QString e)
+	{
+		qDebug() << "[" + QString(__FUNCTION__) + "] [Error] " + e;
+	}
 }
 
 int Column::IndexAt(const QVariant& row)
 {
-	return m_list.key(row);
+	return m_list.indexOf(row);
 }
+
+int Column::Size()
+{
+	return m_list.size();
+}
+
+
+
+
+
 
 Row::Row()
 {
@@ -183,6 +237,11 @@ int Row::Size()
 	return m_list.size();
 }
 
+QList<QVariant> Row::List()
+{
+	return m_list;
+}
+
 void Row::InsertAt(const int& index, const QVariant& value)
 {
 	m_list.insert(index, value);
@@ -193,7 +252,7 @@ void Row::Remove(const int& index)
 	m_list.removeAt(index);
 }
 
-QList<QVariant> Row::List()
+QVariant Row::ValueAt(const int index)
 {
-	return m_list;
+	return m_list.at(index);
 }

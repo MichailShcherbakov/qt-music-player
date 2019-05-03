@@ -181,14 +181,6 @@ void CFileDialog::finish()
 		
 		++id;
 
-		QString Title;
-		QString Artist;
-		QString Album;
-		QString Genre;
-		QString Year;
-		QString Bitrate;
-		QString Duraction;
-
 		QFile img(Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg");
 		img.open(QIODevice::WriteOnly);
 		img.write(it.image);
