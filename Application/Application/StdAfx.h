@@ -53,7 +53,7 @@ namespace Tools
 
 	static QString tagEditerPath()
 	{
-		return Tools::absolutePath() + "/" + Tools::applicationName() + "/\"Tag Editor\"/Audio.exe";
+		return Tools::absolutePath() + "/" + Tools::applicationName() + "/Tag Editor/Audio.exe";
 	}
 
 	

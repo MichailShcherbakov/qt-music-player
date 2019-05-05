@@ -18,6 +18,7 @@ CFileDialog::~CFileDialog()
 
 void CFileDialog::Initialize()
 {
+	connect(cmd, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinishedProcess(int, QProcess::ExitStatus)));
 }
 
 void CFileDialog::getFiles(QList<QUrl> urls)
@@ -30,10 +31,14 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 
 		for (int i = path.length() - 1; path[i] != '/' && 0 < i; --i) nameFile.insert(0, path[i]);
 
-		QString p = Tools::absolutePath() +"/" + Tools::applicationName() + "/\"Tag Editor\"/Audio.exe";
-		QString cmd = "start " + p + " -path " + path.replace(' ', '_') + " -get";
-		system(cmd.toUtf8());
+		QStringList args;
+		args << "-path";
+		args << path;
+		args << "-get";
 
+		cmd.startDetached(Tools::tagEditerPath(), args);
+		cmd.close();
+		
 		CTagEditer tagsEditer;
 		tagsEditer.Open(Tools::absolutePath() + "/" + Tools::applicationName() +"/tags.log");
 		Tags tags = tagsEditer.GetTags(); 
@@ -186,16 +191,24 @@ void CFileDialog::finish()
 		img.write(it.image);
 		img.close();
 
-		QString cmd = "start " + Tools::tagEditerPath() +
-			" -path " + m_urls.find(it.nameFile).value() +
-			" -image " + Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg" +
-			" -title " + it.title +
-			" -artist " + it.artist +
-			" -album " + it.album +
-			" -genre " + it.genre+
-			" -year " + it.year;
+		QStringList args;
+		args << "-path";
+		args << m_urls.find(it.nameFile).value();
+		args << "-image";
+		args << Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg";
+		args << "-title";
+		args << it.title;
+		args << "-artist";
+		args << it.artist;
+		args << "-album";
+		args << it.album;
+		args << "-genre";
+		args << it.genre;
+		args << "-year";
+		args << it.year;
 
-		system(cmd.toUtf8());
+		QProcess cmd;
+		cmd.startDetached(Tools::tagEditerPath(), args);
 
 		table.AddRow(row);
 	}

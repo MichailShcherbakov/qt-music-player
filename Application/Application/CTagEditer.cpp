@@ -13,19 +13,23 @@ CTagEditer::~CTagEditer()
 
 void CTagEditer::Open(QString path)
 {
-	if (m_file.isOpen()) m_file.close();
-	m_file.setFileName(path);
-	m_file.open(QIODevice::ReadOnly);
+	m_path = path;
 }
 
 Tags CTagEditer::GetTags()
 {
+	QFile file(m_path);
+	file.open(QIODevice::ReadOnly);
+
+	QTextStream in(&file);
+	in.setCodec("UTF-8");
+
 	Tags tags;
 	m_tag = ETag::Title;
 
-	while (!m_file.atEnd()) 
+	while (!in.atEnd())
 	{
-		QString line = m_file.readLine();
+		QString line = in.readLine();
 
 		switch (m_tag)
 		{
@@ -59,6 +63,6 @@ Tags CTagEditer::GetTags()
 			break;
 		}
 	}
-
+	file.close();
 	return tags;
 }

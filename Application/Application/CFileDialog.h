@@ -11,6 +11,7 @@
 #include "CTable.h"
 
 #include <QFile>
+#include <QProcess>
 
 class CFileDialog : public IDialog
 {
@@ -41,10 +42,14 @@ signals:
 	void setYear(QString year);
 	void setImage(QString image);
 
+public slots:
+	void onFinishedProcess(int, QProcess::ExitStatus);
+
 private:
 	void isClickedColor();
 
 private:
+	QProcess cmd;
 	int temp_count;
 	int m_currentSelectedItem;
 	QMap<QString, QString> m_urls;

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QFile>
+#include <QTextStream>
 
 struct Tags
 {
@@ -39,7 +40,7 @@ public:
 	Tags GetTags();
 
 private:
-	QFile m_file;
+	QString m_path;
 	ETag m_tag = ETag::Unknown;
 };
 
