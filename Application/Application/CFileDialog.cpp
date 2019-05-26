@@ -33,14 +33,14 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 		CTagEditer tagEditer;
 		Tags tags = tagEditer.GetTags(path);
 
-		/*Item item;
+		Item item;
 		item.title = tags.Title;
 		item.artist = tags.Artist;
 		item.album = tags.Album;
 		item.year = tags.Year;
 		item.genre = tags.Genre;
 
-		QFile image(Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg");
+		/*QFile image(Tools::absolutePath() + "/" + Tools::applicationName() + "/ArtCover.jpg");
 		image.open(QIODevice::ReadOnly);
 		QByteArray img = image.readAll();
 		image.close();

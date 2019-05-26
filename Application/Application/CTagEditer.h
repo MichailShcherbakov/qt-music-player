@@ -25,6 +25,7 @@ struct Tags
 	QString Year;
 	QString Bitrate;
 	QString Duraction;
+	QByteArray Image;
 };
 
 class CTagEditer
