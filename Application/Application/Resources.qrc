@@ -28,6 +28,5 @@
         <file>Themes/White/standard_cover.jpg</file>
         <file>Themes/White/standard_cover_x1000.jpg</file>
         <file>Fonts/Gilroy.ttf</file>
-        <file>Tag Editor/Audio.exe</file>
     </qresource>
 </RCC>

@@ -3,7 +3,6 @@
 
 #include "CMain.h"
 
-#include "CTable.h"
 
 int main(int argc, char *argv[])
 {

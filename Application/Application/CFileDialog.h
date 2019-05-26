@@ -12,6 +12,7 @@
 
 #include <QFile>
 #include <QProcess>
+#include <QObject>
 
 class CFileDialog : public IDialog
 {
@@ -49,7 +50,6 @@ private:
 	void isClickedColor();
 
 private:
-	QProcess cmd;
 	int temp_count;
 	int m_currentSelectedItem;
 	QMap<QString, QString> m_urls;

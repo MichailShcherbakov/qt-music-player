@@ -18,7 +18,6 @@ CFileDialog::~CFileDialog()
 
 void CFileDialog::Initialize()
 {
-	connect(cmd, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinishedProcess(int, QProcess::ExitStatus)));
 }
 
 void CFileDialog::getFiles(QList<QUrl> urls)
@@ -31,19 +30,10 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 
 		for (int i = path.length() - 1; path[i] != '/' && 0 < i; --i) nameFile.insert(0, path[i]);
 
-		QStringList args;
-		args << "-path";
-		args << path;
-		args << "-get";
+		CTagEditer tagEditer;
+		Tags tags = tagEditer.GetTags(path);
 
-		cmd.startDetached(Tools::tagEditerPath(), args);
-		cmd.close();
-		
-		CTagEditer tagsEditer;
-		tagsEditer.Open(Tools::absolutePath() + "/" + Tools::applicationName() +"/tags.log");
-		Tags tags = tagsEditer.GetTags(); 
-
-		Item item;
+		/*Item item;
 		item.title = tags.Title;
 		item.artist = tags.Artist;
 		item.album = tags.Album;
@@ -69,10 +59,10 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 
 		item.nameFile = nameFile;
 		item.reserve = false;
-		
+
 		QFile file(path);
 		file.open(QIODevice::ReadOnly);
-		float fSize = (static_cast<float>(file.size())) / (1024*1024);
+		float fSize = (static_cast<float>(file.size())) / (1024 * 1024);
 		int iSize = fSize * 100;
 		float endSize = iSize * 0.01f;
 		item.size = QString::number(endSize);
@@ -80,8 +70,13 @@ void CFileDialog::getFiles(QList<QUrl> urls)
 
 		m_list->AppendItem(item);
 
-		m_urls.insert(nameFile, path);
+		m_urls.insert(nameFile, path);*/
 	}
+}
+
+void CFileDialog::onFinishedProcess(int, QProcess::ExitStatus)
+{
+
 }
 
 void CFileDialog::onClickedItem(QString fileName)
@@ -160,7 +155,7 @@ void CFileDialog::saveImage(QString path)
 
 void CFileDialog::finish()
 {
-	CTable table;
+	/*CTable table;
 	table.AddColumn("id");
 	table.AddColumn("title");
 	table.AddColumn("artist");
@@ -211,7 +206,7 @@ void CFileDialog::finish()
 		cmd.startDetached(Tools::tagEditerPath(), args);
 
 		table.AddRow(row);
-	}
+	}*/
 }
 
 void CFileDialog::isClickedColor()

@@ -11,58 +11,19 @@ CTagEditer::~CTagEditer()
 {
 }
 
-void CTagEditer::Open(QString path)
+Tags CTagEditer::GetTags(QString path)
 {
-	m_path = path;
-}
-
-Tags CTagEditer::GetTags()
-{
-	QFile file(m_path);
-	file.open(QIODevice::ReadOnly);
-
-	QTextStream in(&file);
-	in.setCodec("UTF-8");
+	TagLib::MPEG::File audio(path.toStdWString().c_str());
+	TagLib::ID3v2::Tag* tag = audio.ID3v2Tag(true);
 
 	Tags tags;
-	m_tag = ETag::Title;
+	tags.Album = QString::fromStdWString(tag->album().toCWString());
+	tags.Artist = QString::fromStdWString(tag->artist().toCWString());
+	tags.Genre = QString::fromStdWString(tag->genre().toCWString());
+	tags.Title = QString::fromStdWString(tag->title().toCWString());
+	tags.Year = QString::number(tag->year());
+	tags.Bitrate = QString::number(audio.audioProperties()->bitrate());
+	tags.Duraction = QString::number(audio.audioProperties()->lengthInSeconds());
 
-	while (!in.atEnd())
-	{
-		QString line = in.readLine();
-
-		switch (m_tag)
-		{
-		case ETag::Title:
-			tags.Title = line;
-			m_tag = ETag::Artist;
-			break;
-		case ETag::Artist:
-			tags.Artist = line;
-			m_tag = ETag::Album;
-			break;
-		case ETag::Album:
-			tags.Album = line;
-			m_tag = ETag::Genre;
-			break;
-		case ETag::Genre:
-			tags.Genre = line;
-			m_tag = ETag::Year;
-			break;
-		case ETag::Year:
-			tags.Year = line;
-			m_tag = ETag::Bitrate;
-			break;
-		case ETag::Bitrate:
-			tags.Bitrate = line;
-			m_tag = ETag::Duraction;
-			break;
-		case ETag::Duraction:
-			tags.Duraction = line;
-			m_tag = ETag::Unknown;
-			break;
-		}
-	}
-	file.close();
 	return tags;
 }

@@ -3,25 +3,24 @@
 
 
 CMain::CMain() :
-	openedWindow(EWindowType::Unknown),
 	m_engine(nullptr),
 	m_context(nullptr),
-	/*m_query(nullptr),*/
+	m_query(nullptr),
 	m_socket(nullptr),
 	m_thread(nullptr),
-	/*m_window(nullptr),*/
-	m_dialog(nullptr)
+	m_handleWindow(nullptr),
+	m_handleDialog(nullptr)
 {
 }
 
 CMain::~CMain()
 {
-	SAFE_DELETE(m_dialog);
-	/*SAFE_DELETE(m_window);*/
+	SAFE_DELETE(m_handleDialog);
+	SAFE_DELETE(m_handleWindow);
 	m_thread->terminate();
 	SAFE_DELETE(m_thread);
 	SAFE_DELETE(m_socket);
-	/*SAFE_DELETE(m_query);*/
+	SAFE_DELETE(m_query);
 	SAFE_DELETE(m_engine);
 }
 
@@ -33,11 +32,10 @@ void CMain::Initialize()
 	m_engine = new QQmlApplicationEngine;
 	m_context = m_engine->rootContext();
 
-	m_engine->rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());
-
-	// Query
-	/*m_query = new CQuery;*/
+	/*m_engine->rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());*/
 	
+	m_query = new CQuery;
+
 	// Network
 	m_socket = new CSocket;
 	m_socket->Initialize();
@@ -47,42 +45,27 @@ void CMain::Initialize()
 	m_socket->moveToThread(m_thread);
 	m_thread->start();
 
-	openDialog(EDialogType::File);
+	this->openDialog(EDialogType::File);
 }
 
-void CMain::windowIsClosed()
+void CMain::windowIsClosed(EWindowType type)
 {
-	/*switch (openedWindow)
-	{
-	case EWindowType::WLogin:
-	{
-		m_window->Window()->close();
-
-		CreateNewWindow(EWindowType::WPlayer);
-		m_window->Window()->show();
-		break;
-	}
-	case EWindowType::WPlayer:
-	{
-		openedWindow = EWindowType::Unknown;
-		break;
-	}
-	}*/
+	m_handleWindow->Window()->close();
+	this->openNewWindow(type);
+	m_handleWindow->Window()->show();
 }
 
-void CMain::CreateNewWindow(EWindowType type)
+void CMain::openNewWindow(EWindowType type)
 {
-	/*SAFE_DELETE(m_window);
-	
-	openedWindow = type;
+	SAFE_DELETE(m_handleWindow);
 
 	switch (type)
 	{
 	case EWindowType::WLogin:
 	{
 		m_engine->load(QUrl(QStringLiteral("qrc:/Qml/Windows/wlogin.qml")));
-		m_window = new CLogin((QQuickWindow*)m_engine->rootObjects().first(), m_query);
-		m_context->setContextProperty("window_login", m_window);
+		m_handleWindow = new CLogin((QQuickWindow*)m_engine->rootObjects().first(), m_query);
+		m_context->setContextProperty("window_login", m_handleWindow);
 		break;
 	}
 	case EWindowType::WPlayer:
@@ -94,22 +77,21 @@ void CMain::CreateNewWindow(EWindowType type)
 		m_engine->addImageProvider(QLatin1String("imageProvider"), imageProvider);
 
 		m_engine->load(QUrl(QStringLiteral("qrc:/Qml/Windows/wplayer.qml")));
-		m_window = new CPlayer((QQuickWindow*)m_engine->rootObjects().first(), m_query, list, imageProvider);
-		m_context->setContextProperty("window_player", m_window);
+		m_handleWindow = new CPlayer((QQuickWindow*)m_engine->rootObjects().first(), m_query, list, imageProvider);
+		m_context->setContextProperty("window_player", m_handleWindow);
 
-		connect(m_window, &IWindow::openFileDialog, this, &CMain::openDialog);
+		connect(m_handleWindow, &IWindow::openFileDialog, this, &CMain::openDialog);
 		break;
 	}
 	}
 
-	if (m_window)
+	if (m_handleWindow)
 	{
-		connect(m_window, &IWindow::sendToSocket, m_socket, &CSocket::sendToServer);
-		connect(m_socket, &CSocket::getFromServer, m_window, &IWindow::getFromSocket);
-		connect(m_window, &IWindow::closing, this, &CMain::windowIsClosed);
-
-		m_window->Initialize();
-	}*/
+		connect(m_handleWindow, &IWindow::sendToSocket, m_socket, &CSocket::sendToServer);
+		connect(m_socket, &CSocket::getFromServer, m_handleWindow, &IWindow::getFromSocket);
+		connect(m_handleWindow, &IWindow::closing, this, &CMain::windowIsClosed);
+		m_handleWindow->Initialize();
+	}
 }
 
 void CMain::openDialog(EDialogType type)
@@ -125,9 +107,9 @@ void CMain::openDialog(EDialogType type)
 
 		m_engine->rootContext()->setContextProperty(QStringLiteral("listNewMusic"), list);
 		m_engine->load(QUrl(QStringLiteral("qrc:/Qml/Dialogs/dfile.qml")));
-		m_dialog = new CFileDialog((QQuickWindow*)m_engine->rootObjects().at(0), list, imageProvider);
-		m_context->setContextProperty("dialog_file", m_dialog);
-		m_dialog->Window()->setModality(Qt::ApplicationModal);
+		m_handleDialog = new CFileDialog((QQuickWindow*)m_engine->rootObjects().at(0), list, imageProvider);
+		m_context->setContextProperty("dialog_file", m_handleDialog);
+		m_handleDialog->Window()->setModality(Qt::ApplicationModal);
 		break;
 	}
 	}

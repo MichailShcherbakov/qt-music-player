@@ -9,8 +9,6 @@
 #include <QByteArray>
 #include <QQuickWindow>
 
-
-
 class IWindow : public QObject
 {
 	Q_OBJECT
@@ -25,9 +23,9 @@ public:
 	Q_INVOKABLE QPointF cursorPos() { return QCursor::pos(); }
 
 signals:
-	void closing(void);
-	void sendToSocket(QByteArray* data);
-	void openFileDialog(EDialogType type);
+	void closing(EWindowType type = EWindowType::Unknown);
+	void sendToSocket(QByteArray* data = nullptr);
+	void openFileDialog(EDialogType type = EDialogType::Unknown);
 
 public slots:
 	virtual void getFromSocket(QByteArray* data) = 0;

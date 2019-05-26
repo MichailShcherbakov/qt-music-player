@@ -5,6 +5,17 @@
 #include <QFile>
 #include <QTextStream>
 
+/*taglib specific includes*/
+#include <taglib/tag.h>
+#include <fileref.h>
+#include <tbytevector.h>			//ByteVector
+#include <mpegfile.h>				//mp3 file
+#include <id3v2tag.h>				//tag
+#include <id3v2frame.h>				//frame
+#include <attachedPictureFrame.h>	//attachedPictureFrame
+
+#pragma comment(lib, "tag.lib")
+
 struct Tags
 {
 	QString Title;
@@ -16,32 +27,14 @@ struct Tags
 	QString Duraction;
 };
 
-enum class ETag : ushort
-{
-	Unknown = 0,
-	Title,
-	Artist,
-	Album,
-	Genre,
-	Year,
-	Bitrate,
-	Duraction,
-};
-
 class CTagEditer
 {
 public:
 	CTagEditer();
-	CTagEditer(QString path);
 	~CTagEditer();
 
 public:
-	void Open(QString path);
-	Tags GetTags();
-
-private:
-	QString m_path;
-	ETag m_tag = ETag::Unknown;
+	Tags GetTags(QString path);
 };
 
 #endif

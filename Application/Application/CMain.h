@@ -3,27 +3,16 @@
 
 #include "StdAfx.h"
 
-#include <QObject>
-#include <QThread>
-#include <QQmlContext>
-#include <QQuickView>
-#include <QQmlApplicationEngine>
-
-// Network
 #include "CSocket.h"
-/*
-// Window Loign
 #include "CLogin.h"
-
-// Window Player
 #include "CPlayer.h"
-*/
-// Dialog Player
+#include "CQuery.h"
 #include "CFileDialog.h"
-
-// List
 #include "CModel.h"
-#include "CList.h"
+
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QThread>
 
 class CMain : public QObject
 {
@@ -36,26 +25,21 @@ public:
 public:
 	void Initialize();
 
-private:
-	void CreateNewWindow(EWindowType type);
-
 public slots:
-	void windowIsClosed();
+	void windowIsClosed(EWindowType type);
+	
+private:
+	void openNewWindow(EWindowType type);
 	void openDialog(EDialogType type);
 
 private:
-	/*CQuery* m_query;*/
-	QThread* m_thread;
-	CSocket* m_socket;
-	/*IWindow* m_window;*/
-	IDialog* m_dialog;
 	QQmlApplicationEngine* m_engine;
 	QQmlContext* m_context;
-	EWindowType openedWindow;
+	CSocket* m_socket;
+	QThread* m_thread;
+	IWindow* m_handleWindow;
+	IDialog* m_handleDialog;
+	CQuery* m_query;
 };
 
-#endif // !_CMAIN_H_
-
-
-
-
+#endif
