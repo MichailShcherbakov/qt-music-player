@@ -32,6 +32,7 @@ public:
 	// IWindow
 	virtual void Initialize() override;
 	virtual void getFromSocket(QByteArray* data) override;
+	virtual void getFromDialog(CTable table) override;
 	// ~IWindow
 
 private:

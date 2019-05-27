@@ -25,18 +25,14 @@ Tags CTagEditer::GetTags(QString path)
 	tags.Bitrate = QString::number(audio.audioProperties()->bitrate());
 	tags.Duraction = QString::number(audio.audioProperties()->lengthInSeconds());
 
-	if (tag)
+	TagLib::ID3v2::FrameList listOfMp3Frames = tag->frameListMap()["APIC"];
+	if (!listOfMp3Frames.isEmpty())
 	{
-		TagLib::ID3v2::FrameList listOfMp3Frames = tag->frameListMap()["APIC"];
-		if (!listOfMp3Frames.isEmpty())
+		TagLib::ID3v2::FrameList::ConstIterator it = listOfMp3Frames.begin();
+		for (; it != listOfMp3Frames.end(); it++)
 		{
-			TagLib::ID3v2::FrameList::ConstIterator it = listOfMp3Frames.begin();
-			for (; it != listOfMp3Frames.end(); it++)
-			{
-				TagLib::ID3v2::AttachedPictureFrame* pictureFrame = static_cast<TagLib::ID3v2::AttachedPictureFrame*> (*it);
-
-				tags.Image = QByteArray(pictureFrame->picture().data(), pictureFrame->picture().size());
-			}
+			TagLib::ID3v2::AttachedPictureFrame* pictureFrame = static_cast<TagLib::ID3v2::AttachedPictureFrame*> (*it);
+			tags.Image = QByteArray(pictureFrame->picture().data(), pictureFrame->picture().size());
 		}
 	}
 

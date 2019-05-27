@@ -12,7 +12,6 @@ CSocket::~CSocket()
 
 void CSocket::Initialize()
 {
-	
 	this->connectToHost(m_ip, m_port);
 
 	connect(this, &QTcpSocket::readyRead, this, &CSocket::ReadyRead);

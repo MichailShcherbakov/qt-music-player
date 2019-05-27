@@ -126,6 +126,10 @@ void CPlayer::getFromSocket(QByteArray* data)
 	SAFE_DELETE(data);*/
 }
 
+void CPlayer::getFromDialog(CTable table)
+{
+}
+
 Q_INVOKABLE void CPlayer::button_play()
 {
 	switch (m_statePlayer)
@@ -241,7 +245,7 @@ Q_INVOKABLE void CPlayer::button_back()
 
 Q_INVOKABLE void CPlayer::button_local_files()
 {
-	emit openFileDialog(EDialogType::File);
+	emit openDialog(EDialogType::File);
 }
 
 Q_INVOKABLE void CPlayer::positionChanging(qint64 pos)

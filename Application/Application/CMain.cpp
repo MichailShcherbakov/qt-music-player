@@ -45,7 +45,7 @@ void CMain::Initialize()
 	m_socket->moveToThread(m_thread);
 	m_thread->start();
 
-	this->openDialog(EDialogType::File);
+	this->openNewWindow(EWindowType::WLogin);
 }
 
 void CMain::windowIsClosed(EWindowType type)
@@ -80,7 +80,7 @@ void CMain::openNewWindow(EWindowType type)
 		m_handleWindow = new CPlayer((QQuickWindow*)m_engine->rootObjects().first(), m_query, list, imageProvider);
 		m_context->setContextProperty("window_player", m_handleWindow);
 
-		connect(m_handleWindow, &IWindow::openFileDialog, this, &CMain::openDialog);
+		connect(m_handleWindow, &IWindow::openDialog, this, &CMain::openDialog);
 		break;
 	}
 	}
@@ -112,5 +112,10 @@ void CMain::openDialog(EDialogType type)
 		m_handleDialog->Window()->setModality(Qt::ApplicationModal);
 		break;
 	}
+	}
+	if (m_handleDialog)
+	{
+		connect(m_handleDialog, &IDialog::closing, m_handleWindow, &IWindow::getFromDialog);
+		m_handleDialog->Initialize();
 	}
 }

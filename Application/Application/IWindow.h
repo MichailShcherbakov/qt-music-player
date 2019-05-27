@@ -3,6 +3,7 @@
 
 #include "StdAfx.h"
 
+#include "CTable.h"
 #include "CQuery.h"
 
 #include <QObject>
@@ -25,10 +26,11 @@ public:
 signals:
 	void closing(EWindowType type = EWindowType::Unknown);
 	void sendToSocket(QByteArray* data = nullptr);
-	void openFileDialog(EDialogType type = EDialogType::Unknown);
+	void openDialog(EDialogType type = EDialogType::Unknown);
 
 public slots:
 	virtual void getFromSocket(QByteArray* data) = 0;
+	virtual void getFromDialog(CTable table) = 0;
 
 protected:
 	QQuickWindow* m_window;

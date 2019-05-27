@@ -14,8 +14,11 @@ int main(int argc, char *argv[])
 	app.setOrganizationDomain("somecompany.com");
 	app.setApplicationName("Amazing Application");
 
-	CMain main;
-	main.Initialize();
+	// Network
+	CSocket* m_socket = new CSocket;
+	m_socket->Initialize();
+
+	m_socket->sendToServer(&QString("[123][123][1]").toUtf8());
 
 	return app.exec();
 }

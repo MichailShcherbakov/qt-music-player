@@ -1118,15 +1118,15 @@ Window
                                 Text
                                 {
                                     id: title_item
-                                    text: cutLine(model.namefile)
-                                    width: 210
+                                    text: model.namefile
+                                    width: 200
                                     clip: true
                                     font.family: "Gilroy"
                                     font.pixelSize: 15
                                     anchors.verticalCenter: parent.verticalCenter
                                     color: model.reserve ? "#fff" : "#000"
 
-                                    function cutLine(text)
+                                    /*function cutLine(text)
                                     {
                                         var line = "";
                                         if (text.length > 21)
@@ -1137,7 +1137,7 @@ Window
                                             return line;
                                         }
                                         return text;
-                                    }
+                                    }*/
                                 }
 
                                 Text

@@ -1,6 +1,8 @@
 #ifndef _I_DIALOG_H_
 #define _I_DIALOG_H_
 
+#include "CTable.h"
+
 #include <QObject>
 #include <QQuickWindow>
 
@@ -18,7 +20,7 @@ public:
 	Q_INVOKABLE QPointF cursorPos() { return QCursor::pos(); }
 
 signals:
-	void closing(void);
+	void closing(CTable table);
 
 protected:
 	QQuickWindow* m_window;

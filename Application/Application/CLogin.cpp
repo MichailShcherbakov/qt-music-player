@@ -68,6 +68,10 @@ void CLogin::getFromSocket(QByteArray* data)
 	}
 }
 
+void CLogin::getFromDialog(CTable table)
+{
+}
+
 void CLogin::ToLogin(QString name, QString password)
 {
 	m_query->SetUserName(name);

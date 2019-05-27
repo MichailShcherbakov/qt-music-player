@@ -43,9 +43,6 @@ signals:
 	void setYear(QString year);
 	void setImage(QString image);
 
-public slots:
-	void onFinishedProcess(int, QProcess::ExitStatus);
-
 private:
 	void isClickedColor();
 
