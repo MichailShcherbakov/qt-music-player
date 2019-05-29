@@ -8,12 +8,13 @@
 #include <QSqlQuery>
 #include <QBuffer>
 #include <QDir>
+#include <QCoreApplication>
 #include <QFile>
 #include <QMap>
-#include <QImage>
+#include <QSqlRecord>
 
 #include "CQuery.h"
-#include "CMediaData.h"
+#include "CTagEditer.h"
 
 using namespace STools;
 
@@ -38,16 +39,15 @@ public:
 	void CreateDataBase();
 
 private:
-	QByteArray Write(QVariant data);
-
-private:
-	QString m_path = "C:\\Users\\User\\Desktop\\Server\\DataServer";
+	QString m_path = QCoreApplication::applicationDirPath() + "/DataServer";
+	
 	QTcpServer* server;
 	QMap<int, QTcpSocket*> m_listClients;
-	QMap<int, bool> m_isFile;
+	QMap<int, EQuery> m_typeQuery;
 	QMap<int, QByteArray> m_file;
 	QMap<int, QString> m_idUser;
-	QMap<int, int> m_countMedia;
+	QMap<int, bool> m_queryCreateAlbum;
+	QMap<int, bool> m_queryCreateArtist;
 	QMap<int, int> m_size_end;
 	QMap<int, int> m_size_now;
 	QSqlDatabase db;

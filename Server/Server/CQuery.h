@@ -13,18 +13,22 @@ using namespace STools;
 
 enum EQuery : int
 {
+	UNKNOWN = -1,
 	SEND_MEDIA,
 	CREATE_NEW_USER,
 	CHECK_USER,
 	SEND_TABLE,
 	ADD_NEW_MEDIA,
+	ADD_NEW_MEDIA_RETURN,
 	SEND_IMAGE,
 };
 
-enum class ETable : ushort
+enum ETable : int
 {
-	Unknown = -1,
-	All_Music,
+	ALL_MEDIA,
+	ALL_ALBUMS,
+	ALL_ARTISTS,
+	ALL_GENRES
 };
 
 class CQuery

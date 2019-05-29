@@ -8,18 +8,9 @@
 #include <QTime>
 #include <QString>
 #include <QVector>
+#include <QFile>
 
 #include <iostream>
-
-/*taglib specific includes*/
-#include <fileref.h>
-#include <tbytevector.h>			//ByteVector
-#include <mpegfile.h>				//mp3 file
-#include <id3v2tag.h>				//tag
-#include <id3v2frame.h>				//frame
-#include <attachedPictureFrame.h>	//attachedPictureFrame
-
-using namespace TagLib::ID3v2;
 
 namespace STools
 {
@@ -79,6 +70,89 @@ namespace STools
 		}
 		}
 	}
+
+	class CTempFile
+	{
+	public:
+		CTempFile() {}
+		CTempFile(QString path) { CreateTempFile(path); }
+		CTempFile(QString path, QByteArray data) { CreateTempFile(path, data); }
+		~CTempFile() { delete m_file; }
+	public:
+		bool CreateTempFile(QString path) { 
+			m_file = new QFile(path);
+			if (m_file->open(QFile::WriteOnly))
+			{
+				m_file->close();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		bool CreateTempFile(QString path, QByteArray data) {
+			m_file = new QFile(path);
+			if (m_file->open(QFile::WriteOnly))
+			{
+				m_file->write(data);
+				m_file->close();
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		bool RemoveTempFile() { 
+			if (m_file->remove())
+			{
+				delete m_file;
+				return true;
+			}
+			else
+			{
+				return false;
+			}			
+		}
+		bool Write(QByteArray data)
+		{
+			if (m_file)
+			{
+				m_file->open(QIODevice::ReadOnly);
+				if (m_file->write(data) > 0) 
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+				m_file->close();
+			}
+			else
+			{
+				return false;
+			}
+		}
+		QByteArray ReadAll()
+		{
+			if (m_file)
+			{
+				m_file->open(QIODevice::ReadOnly);
+				QByteArray data = m_file->readAll();
+				m_file->close();
+				return data;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	private:
+		QFile* m_file;
+	};
+
 }
 
 #endif // ! _SERVER_TOOLS_H_
