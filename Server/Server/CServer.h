@@ -18,7 +18,7 @@
 #include <QJsonValue>
 #include <QJsonObject>
 
-#include "CQuery.h"
+#include "ServerTools.h"
 #include "CTagEditer.h"
 
 using namespace STools;
@@ -35,6 +35,23 @@ enum class ETypeQuery : int
 {
 	Unknown = -1,
 	Create_New_User,
+};
+
+enum class ETypeTable : int
+{
+	Unknown = -1,
+};
+
+struct User
+{
+	QTcpSocket* m_socket;
+	ETypeQuery m_typeQuery;
+	QByteArray  m_buffer;
+	ELoadState m_loadState;
+	QString m_username;
+	QString m_password;
+	int m_size_end;
+	int m_size_now;
 };
 
 class CServer : public QTcpServer
@@ -56,23 +73,18 @@ public slots:
 
 private:
 	void CreateDataBase();
-	void SendTable(ETable type);
+	void SendTable(ETypeTable type);
 	void CheckUser();
 	void AddNewMedia();
 	void SendCoverArt();
 	void SendMedia();
-	void CreateNewUSer(QString username, QString password);
+	bool CreateNewUser(QString username, QString password);
 
 private:
 	QString m_path = QCoreApplication::applicationDirPath() + "/DataServer";
 	
 	QTcpServer* server;
-	QMap<int, QTcpSocket*> m_listClients;
-	QMap<int, ETypeQuery> m_typeQuery;
-	QMap<int, QByteArray> m_buffer;
-	QMap<int, ELoadState> m_loadState;
-	QMap<int, int> m_size_end;
-	QMap<int, int> m_size_now;
+	QMap<int, User> m_users;
 	QSqlDatabase db;
 
 };

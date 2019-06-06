@@ -133,7 +133,6 @@
     </QtMoc>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CQuery.cpp" />
     <ClCompile Include="CServer.cpp" />
     <ClCompile Include="CTagEditer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -142,7 +141,6 @@
     <QtMoc Include="CServer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CQuery.h" />
     <ClInclude Include="CTagEditer.h" />
     <ClInclude Include="ServerTools.h" />
   </ItemGroup>

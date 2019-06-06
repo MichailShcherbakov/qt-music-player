@@ -27,9 +27,6 @@
     <Filter Include="Server">
       <UniqueIdentifier>{ef72cf6d-4386-483b-b7c0-1426c88c3783}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Query">
-      <UniqueIdentifier>{1d81b22d-013e-45f7-af43-7ecb587a9b15}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Tools">
       <UniqueIdentifier>{d9d83b3a-26d0-4690-a2f9-2207404ea844}</UniqueIdentifier>
     </Filter>
@@ -41,18 +38,12 @@
     <ClCompile Include="CServer.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="CQuery.cpp">
-      <Filter>Query</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="CTagEditer.cpp">
       <Filter>TagEditer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CQuery.h">
-      <Filter>Query</Filter>
-    </ClInclude>
     <ClInclude Include="ServerTools.h">
       <Filter>Tools</Filter>
     </ClInclude>

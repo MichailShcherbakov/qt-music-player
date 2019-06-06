@@ -29,11 +29,13 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 {
 	QTcpSocket* socket = new QTcpSocket;
 	socket->setSocketDescriptor(socketDescriptor);
-	m_listClients[socketDescriptor] = socket;
-	m_loadState[socketDescriptor] = ELoadState::Unknown;
+	User user;
+	user.m_socket = socket;
+	user.m_loadState = ELoadState::Unknown;
+	m_users[socketDescriptor] = user;
 
-	connect(m_listClients[socketDescriptor], &QTcpSocket::readyRead, this, &CServer::SocketReady);
-	connect(m_listClients[socketDescriptor], &QTcpSocket::disconnected, this, &CServer::SocketDisconnected);
+	connect(user.m_socket, &QTcpSocket::readyRead, this, &CServer::SocketReady);
+	connect(user.m_socket, &QTcpSocket::disconnected, this, &CServer::SocketDisconnected);
 
 	STools::Msg(EMessage::Success, "Client " + QString::number(socketDescriptor) + " is connected");
 
@@ -48,7 +50,7 @@ void CServer::SocketReady()
 
 	QJsonDocument doc;
 
-	switch (m_loadState[id])
+	switch (m_users[id].m_loadState)
 	{
 	case ELoadState::Unknown: {
 		doc = QJsonDocument::fromJson(socket->readAll());
@@ -58,38 +60,45 @@ void CServer::SocketReady()
 			QString username = doc["username"].toString();
 			QString password = doc["password"].toString();
 
-			m_typeQuery[id] = static_cast<ETypeQuery>(doc["type-query"].toInt());
+			m_users[id].m_typeQuery = static_cast<ETypeQuery>(doc["type-query"].toInt());
 
-			m_size_end[id] = doc["size-body"].toInt();
+			m_users[id].m_size_end = doc["size-body"].toInt();
 
-			m_loadState[id] = ELoadState::Header;
-			m_size_now[id] = 0;
+			m_users[id].m_loadState = ELoadState::Header;
+			m_users[id].m_size_now = 0;
 		}
 		break;
 	}
 	case ELoadState::Header: {
-		m_size_now[id] += socket->bytesAvailable();
-		m_buffer[id].append(socket->readAll());
+		m_users[id].m_size_now += socket->bytesAvailable();
+		m_users[id].m_buffer.append(socket->readAll());
 
-		Msg(EMessage::Log, "Size of File: " + QString::number(m_buffer[id].size()) + " bytes");
+		Msg(EMessage::Log, "Size of File: " + QString::number(m_users[id].m_buffer.size()) + " bytes");
 
-		if (m_size_end[id] == m_size_now[id])
+		if (m_users[id].m_size_end == m_users[id].m_size_now)
 		{
-			m_loadState[id] = ELoadState::Body;
+			m_users[id].m_loadState = ELoadState::Body;
 
-			doc = QJsonDocument::fromJson(m_buffer[id]);
-			QByteArray media = doc["media-data"].toString().toLatin1();
+			doc = QJsonDocument::fromJson(m_users[id].m_buffer);
+			
+			switch (m_users[id].m_typeQuery)
+			{
+			case ETypeQuery::Create_New_User:
+			{
+				CreateNewUser(m_users[id].m_username, m_users[id].m_password);
+			}
+			}
 
-			m_loadState[id] = ELoadState::Footer;
+			m_users[id].m_loadState = ELoadState::Footer;
 		}
 		break;
 	}
 	case ELoadState::Footer: {
 		doc = QJsonDocument::fromJson(socket->readAll());
-		m_loadState[id] = ELoadState::Unknown;
-		m_buffer[id].clear();
-		m_size_now[id] = 0;
-		m_size_end[id] = 0;
+		m_users[id].m_loadState = ELoadState::Unknown;
+		m_users[id].m_buffer.clear();
+		m_users[id].m_size_now = 0;
+		m_users[id].m_size_end = 0;
 		break;
 	}
 	}
@@ -130,7 +139,7 @@ void CServer::CreateDataBase()
 	*/
 }
 
-void CServer::SendTable(ETable type)
+void CServer::SendTable(ETypeTable type)
 {
 	/*switch (static_cast<ETable>(query.GetValue_1().toInt()))
 	{
@@ -397,10 +406,11 @@ void CServer::SendMedia()
 	}*/
 }
 
-void CServer::CreateNewUSer(QString username, QString password)
+bool CServer::CreateNewUser(QString username, QString password)
 {
-	/*QSqlQuery q("USE data_server;");
-	q.exec("INSERT INTO users (username, password, registration_time) VALUES (\'" + username + "\', \'" + password + "\', NOW());");
+	QSqlQuery q("USE data_server;");
+	if (!q.exec("INSERT INTO users (username, password, registration_time) VALUES (\'" + username + "\', \'" + password + "\', NOW());"))
+		return false;
 	q.exec("SELECT * FROM users;");
 	int id = q.size();
 	q.exec("CREATE DATABASE user_" + QString::number(id) + ";");
@@ -448,28 +458,8 @@ void CServer::CreateNewUSer(QString username, QString password)
 	select id_media, media.title as title, albums.title as album, name as artist, year, duraction, bitrate, path, add_time from media
 	inner join artists using(id_artist) inner join albums using(id_album) inner join genres using(id_genre);
 
-		*/
-
-	/*QDir().mkdir(m_path + "/user_" + QString::number(id));
-
-	QByteArray answer;
-	QByteArray size;
-	QString str;
-
-	if (query.Check())
-		str = "Success";
-	else
-		str = "Error";
-
-	QDataStream anw(&answer, QIODevice::WriteOnly);
-	anw.setVersion(QDataStream::Qt_5_12);
-	anw << str.toUtf8();
-
-	QDataStream sz(&size, QIODevice::WriteOnly);
-	sz.setVersion(QDataStream::Qt_5_12);
-	sz << str.length();
-
-	socket->write(answer);
-	socket->write(size);
 	*/
+
+	QDir().mkdir(m_path + "/user_" + QString::number(id));
+	return true;
 }
