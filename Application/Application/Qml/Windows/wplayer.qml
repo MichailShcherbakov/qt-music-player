@@ -624,8 +624,8 @@ Window
                                     Image
                                     {
                                         id: cover_list
-                                        width: 32
-                                        height:  32
+                                        width: 42
+                                        height:  42
                                         source: "image://imageProvider/x48/" + model.image
                                         visible: false
                                         smooth: true
@@ -662,7 +662,7 @@ Window
                                         Label
                                         {
                                             id: title_label_list
-                                            text: model.text
+                                            text: model.title
                                             font.bold: true
                                             font.family: "Gilroy"
                                             width: 160
@@ -720,7 +720,7 @@ Window
                                         {
                                             id: time_label_list
                                             font.pixelSize: 12
-                                            text: "4:31"
+                                            text: model.time
                                             color: "#C1C4C9"
                                             font.family: "Gilroy"
                                             font.bold: true

@@ -14,11 +14,30 @@ enum class EDialogType : int
 	File,
 };
 
+enum class ETable : int
+{
+	Unknown = -1,
+	All_Media,
+	All_Albums,
+	All_Artists,
+	All_Genres
+};
+
 enum class EWindowType : int
 {
 	Unknown = -1,
 	WLogin,
 	WPlayer,
+};
+
+enum class EQuery : int
+{
+	GET_MEDIA = 0,
+	CREATE_NEW_USER,
+	CHECK_USER,
+	GET_TABLE,
+	SEND_NEW_MUSIC,
+	GET_IMAGE
 };
 
 namespace Tools

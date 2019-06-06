@@ -24,7 +24,7 @@ void CQuery::NewQuery(EQuery type)
 
 	QString qery = "[" + m_user + "]"
 		+ "[" + m_password + "]"
-		+ "[" + QString::number(type) + "]";
+		+ "[" + QString::number(static_cast<int>(type)) + "]";
 
 	buffer->append(qery.toUtf8());
 }
@@ -38,8 +38,8 @@ void CQuery::NewQuery(EQuery type, ETable type2)
 
 	QString qery = "[" + m_user + "]"
 		+ "[" + m_password + "]"
-		+ "[" + QString::number(type) + "]"
-		+ "[" + QString::number(type2) + "]";
+		+ "[" + QString::number(static_cast<int>(type)) + "]"
+		+ "[" + QString::number(static_cast<int>(type2)) + "]";
 
 	buffer->append(qery.toUtf8());
 }
@@ -63,7 +63,7 @@ void CQuery::NewQuery(EQuery type, QString param, QString param2)
 
 	QString qery = "[" + m_user + "]"
 		+ "[" + m_password + "]"
-		+ "[" + QString::number(type) + "]"
+		+ "[" + QString::number(static_cast<int>(type)) + "]"
 		+ "[" + param + "]"
 		+ "[" + param2 + "]";
 

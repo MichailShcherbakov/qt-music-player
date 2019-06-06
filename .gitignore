@@ -109,18 +109,17 @@ $RECYCLE.BIN/
 *.lnk
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+Application/Application/x64/[Dd]ebug/
+Application/x64/Debug/*.exe
+Application/x64/Debug/*.ilk
+Application/x64/Debug/*.pdb
+
+# Server
+Server/Server/Debug/
+Server/Server/x64/[Dd]ebug/
+Server/x64/Debug/*.exe
+Server/x64/Debug/*.ilk
+Server/x64/Debug/*.pdb
 
 # Files built by Visual Studio
 *.vcxproj.user

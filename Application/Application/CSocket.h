@@ -33,7 +33,7 @@ private:
 	QString		m_ip = "192.168.0.108";
 	QDataStream m_stream;
 	int			m_size = 0;
-	bool		m_isConnected = false;
+	bool		m_isConnected = true;
 	QByteArray* m_buffer;
 };
 

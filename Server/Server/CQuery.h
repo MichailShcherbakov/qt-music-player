@@ -11,7 +11,7 @@
 
 using namespace STools;
 
-enum EQuery : int
+enum class EQuery : int
 {
 	UNKNOWN = -1,
 	SEND_MEDIA,
@@ -23,8 +23,9 @@ enum EQuery : int
 	SEND_IMAGE,
 };
 
-enum ETable : int
+enum class ETable : int
 {
+	UNKNOWN = -1,
 	ALL_MEDIA,
 	ALL_ALBUMS,
 	ALL_ARTISTS,

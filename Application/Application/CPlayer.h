@@ -17,6 +17,11 @@
 #include "CTable.h"
 #include "CList.h"
 
+enum class ETypeList : int
+{
+	Unknown = -1,
+	Main,
+};
 
 
 class CPlayer : public IWindow
@@ -31,7 +36,10 @@ private:
 	enum class EStateNetwork : int
 	{
 		WAITING = -1,
-		INITIALIZE_ALL_MUSIC,
+		Initialize_All_Media,
+		Initialize_All_Albums,
+		Initialize_All_Genres,
+		Initialize_All_Artists,
 		GETTING_NEEDED_MUSIC,
 		GETTING_NEEDED_IMAGE,
 		SENDING_NEW_MUSIC,
@@ -74,9 +82,9 @@ public slots:
 
 private:
 	void PlayMedia();
+	void UpDateList(ETypeList type);
 
 private:
-	CTable* m_table;
 	CList* m_list;
 	QBuffer* m_buffer;
 	QMediaPlayer* m_player;
@@ -86,8 +94,13 @@ private:
 	EStateNetwork m_stateNetwork = EStateNetwork::WAITING;
 	EPlayMode m_playMode = EPlayMode::SEQUENTIAL;
 	CImageProvider* m_imageProvider;
-	
 
+	CTable* m_listMedia;
+	CTable* m_listGenres;
+	CTable* m_listArtists;
+	CTable* m_listAlbums;
+	
+	ETypeList m_updateList = ETypeList::Unknown;
 };
 
 #endif // CPLAYER_H

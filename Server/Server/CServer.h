@@ -13,10 +13,29 @@
 #include <QMap>
 #include <QSqlRecord>
 
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonValue>
+#include <QJsonObject>
+
 #include "CQuery.h"
 #include "CTagEditer.h"
 
 using namespace STools;
+
+enum class ELoadState : int
+{
+	Unknown = -1,
+	Header,
+	Body,
+	Footer
+};
+
+enum class ETypeQuery : int
+{
+	Unknown = -1,
+	Create_New_User,
+};
 
 class CServer : public QTcpServer
 {
@@ -35,19 +54,23 @@ public slots:
 	void SocketReady();
 	void SocketDisconnected();
 
-public:
+private:
 	void CreateDataBase();
+	void SendTable(ETable type);
+	void CheckUser();
+	void AddNewMedia();
+	void SendCoverArt();
+	void SendMedia();
+	void CreateNewUSer(QString username, QString password);
 
 private:
 	QString m_path = QCoreApplication::applicationDirPath() + "/DataServer";
 	
 	QTcpServer* server;
 	QMap<int, QTcpSocket*> m_listClients;
-	QMap<int, EQuery> m_typeQuery;
-	QMap<int, QByteArray> m_file;
-	QMap<int, QString> m_idUser;
-	QMap<int, bool> m_queryCreateAlbum;
-	QMap<int, bool> m_queryCreateArtist;
+	QMap<int, ETypeQuery> m_typeQuery;
+	QMap<int, QByteArray> m_buffer;
+	QMap<int, ELoadState> m_loadState;
 	QMap<int, int> m_size_end;
 	QMap<int, int> m_size_now;
 	QSqlDatabase db;

@@ -39,7 +39,7 @@ void CLogin::getFromSocket(QByteArray* data)
 		}
 		case ELoginAndRegistration::Success:
 		{
-			emit closing();
+			emit closing(EWindowType::WPlayer);
 			break;
 		}
 		}
@@ -59,7 +59,7 @@ void CLogin::getFromSocket(QByteArray* data)
 		}
 		case ELoginAndRegistration::Success:
 		{
-			emit closing();
+			emit closing(EWindowType::WPlayer);
 			break;
 		}
 		}
@@ -76,7 +76,7 @@ void CLogin::ToLogin(QString name, QString password)
 {
 	m_query->SetUserName(name);
 	m_query->SetUserPassword(password);
-	m_query->NewQuery(m_query->CHECK_USER);
+	m_query->NewQuery(EQuery::CHECK_USER);
 	m_state = EState::Login;
 	emit sendToSocket(m_query->toByteArray());
 }
@@ -85,7 +85,7 @@ void CLogin::ToRegistration(QString name, QString password)
 {
 	m_query->SetUserName(name);
 	m_query->SetUserPassword(password);
-	m_query->NewQuery(m_query->CREATE_NEW_USER);
+	m_query->NewQuery(EQuery::CREATE_NEW_USER);
 	m_state = EState::Registration;
 	emit sendToSocket(m_query->toByteArray());
 }

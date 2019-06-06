@@ -14,22 +14,6 @@ public:
 	~CQuery();
 
 public:
-	enum EQuery
-	{
-		GET_MEDIA = 0,
-		CREATE_NEW_USER,
-		CHECK_USER,
-		GET_TABLE,
-		SEND_NEW_MUSIC,
-		GET_IMAGE
-	};
-
-	enum ETable
-	{
-		ALL_MUSIC = 1,
-	};
-
-public:
 	void NewQuery(EQuery type);
 	void NewQuery(EQuery type, ETable type2);
 	void NewQuery(QByteArray* array);

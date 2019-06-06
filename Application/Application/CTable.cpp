@@ -99,9 +99,13 @@ void CTable::InsertAt(const int index, Row row)
 
 QVariant CTable::ValueAt(const QString& title, const int& index)
 {
-	/*if (m_list.contains(title))
-		return m_list.find(title).value().ValueAt(index);
-	else return QVariant();*/
+	for (auto it : m_list)
+	{
+		if (it.first == title)
+		{
+			return it.second->ValueAt(index);
+		}
+	}
 	return QVariant();
 }
 
@@ -193,7 +197,7 @@ QVariant Column::ValueAt(const int& index)
 {
 	try
 	{
-		if (m_list.contains(index))
+		if (index >= 0 && index < m_list.size())
 			return m_list.at(index);
 		else
 			throw "No such index";
