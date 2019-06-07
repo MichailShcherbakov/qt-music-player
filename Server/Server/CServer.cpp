@@ -31,7 +31,8 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 	socket->setSocketDescriptor(socketDescriptor);
 	User user;
 	user.m_socket = socket;
-	user.m_loadState = ELoadState::Unknown;
+	user.m_size_msg = 0;
+	user.m_buffer.clear();
 	m_users[socketDescriptor] = user;
 
 	connect(user.m_socket, &QTcpSocket::readyRead, this, &CServer::SocketReady);
@@ -40,7 +41,17 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 	STools::Msg(EMessage::Success, "Client " + QString::number(socketDescriptor) + " is connected");
 
 	QJsonDocument doc;
-	QJsonObject obj;
+	QJsonObject mainObj, header, body, footer;
+
+	header.insert("query-result", "You are Connected");
+
+	mainObj.insert("header", header);
+	mainObj.insert("body", body);
+	mainObj.insert("footer", footer);
+
+	doc.setObject(mainObj);
+
+	Send(socket, &doc.toJson());
 }
 
 void CServer::SocketReady()
@@ -48,82 +59,116 @@ void CServer::SocketReady()
 	QTcpSocket* socket = (QTcpSocket*)sender();
 	int id = socket->socketDescriptor();
 
-	QJsonDocument doc;
+	m_users[id].m_buffer.append(socket->readAll());
 
-	switch (m_users[id].m_loadState)
+	if (m_users[id].m_size_msg == 0)
 	{
-	case ELoadState::Unknown: {
-		doc = QJsonDocument::fromJson(socket->readAll());
+		QByteArray sizeArray;
+		for (int i = 0; i < sizeof(int); ++i) sizeArray.append(m_users[id].m_buffer[i]);
 
-		if (!doc.isEmpty())
-		{
-			QString username = doc["username"].toString();
-			QString password = doc["password"].toString();
+		QDataStream out(&sizeArray, QIODevice::ReadOnly);
+		out.setVersion(QDataStream::Qt_5_12);
+		out >> m_users[id].m_size_msg;
 
-			m_users[id].m_typeQuery = static_cast<ETypeQuery>(doc["type-query"].toInt());
-
-			m_users[id].m_size_end = doc["size-body"].toInt();
-
-			m_users[id].m_loadState = ELoadState::Header;
-			m_users[id].m_size_now = 0;
-		}
-		break;
+		m_users[id].m_buffer.remove(0, sizeof(int));
 	}
-	case ELoadState::Header: {
-		m_users[id].m_size_now += socket->bytesAvailable();
-		m_users[id].m_buffer.append(socket->readAll());
 
-		Msg(EMessage::Log, "Size of File: " + QString::number(m_users[id].m_buffer.size()) + " bytes");
+	if (m_users[id].m_size_msg == m_users[id].m_buffer.size())
+	{
+		QJsonDocument doc = QJsonDocument::fromJson(m_users[id].m_buffer);
 
-		if (m_users[id].m_size_end == m_users[id].m_size_now)
+		QJsonObject header = doc["header"].toObject();
+		QJsonObject body = doc["body"].toObject();
+		QJsonObject footer = doc["footer"].toObject();
+
+		ETypeQuery type_query = static_cast<ETypeQuery>(header["type-query"].toInt());
+		QString username = header["username"].toString();
+		QString password = header["password"].toString();
+
+		QJsonDocument sendDoc;
+		QJsonObject sendMainObj, sendHeader, sendBody, sendFooter;
+
+		switch (type_query)
 		{
-			m_users[id].m_loadState = ELoadState::Body;
+		case ETypeQuery::Create_New_User:
+		{
+			ETypeResult res = ETypeResult::Unknown;
 
-			doc = QJsonDocument::fromJson(m_users[id].m_buffer);
-			
-			switch (m_users[id].m_typeQuery)
-			{
-			case ETypeQuery::Create_New_User:
-			{
-				CreateNewUser(m_users[id].m_username, m_users[id].m_password);
-			}
-			}
+			if (CreateNewUser(username, password))
+				res = ETypeResult::Success;
+			else
+				res = ETypeResult::Duplicate_Username;
 
-			m_users[id].m_loadState = ELoadState::Footer;
+			sendHeader.insert("query-result", QJsonValue(static_cast<int>(res)));
+			break;
 		}
-		break;
-	}
-	case ELoadState::Footer: {
-		doc = QJsonDocument::fromJson(socket->readAll());
-		m_users[id].m_loadState = ELoadState::Unknown;
+		case ETypeQuery::Check_This_User:
+		{
+			break;
+		}
+		case ETypeQuery::Add_New_Media:
+		{
+			break;
+		}
+		case ETypeQuery::Send_Table:
+		{
+			break;
+		}
+		case ETypeQuery::Send_Cover_Art:
+		{
+			break;
+		}
+		case ETypeQuery::Send_Media:
+		{
+			break;
+		}
+		}
+
+		sendMainObj.insert("header", sendHeader);
+		sendMainObj.insert("body", sendBody);
+		sendMainObj.insert("footer", sendFooter);
+
+		sendDoc.setObject(sendMainObj);
+
+		Send(socket, &sendDoc.toJson());
+
+		m_users[id].m_size_msg = 0;
 		m_users[id].m_buffer.clear();
-		m_users[id].m_size_now = 0;
-		m_users[id].m_size_end = 0;
-		break;
-	}
 	}
 }
 
 void CServer::SocketDisconnected()
 {
-	/*STools::Msg(EMessage::Log,"Client is disconnected");
+	STools::Msg(EMessage::Log,"Client is disconnected");
 
 	QTcpSocket* clientSocket = (QTcpSocket*)sender();
 
-	int key = m_listClients.key(clientSocket);
+	for (auto it : m_users)
+	{
+		if (it.m_socket == clientSocket)
+		{
+			clientSocket->close();
+			int key = m_users.key(it);
+			m_users.remove(key);
+			break;
+		}
+	}
+}
 
-	clientSocket->close();
-	m_listClients.remove(key);
-	m_size_end.remove(key);
-	m_size_now.remove(key);
-	m_queryCreateArtist.remove(key);
-	m_queryCreateAlbum.remove(key);
-	m_idUser.remove(key);*/
+void CServer::Send(QTcpSocket* socket, QByteArray* data)
+{
+	QByteArray msg;
+	QDataStream out(&msg, QIODevice::WriteOnly);
+	out.setVersion(QDataStream::Qt_5_12);
+	out << data->size();
+	msg.append(*data);
+
+	socket->write(msg);
 }
  
 void CServer::CreateDataBase()
 {
-	/*db = QSqlDatabase::addDatabase("QMYSQL");
+	db = QSqlDatabase::addDatabase("QMYSQL");
 	db.setHostName("localhost");
 	db.setUserName("root");
 	db.setPassword("root");
@@ -136,7 +181,6 @@ void CServer::CreateDataBase()
 	QSqlQuery query("CREATE DATABASE data_server;");
 	query.exec("USE data_server;");
 	query.exec("CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30) NOT NULL UNIQUE, password VARCHAR(30) NOT NULL, registration_time DATETIME NOT NULL);");
-	*/
 }
 
 void CServer::SendTable(ETypeTable type)
@@ -462,4 +506,13 @@ bool CServer::CreateNewUser(QString username, QString password)
 
 	QDir().mkdir(m_path + "/user_" + QString::number(id));
 	return true;
+}
+
+bool operator==(const User& left, const User& right)
+{
+
+	if (left.m_socket == right.m_socket)
+		return true;
+	else
+		return false;
 }

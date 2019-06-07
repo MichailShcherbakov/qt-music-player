@@ -23,35 +23,48 @@
 
 using namespace STools;
 
-enum class ELoadState : int
-{
-	Unknown = -1,
-	Header,
-	Body,
-	Footer
-};
-
 enum class ETypeQuery : int
 {
 	Unknown = -1,
 	Create_New_User,
+	Check_This_User,
+	Add_New_Media,
+	Send_Table,
+	Send_Cover_Art,
+	Send_Media,
 };
 
 enum class ETypeTable : int
 {
 	Unknown = -1,
+	All_Media,
+	All_Genres,
+	All_Albums,
+	All_Artists,
+};
+
+enum class ETypeResult : int {
+	Unknown = -1,
+	Success,
+	Error,
+	Duplicate_Username,
 };
 
 struct User
 {
 	QTcpSocket* m_socket;
-	ETypeQuery m_typeQuery;
 	QByteArray  m_buffer;
-	ELoadState m_loadState;
-	QString m_username;
-	QString m_password;
-	int m_size_end;
-	int m_size_now;
+	int m_size_msg;
+
+	bool operator==(const User& right)
+	{
+		if (right.m_socket == this->m_socket)
+			return true;
+		else
+			return false;
+	}
+
+	friend bool operator==(const User& left, const User& right);
 };
 
 class CServer : public QTcpServer
@@ -70,6 +83,7 @@ public slots:
 	void incomingConnection(qintptr socketDescriptor);
 	void SocketReady();
 	void SocketDisconnected();
+	void Send(QTcpSocket* socket, QByteArray* data);
 
 private:
 	void CreateDataBase();
@@ -82,7 +96,6 @@ private:
 
 private:
 	QString m_path = QCoreApplication::applicationDirPath() + "/DataServer";
-	
 	QTcpServer* server;
 	QMap<int, User> m_users;
 	QSqlDatabase db;

@@ -32,8 +32,8 @@ private:
 	int			m_port = 6150;
 	QString		m_ip = "192.168.0.108";
 	QDataStream m_stream;
-	int			m_size = 0;
-	bool		m_isConnected = true;
+	int			m_size_msg = 0;
+	bool		m_isConnected = false;
 	QByteArray* m_buffer;
 };
 

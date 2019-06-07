@@ -8,13 +8,31 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
-
-#include <QTextCodec>
-
-enum class ETypeQuery : int 
+enum class ETypeQuery : int
 {
 	Unknown = -1,
 	Create_New_User,
+	Check_This_User,
+	Add_New_Media,
+	Send_Table,
+	Send_Cover_Art,
+	Send_Media,
+};
+
+enum class ETypeTable : int
+{
+	Unknown = -1,
+	All_Media,
+	All_Genres,
+	All_Albums,
+	All_Artists,
+};
+
+enum class ETypeResult : int {
+	Unknown = -1,
+	Success,
+	Error,
+	Duplicate_Username,
 };
 
 int main(int argc, char *argv[])
@@ -38,31 +56,26 @@ int main(int argc, char *argv[])
 	QByteArray fArr = f.readAll();
 	f.close();
 
-	QJsonDocument docHeader, docBody, docFooter;
-	QJsonObject header, body, footer;
+	QJsonDocument doc;
+	QJsonObject main, header, body, footer;
+
+	/* header */
+	header.insert("type-query", QJsonValue(static_cast<int>(ETypeQuery::Create_New_User)));
+	header.insert("username", QJsonValue("user"));
+	header.insert("password", QJsonValue("pass"));
+	main.insert("header", header);
 
 	/* body */
 	body.insert("media-data", QJsonValue(QString::fromLatin1(fArr.data(), fArr.size())));
-	docBody.setObject(body);
-
-	/* header*/
-	header.insert("type-query", QJsonValue(static_cast<int>(ETypeQuery::Create_New_User)));
-	header.insert("size-body", QJsonValue(docBody.toJson().size()));
-	header.insert("username", QJsonValue("user"));
-	header.insert("password", QJsonValue("pass"));
-	docHeader.setObject(header);
+	main.insert("body", body);
 
 	/* footer */
-	docFooter.setObject(footer);
+	main.insert("footer", footer);
 
-	/* send header */
-	socket->sendToServer(&docHeader.toJson());
+	doc.setObject(main);
 
-	/* send body */
-	socket->sendToServer(&docBody.toJson());
-
-	/* send footer */
-	socket->sendToServer(&docFooter.toJson());
+	/* send doc */
+	socket->sendToServer(&doc.toJson());
 
 	return app.exec();
 }

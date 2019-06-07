@@ -2,7 +2,8 @@
 
 
 
-CSocket::CSocket()
+CSocket::CSocket() :
+	m_buffer(nullptr)
 {
 }
 
@@ -13,39 +14,44 @@ CSocket::~CSocket()
 void CSocket::Initialize()
 {
 	this->connectToHost(m_ip, m_port);
-
 	connect(this, &QTcpSocket::readyRead, this, &CSocket::ReadyRead);
-
-	m_stream.setDevice(this);
-	m_stream.setVersion(QDataStream::Qt_5_12);
 }
 
 void CSocket::sendToServer(QByteArray* query)
 {
-	this->write(*query);
+	QByteArray msg;
+	QDataStream out(&msg, QIODevice::WriteOnly);
+	out.setVersion(QDataStream::Qt_5_12);
+	out << query->size();
+	msg.append(*query);
+
+	this->write(msg);
 }
 
 void CSocket::ReadyRead()
 {
-	if (!m_isConnected)
+	if (!m_buffer)
+		m_buffer = new QByteArray();
+	else
+		m_buffer->clear();
+
+	m_buffer->append(this->readAll());
+
+	if (m_size_msg == 0)
 	{
-		if (this->readAll() == "You are connected")
-		{
-			qDebug() << "Connected to the server";
-			m_isConnected = true;
-			return;
-		}
+		QByteArray sizeArray;
+		for (int i = 0; i < sizeof(int); ++i) sizeArray.append(m_buffer->at(i));
+
+		QDataStream out(&sizeArray, QIODevice::ReadOnly);
+		out.setVersion(QDataStream::Qt_5_12);
+		out >> m_size_msg;
+
+		m_buffer->remove(0, sizeof(int));
 	}
 
-	if (m_size == 0)
+	if (m_size_msg == m_buffer->size())
 	{
-		m_stream >> m_size;
-	}
-
-	if (this->bytesAvailable() == m_size)
-	{
-		m_buffer = new QByteArray(this->readAll());
-		m_size = 0;
+		m_size_msg = 0;
 		emit getFromServer(m_buffer);
 	}
 }
