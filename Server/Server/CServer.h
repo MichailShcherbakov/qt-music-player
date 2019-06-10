@@ -43,11 +43,46 @@ enum class ETypeTable : int
 	All_Artists,
 };
 
-enum class ETypeResult : int {
+enum class ETypeResultQuery : int {
 	Unknown = -1,
 	Success,
-	Error,
-	Duplicate_Username,
+	DuplicateUsername,
+	IsNotFound,
+	FileIsEmpty,
+	UserIsNotFound,
+	ReadError,
+	InsertError,
+};
+
+struct TypeResultQuery
+{
+public:
+	TypeResultQuery(ETypeResultQuery t = ETypeResultQuery::Unknown) : m_result(t) {}
+
+public:
+	void operator=(ETypeResultQuery t)
+	{
+		this->m_result = t;
+	}
+	void operator=(TypeResultQuery t)
+	{
+		this->m_result = t.m_result;
+	}
+	int toInt()
+	{
+		return static_cast<int>(this->m_result);
+	}
+	operator int()
+	{
+		return static_cast<int>(this->m_result);
+	}
+	void SetValue(ETypeResultQuery t)
+	{
+		this->m_result = t;
+	}
+
+private:
+	ETypeResultQuery m_result;
 };
 
 struct User
@@ -88,11 +123,12 @@ public slots:
 private:
 	void CreateDataBase();
 	void SendTable(ETypeTable type);
-	void CheckUser();
-	void AddNewMedia();
-	void SendCoverArt();
-	void SendMedia();
-	bool CreateNewUser(QString username, QString password);
+	void CheckThisUser(QString username, QString password, TypeResultQuery* res);
+	void AddNewMedia(QString username, QString password, QByteArray* data, bool createNewArtist, bool createNewAlbum, TypeResultQuery* res);
+	void GetCoverArt(QString username, QString password, int id_album, QByteArray* data, TypeResultQuery* res);
+	void GetMedia(QString username, QString password, int id_media, QByteArray* data, TypeResultQuery* res);
+	int GetIdUser(QString username, QString password);
+	void CreateNewUser(QString username, QString password, TypeResultQuery* res);
 
 private:
 	QString m_path = QCoreApplication::applicationDirPath() + "/DataServer";

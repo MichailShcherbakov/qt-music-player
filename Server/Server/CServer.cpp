@@ -88,41 +88,48 @@ void CServer::SocketReady()
 		QJsonDocument sendDoc;
 		QJsonObject sendMainObj, sendHeader, sendBody, sendFooter;
 
+		TypeResultQuery* res = new TypeResultQuery;
+
 		switch (type_query)
 		{
 		case ETypeQuery::Create_New_User:
 		{
-			ETypeResult res = ETypeResult::Unknown;
-
-			if (CreateNewUser(username, password))
-				res = ETypeResult::Success;
-			else
-				res = ETypeResult::Duplicate_Username;
-
-			sendHeader.insert("query-result", QJsonValue(static_cast<int>(res)));
+			CreateNewUser(username, password, res);
 			break;
 		}
 		case ETypeQuery::Check_This_User:
 		{
+			CheckThisUser(username, password, res);
 			break;
 		}
 		case ETypeQuery::Add_New_Media:
 		{
+			QByteArray media = body["media"].toVariant().toByteArray();
+			AddNewMedia(username, password, &media, body["create-new-artist"].toBool(), body["create-new-album"].toBool(), res);
 			break;
 		}
 		case ETypeQuery::Send_Table:
 		{
+			GetTable();
 			break;
 		}
 		case ETypeQuery::Send_Cover_Art:
 		{
+			QByteArray coverArt;
+			GetCoverArt(username, password, body["id-album"].toInt(), &coverArt, res);
+			sendBody.insert("coverArt", coverArt.data());
 			break;
 		}
 		case ETypeQuery::Send_Media:
 		{
+			QByteArray media;
+			GetMedia(username, password, body["id-media"].toInt(), &media, res);
+			sendBody.insert("media", media.data());
 			break;
 		}
 		}
+
+		sendHeader.insert("query-result", res->toInt());
 
 		sendMainObj.insert("header", sendHeader);
 		sendMainObj.insert("body", sendBody);
@@ -183,7 +190,7 @@ void CServer::CreateDataBase()
 	query.exec("CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30) NOT NULL UNIQUE, password VARCHAR(30) NOT NULL, registration_time DATETIME NOT NULL);");
 }
 
-void CServer::SendTable(ETypeTable type)
+void CServer::GetTable(QString username, QString password, ETypeTable type, TypeResultQuery* res)
 {
 	/*switch (static_cast<ETable>(query.GetValue_1().toInt()))
 	{
@@ -326,135 +333,172 @@ void CServer::SendTable(ETypeTable type)
 	}*/
 }
 
-void CServer::CheckUser()
+void CServer::CheckThisUser(QString username, QString password, TypeResultQuery* res)
 {
-	/*QByteArray answer;
-	QByteArray size;
-	ELoginAndRegistration temp;
-
-	if (query.Check())
-		temp = ELoginAndRegistration::Success;
-	else
-		temp = ELoginAndRegistration::Success;
-
-	QDataStream anw(&answer, QIODevice::WriteOnly);
-	anw.setVersion(QDataStream::Qt_5_12);
-	anw << static_cast<int>(temp);
-
-	QDataStream sz(&size, QIODevice::WriteOnly);
-	sz.setVersion(QDataStream::Qt_5_12);
-	sz << answer.size();
-
-	socket->write(size);
-	socket->write(answer);*/
+	QSqlQuery q("USE data_server;");
+	if (!q.exec("SELECT * FROM users WHERE username='" + username + "' and password='" + password + "';"))
+	{
+		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		return;
+	}
+	res->SetValue(ETypeResultQuery::Success);
 }
 
-void CServer::AddNewMedia()
+void CServer::AddNewMedia(QString username, QString password, QByteArray* data, bool newArtist, bool newAlbum, TypeResultQuery* res)
 {
 	/* Формирование пути к новому айдиофайлу */
-			/*
-			QSqlQuery q;
-			q.exec("USE user_" + m_idUser[id] + ";");
-			q.exec("SELECT * FROM media;");
-			int rows = q.size();
-			QString path = m_path + "/user_" + m_idUser[id] + "/id_" + QString::number(++rows) + ".mp3";
-			/* Запись в файл новой медия */
-			/*QFile f(path);
-			f.open(QIODevice::WriteOnly);
-			f.write(m_file[id]);
-			f.close();
-			/* Получение основных тегов из медия */
-			/*CTagEditer tagEditer;
-			Tags tags = tagEditer.GetTags(path);
-			/* Создание (если было указано) нового альбома и/или артиста  */
-			/*int id_album = 1;
-			int id_artist = 1;
-			if (m_queryCreateAlbum[id])
-			{
-				q.exec("SELECT * FROM albums;");
-				id_album = q.size() + 1;
-				q.exec("INSERT INTO albums (title) VALUES ('" + tags.Album + "');");
-			}
-			else
-			{
-				q.exec("SELECT * FROM albums WHERE title='" + tags.Album + "';");
-				if (q.next())  id_album = q.value(0).toInt();
-			}
-
-			if (m_queryCreateArtist[id])
-			{
-				q.exec("SELECT * FROM artists;");
-				id_artist = q.size() + 1;
-				q.exec("INSERT INTO artists (name) VALUES ('" + tags.Artist + "');");
-			}
-			else
-			{
-				q.exec("SELECT * FROM artists WHERE name='" + tags.Artist + "';");
-				if (q.next())  id_artist = q.value(0).toInt();
-			}
-			/* Поиск номер жанра данной медия */
-			/*q.exec("SELECT id_genre FROM genres WHERE title='" + tags.Genre + "';");
-			int id_genre = 1;
-			if (q.next())  id_genre = q.value(0).toInt();
-			/* Добавление новой записи в таблицы 'media' */
-			/*QString query;
-			query += "INSERT INTO media (title, id_artist, id_album, year, id_genre, duraction, bitrate, path, add_time) ";
-			query += "VALUES (";
-			query += "'" + tags.Title + "'";
-			query += ",";
-			query += QString::number(id_artist);
-			query += ",";
-			query += QString::number(id_album);
-			query += ",";
-			query += tags.Year;
-			query += ",";
-			query += QString::number(id_genre);
-			query += ",";
-			query += tags.Duraction;
-			query += ",";
-			query += tags.Bitrate;
-			query += ",";
-			query += "'" + path + "'";
-			query += ", NOW() );";
-			q.exec(query);
-
-			/* Чистка  */
-			/*m_size_end[id] = 0;
-			m_size_now[id] = 0;
-			m_queryCreateArtist[id] = false;
-			m_queryCreateAlbum[id] = false;
-			m_file[id].clear();
-			m_typeQuery[id] = EQuery::UNKNOWN;*/
+	QSqlQuery q;
+	QString id = QString::number(GetIdUser(username, password));
+	if (!q.exec("USE user_" + id + ";"))
+	{
+		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		return;
+	}
+	q.exec("SELECT * FROM media;");
+	int rows = q.size();
+	QString path = m_path + "/user_" + id + "/id_" + QString::number(++rows) + ".mp3";
+	/* Запись в файл новой медия */
+	QFile f(path);
+	f.open(QIODevice::WriteOnly);
+	f.write(data->data());
+	f.close();
+	/* Получение основных тегов из медия */
+	CTagEditer tagEditer;
+	Tags tags = tagEditer.GetTags(path);
+	/* Создание (если было указано) новой записи альбома */
+	int id_album = 1;
+	int id_artist = 1;
+	if (newArtist)
+	{
+		q.exec("SELECT * FROM albums;");
+		id_album = q.size() + 1;
+		q.exec("INSERT INTO albums (title) VALUES ('" + tags.Album + "');");
+	}
+	else
+	{
+		q.exec("SELECT * FROM albums WHERE title='" + tags.Album + "';");
+		if (q.next())  id_album = q.value(0).toInt();
+	}
+	/* Создание (если было указано) новой записи артиста */
+	if (newAlbum)
+	{
+		q.exec("SELECT * FROM artists;");
+		id_artist = q.size() + 1;
+		q.exec("INSERT INTO artists (name) VALUES ('" + tags.Artist + "');");
+	}
+	else
+	{
+		q.exec("SELECT * FROM artists WHERE name='" + tags.Artist + "';");
+		if (q.next())  id_artist = q.value(0).toInt();
+	}
+	/* Поиск номер жанра данной медия */
+	q.exec("SELECT id_genre FROM genres WHERE title='" + tags.Genre + "';");
+	int id_genre = 1;
+	if (q.next())  id_genre = q.value(0).toInt();
+	/* Добавление новой записи в таблицы 'media' */
+	QString query;
+	query += "INSERT INTO media (title, id_artist, id_album, year, id_genre, duraction, bitrate, path, add_time) ";
+	query += "VALUES (";
+	query += "'" + tags.Title + "'";
+	query += ",";
+	query += QString::number(id_artist);
+	query += ",";
+	query += QString::number(id_album);
+	query += ",";
+	query += tags.Year;
+	query += ",";
+	query += QString::number(id_genre);
+	query += ",";
+	query += tags.Duraction;
+	query += ",";
+	query += tags.Bitrate;
+	query += ",";
+	query += "'" + path + "'";
+	query += ", NOW() );";
+	q.exec(query);
+	res->SetValue(ETypeResultQuery::Success);
 }
 
-void CServer::SendCoverArt()
+void CServer::GetCoverArt(const QString username, const QString password, const int id_media, QByteArray* data, TypeResultQuery* res)
 {
-	/*QSqlQuery q("SELECT path FROM media WHERE id_media=" + query.GetValue_1() + ";");
+	QSqlQuery q;
+	if (!q.exec("USE user_" + QString::number(GetIdUser(username, password)) + ";"))
+	{
+		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		return;
+	}
+	if (!q.exec("SELECT path FROM media WHERE id_media=" + QString::number(id_media) + ";"))
+	{
+		res->SetValue(ETypeResultQuery::IsNotFound);
+		return;
+	}
 	if (q.next())
 	{
 		CTagEditer tagEditer;
-		socket->write(tagEditer.GetCoverArt(q.value(0).toString()));
-	}*/
+		data->clear();
+		data->append(tagEditer.GetCoverArt(q.value(0).toString()));
+	}
+	else
+	{
+		res->SetValue(ETypeResultQuery::IsNotFound);
+		return;
+	}
 }
 
-void CServer::SendMedia()
+void CServer::GetMedia(const QString username, const QString password, const int id_media, QByteArray* data, TypeResultQuery* res)
 {
-	/*QSqlQuery q("SELECT path FROM media WHERE id_media=" + query.GetValue_1() + ";");
+	QSqlQuery q;
+	if (!q.exec("USE user_" + QString::number(GetIdUser(username, password)) + ";")) 
+	{
+		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		return;
+	}
+	if (!q.exec("SELECT path FROM media WHERE id_media=" + QString::number(id_media) + ";")) 
+	{
+		res->SetValue(ETypeResultQuery::IsNotFound);
+		return;
+	}
+	QByteArray arr;
 	if (q.next())
 	{
 		QFile f(q.value(0).toString());
 		f.open(QIODevice::ReadOnly);
-		QByteArray arr = f.readAll();
+		data->clear();
+		data->append(f.readAll());
 		f.close();
-		socket->write(arr);
-	}*/
+	}
+	else
+	{
+		res->SetValue(ETypeResultQuery::IsNotFound);
+		return;
+	}
+	if (data->isEmpty())
+	{
+		res->SetValue(ETypeResultQuery::ReadError);
+		return;
+	}
+	res->SetValue(ETypeResultQuery::Success);
 }
 
-bool CServer::CreateNewUser(QString username, QString password)
+int CServer::GetIdUser(QString username, QString password)
+{
+	QSqlQuery q("USE data_server;");
+	q.exec("SELECT * FROM users WHERE username='" + username + "' and password='" + password + "';");
+	if (q.next())
+	{
+		return q.value(0).toInt();
+	}
+	return -1;
+}
+
+void CServer::CreateNewUser(QString username, QString password, TypeResultQuery* res)
 {
 	QSqlQuery q("USE data_server;");
 	if (!q.exec("INSERT INTO users (username, password, registration_time) VALUES (\'" + username + "\', \'" + password + "\', NOW());"))
-		return false;
+	{
+		res->SetValue(ETypeResultQuery::DuplicateUsername);
+		return;
+	}
 	q.exec("SELECT * FROM users;");
 	int id = q.size();
 	q.exec("CREATE DATABASE user_" + QString::number(id) + ";");
@@ -501,11 +545,10 @@ bool CServer::CreateNewUser(QString username, QString password)
 
 	select id_media, media.title as title, albums.title as album, name as artist, year, duraction, bitrate, path, add_time from media
 	inner join artists using(id_artist) inner join albums using(id_album) inner join genres using(id_genre);
-
 	*/
 
 	QDir().mkdir(m_path + "/user_" + QString::number(id));
-	return true;
+	res->SetValue(ETypeResultQuery::Success);
 }
 
 bool operator==(const User& left, const User& right)
