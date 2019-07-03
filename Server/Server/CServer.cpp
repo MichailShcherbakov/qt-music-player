@@ -56,6 +56,8 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 
 void CServer::SocketReady()
 {
+	STools::Msg(EMessage::Warning, "Signal is came");
+
 	QTcpSocket* socket = (QTcpSocket*)sender();
 	int id = socket->socketDescriptor();
 
@@ -73,8 +75,12 @@ void CServer::SocketReady()
 		m_users[id].m_buffer.remove(0, sizeof(int));
 	}
 
+	STools::Msg(EMessage::Warning, "Size msg: " + QString::number(m_users[id].m_buffer.size()));
+
 	if (m_users[id].m_size_msg == m_users[id].m_buffer.size())
 	{
+		STools::Msg(EMessage::Success, "Data is came");
+
 		QJsonDocument doc = QJsonDocument::fromJson(m_users[id].m_buffer);
 
 		QJsonObject header = doc["header"].toObject();
@@ -82,8 +88,6 @@ void CServer::SocketReady()
 		QJsonObject footer = doc["footer"].toObject();
 
 		ETypeQuery type_query = static_cast<ETypeQuery>(header["type-query"].toInt());
-		QString username = header["username"].toString();
-		QString password = header["password"].toString();
 
 		QJsonDocument sendDoc;
 		QJsonObject sendMainObj, sendHeader, sendBody, sendFooter;
@@ -94,37 +98,71 @@ void CServer::SocketReady()
 		{
 		case ETypeQuery::Create_New_User:
 		{
-			CreateNewUser(username, password, res);
+			CreateNewUser(header["username"].toString(), header["password"].toString(), res);
 			break;
 		}
 		case ETypeQuery::Check_This_User:
 		{
-			CheckThisUser(username, password, res);
+			CheckThisUser(id, header["username"].toString(), header["password"].toString(), res);
 			break;
 		}
 		case ETypeQuery::Add_New_Media:
 		{
-			QByteArray media = body["media"].toVariant().toByteArray();
-			AddNewMedia(username, password, &media, body["create-new-artist"].toBool(), body["create-new-album"].toBool(), res);
+			if (m_users[id].isProven)
+			{
+				QByteArray media = body["media"].toString().toLatin1();
+				AddNewMedia(id, &media, body["create-new-artist"].toBool(), body["create-new-album"].toBool(), res);
+			}
+			else
+			{
+				res->SetValue(ETypeResultQuery::UserIsNotAuthorized);
+				STools::Msg(EMessage::Error, "User is not authorized");
+			}
 			break;
 		}
 		case ETypeQuery::Send_Table:
 		{
-			GetTable();
+			if (m_users[id].isProven)
+			{
+				ETypeTable type_table = static_cast<ETypeTable>(header["type-table"].toInt());
+				QJsonArray table = GetTable(id, type_table, res);
+				sendBody.insert("table", table);
+			}
+			else
+			{
+				res->SetValue(ETypeResultQuery::UserIsNotAuthorized);
+				STools::Msg(EMessage::Error, "User is not authorized");
+			}
 			break;
 		}
 		case ETypeQuery::Send_Cover_Art:
 		{
-			QByteArray coverArt;
-			GetCoverArt(username, password, body["id-album"].toInt(), &coverArt, res);
-			sendBody.insert("coverArt", coverArt.data());
+			if (m_users[id].isProven)
+			{
+				QByteArray coverArt;
+				GetCoverArt(id, body["id-album"].toInt(), &coverArt, res);
+				sendBody.insert("cover-art", coverArt.data());
+			}
+			else
+			{
+				res->SetValue(ETypeResultQuery::UserIsNotAuthorized);
+				STools::Msg(EMessage::Error, "User is not authorized");
+			}
 			break;
 		}
 		case ETypeQuery::Send_Media:
 		{
-			QByteArray media;
-			GetMedia(username, password, body["id-media"].toInt(), &media, res);
-			sendBody.insert("media", media.data());
+			if (m_users[id].isProven)
+			{
+				QByteArray media;
+				GetMedia(id, body["id-media"].toInt(), &media, res);
+				sendBody.insert("media", media.data());
+			}
+			else
+			{
+				res->SetValue(ETypeResultQuery::UserIsNotAuthorized);
+				STools::Msg(EMessage::Error, "User is not authorized");
+			}
 			break;
 		}
 		}
@@ -141,6 +179,8 @@ void CServer::SocketReady()
 
 		m_users[id].m_size_msg = 0;
 		m_users[id].m_buffer.clear();
+
+		STools::Msg(EMessage::Success, "Data is sended");
 	}
 }
 
@@ -181,186 +221,138 @@ void CServer::CreateDataBase()
 	db.setPassword("root");
 
 	if (!db.open())
+	{
 		STools::Msg(EMessage::Error, "Can't open the database");
+		return;
+	}
 	else
+	{
 		STools::Msg(EMessage::Success, "The database is opened");
-
+	}
+		
 	QSqlQuery query("CREATE DATABASE data_server;");
 	query.exec("USE data_server;");
 	query.exec("CREATE TABLE users ( id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(30) NOT NULL UNIQUE, password VARCHAR(30) NOT NULL, registration_time DATETIME NOT NULL);");
 }
 
-void CServer::GetTable(QString username, QString password, ETypeTable type, TypeResultQuery* res)
-{
-	/*switch (static_cast<ETable>(query.GetValue_1().toInt()))
-	{
-	case ETable::ALL_MEDIA:
-	{
-		QSqlQuery q;
-		q.exec("USE user_" + QString::number(query.GetID()) + ';');
-		q.exec("SELECT id_media, title, id_artist, id_album, year, id_genre, duraction, bitrate, add_time FROM media;");
-
-		QVector<QVector<QString>> table;
-		QString qr;
-		int rows = 0;
-		int column = q.record().count();
-		while (q.next())
-		{
-			rows++;
-			QVector<QString> temp;
-			for (int i = 0; i < column; ++i)
-				temp.push_back('[' + q.value(i).toString() + ']');
-			table.push_back(temp);
-		}
-		qr += '[' + QString::number(column) + ']' + '[' + QString::number(rows) + ']';
-		for (int i = 0; i < column; ++i)
-		{
-			for (int j = 0; j < table.size(); ++j)
-			{
-				qr += table.at(j).at(i);
-			}
-		}
-		QByteArray data = qr.toUtf8();
-		QByteArray size;
-		QDataStream out(&size, QIODevice::WriteOnly);
-		out << (int)(data.length());
-		socket->write(size);
-		socket->write(data);
-		break;
-	}
-	case ETable::ALL_ALBUMS:
-	{
-		QSqlQuery q;
-		q.exec("USE user_" + QString::number(query.GetID()) + ';');
-		q.exec("select * from albums;");
-
-		QVector<QVector<QString>> table;
-		QString qr;
-		int rows = 0;
-		int column = q.record().count();
-		while (q.next())
-		{
-			rows++;
-			QVector<QString> temp;
-			for (int i = 0; i < column; ++i)
-				temp.push_back('[' + q.value(i).toString() + ']');
-			table.push_back(temp);
-		}
-		qr += '[' + QString::number(column) + ']' + '[' + QString::number(rows) + ']';
-		for (int i = 0; i < column; ++i)
-		{
-			for (int j = 0; j < table.size(); ++j)
-			{
-				qr += table.at(j).at(i);
-			}
-		}
-		QByteArray data = qr.toUtf8();
-		QByteArray size;
-		QDataStream out(&size, QIODevice::WriteOnly);
-		out << (int)(data.length());
-		socket->write(size);
-		socket->write(data);
-		break;
-	}
-	case ETable::ALL_ARTISTS:
-	{
-		QSqlQuery q;
-		q.exec("USE user_" + QString::number(query.GetID()) + ';');
-		q.exec("select * from artists;");
-
-		QVector<QVector<QString>> table;
-		QString qr;
-		int rows = 0;
-		int column = q.record().count();
-		while (q.next())
-		{
-			rows++;
-			QVector<QString> temp;
-			for (int i = 0; i < column; ++i)
-				temp.push_back('[' + q.value(i).toString() + ']');
-			table.push_back(temp);
-		}
-		qr += '[' + QString::number(column) + ']' + '[' + QString::number(rows) + ']';
-		for (int i = 0; i < column; ++i)
-		{
-			for (int j = 0; j < table.size(); ++j)
-			{
-				qr += table.at(j).at(i);
-			}
-		}
-		QByteArray data = qr.toUtf8();
-		QByteArray size;
-		QDataStream out(&size, QIODevice::WriteOnly);
-		out << (int)(data.length());
-		socket->write(size);
-		socket->write(data);
-		break;
-	}
-	case ETable::ALL_GENRES:
-	{
-		QSqlQuery q;
-		q.exec("USE user_" + QString::number(query.GetID()) + ';');
-		q.exec("select * from genres;");
-
-		QVector<QVector<QString>> table;
-		QString qr;
-		int rows = 0;
-		int column = q.record().count();
-		while (q.next())
-		{
-			rows++;
-			QVector<QString> temp;
-			for (int i = 0; i < column; ++i)
-				temp.push_back('[' + q.value(i).toString() + ']');
-			table.push_back(temp);
-		}
-		qr += '[' + QString::number(column) + ']' + '[' + QString::number(rows) + ']';
-		for (int i = 0; i < column; ++i)
-		{
-			for (int j = 0; j < table.size(); ++j)
-			{
-				qr += table.at(j).at(i);
-			}
-		}
-		QByteArray data = qr.toUtf8();
-		QByteArray size;
-		QDataStream out(&size, QIODevice::WriteOnly);
-		out << (int)(data.length());
-		socket->write(size);
-		socket->write(data);
-		break;
-	}
-	}*/
-}
-
-void CServer::CheckThisUser(QString username, QString password, TypeResultQuery* res)
+QJsonArray CServer::GetTable(const int id, ETypeTable type, TypeResultQuery* res)
 {
 	QSqlQuery q("USE data_server;");
-	if (!q.exec("SELECT * FROM users WHERE username='" + username + "' and password='" + password + "';"))
+	int idUser = GetIdUser(m_users[id].m_username, m_users[id].m_password);
+	if (idUser != -1)
+	{
+		QSqlQuery q;
+		q.exec("USE user_" + QString::number(idUser) + ';');
+
+		QStringList names;
+
+		switch (type)
+		{
+		case ETypeTable::All_Media:
+		{
+			q.exec("SELECT id_media, title, id_artist, id_album, year, id_genre, duraction, bitrate, add_time FROM media;");
+			names.append("id_media");
+			names.append("title");
+			names.append("id_artist");
+			names.append("id_album");
+			names.append("year");
+			names.append("id_genre");
+			names.append("duraction");
+			names.append("bitrate");
+			names.append("add_time");
+			break;
+		}
+		case ETypeTable::All_Albums:
+		{
+			q.exec("select * from albums;");
+			names.append("id_album");
+			names.append("title");
+			break;
+		}
+		case ETypeTable::All_Artists:
+		{
+			q.exec("select * from artists;");
+			names.append("id_artist");
+			names.append("name");
+			break;
+		}
+		case ETypeTable::All_Genres:
+		{
+			q.exec("select * from genres;");
+			names.append("id_genre");
+			names.append("title");
+			break;
+		}
+		}
+
+		QJsonArray table;
+
+		int rows = 0;
+		int count = names.size();
+
+		while (q.next())
+		{
+			QJsonArray row;
+			for (int i = 0; i < count; ++i)
+			{
+				QJsonObject obj;
+				obj.insert(names[i], q.value(i).toJsonValue());
+				row.append(obj);
+			}
+			table.append(row);
+			++rows;
+		}
+		res->SetValue(ETypeResultQuery::Success);
+		return table;
+	}
+	else
+	{
+		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		STools::Msg(EMessage::Error, "User is not found");
+		return QJsonArray();
+	}
+}
+
+void CServer::CheckThisUser(const int id, QString username, QString password, TypeResultQuery* res)
+{
+	QSqlQuery q("USE data_server;");
+	q.exec("SELECT * FROM users WHERE username='" + username + "' and password='" + password + "';");
+	if (!q.next())
 	{
 		res->SetValue(ETypeResultQuery::UserIsNotFound);
 		return;
 	}
+	m_users[id].isProven = true;
+	m_users[id].m_username = username;
+	m_users[id].m_password = password;
 	res->SetValue(ETypeResultQuery::Success);
 }
 
-void CServer::AddNewMedia(QString username, QString password, QByteArray* data, bool newArtist, bool newAlbum, TypeResultQuery* res)
+void CServer::AddNewMedia(const int idUser, QByteArray* data, bool newArtist, bool newAlbum, TypeResultQuery* res)
 {
 	/* Формирование пути к новому айдиофайлу */
 	QSqlQuery q;
-	QString id = QString::number(GetIdUser(username, password));
-	if (!q.exec("USE user_" + id + ";"))
+	QString id = QString::number(GetIdUser(m_users[idUser].m_username, m_users[idUser].m_password));
+	if (id == -1)
 	{
 		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		STools::Msg(EMessage::Error, "User is not found");
 		return;
 	}
+	q.exec("USE user_" + id + ";");
 	q.exec("SELECT * FROM media;");
 	int rows = q.size();
+	QDir().mkdir(m_path + "/user_" + id);
 	QString path = m_path + "/user_" + id + "/id_" + QString::number(++rows) + ".mp3";
 	/* Запись в файл новой медия */
 	QFile f(path);
-	f.open(QIODevice::WriteOnly);
-	f.write(data->data());
+	if (!f.open(QIODevice::WriteOnly))
+	{
+		res->SetValue(ETypeResultQuery::WriteError);
+		STools::Msg(EMessage::Error, "Write error");
+		return;
+	}
+	f.write(*data);
 	f.close();
 	/* Получение основных тегов из медия */
 	CTagEditer tagEditer;
@@ -377,7 +369,8 @@ void CServer::AddNewMedia(QString username, QString password, QByteArray* data, 
 	else
 	{
 		q.exec("SELECT * FROM albums WHERE title='" + tags.Album + "';");
-		if (q.next())  id_album = q.value(0).toInt();
+		if (q.next())  
+			id_album = q.value(0).toInt();
 	}
 	/* Создание (если было указано) новой записи артиста */
 	if (newAlbum)
@@ -389,7 +382,8 @@ void CServer::AddNewMedia(QString username, QString password, QByteArray* data, 
 	else
 	{
 		q.exec("SELECT * FROM artists WHERE name='" + tags.Artist + "';");
-		if (q.next())  id_artist = q.value(0).toInt();
+		if (q.next())  
+			id_artist = q.value(0).toInt();
 	}
 	/* Поиск номер жанра данной медия */
 	q.exec("SELECT id_genre FROM genres WHERE title='" + tags.Genre + "';");
@@ -419,12 +413,13 @@ void CServer::AddNewMedia(QString username, QString password, QByteArray* data, 
 	res->SetValue(ETypeResultQuery::Success);
 }
 
-void CServer::GetCoverArt(const QString username, const QString password, const int id_media, QByteArray* data, TypeResultQuery* res)
+void CServer::GetCoverArt(const int id, const int id_media, QByteArray* data, TypeResultQuery* res)
 {
 	QSqlQuery q;
-	if (!q.exec("USE user_" + QString::number(GetIdUser(username, password)) + ";"))
+	if (!q.exec("USE user_" + QString::number(GetIdUser(m_users[id].m_username, m_users[id].m_password)) + ";"))
 	{
 		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		STools::Msg(EMessage::Error, "User is not found");
 		return;
 	}
 	if (!q.exec("SELECT path FROM media WHERE id_media=" + QString::number(id_media) + ";"))
@@ -445,10 +440,10 @@ void CServer::GetCoverArt(const QString username, const QString password, const 
 	}
 }
 
-void CServer::GetMedia(const QString username, const QString password, const int id_media, QByteArray* data, TypeResultQuery* res)
+void CServer::GetMedia(const int id, const int id_media, QByteArray* data, TypeResultQuery* res)
 {
 	QSqlQuery q;
-	if (!q.exec("USE user_" + QString::number(GetIdUser(username, password)) + ";")) 
+	if (!q.exec("USE user_" + QString::number(GetIdUser(m_users[id].m_username, m_users[id].m_password)) + ";"))
 	{
 		res->SetValue(ETypeResultQuery::UserIsNotFound);
 		return;

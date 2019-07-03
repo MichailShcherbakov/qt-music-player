@@ -1,5 +1,5 @@
-#ifndef _CSEVER_H_
-#define _CSEVER_H_
+#ifndef _SERVER_H_
+#define _SERVER_H_
 
 #include <QTcpServer>
 #include <QTcpSocket>
@@ -25,7 +25,7 @@ using namespace STools;
 
 enum class ETypeQuery : int
 {
-	Unknown = -1,
+	Unknown = 0,
 	Create_New_User,
 	Check_This_User,
 	Add_New_Media,
@@ -36,15 +36,16 @@ enum class ETypeQuery : int
 
 enum class ETypeTable : int
 {
-	Unknown = -1,
+	Unknown = 0,
 	All_Media,
 	All_Genres,
 	All_Albums,
 	All_Artists,
 };
 
-enum class ETypeResultQuery : int {
-	Unknown = -1,
+enum class ETypeResultQuery : int 
+{
+	Unknown = 0,
 	Success,
 	DuplicateUsername,
 	IsNotFound,
@@ -52,6 +53,8 @@ enum class ETypeResultQuery : int {
 	UserIsNotFound,
 	ReadError,
 	InsertError,
+	WriteError,
+	UserIsNotAuthorized,
 };
 
 struct TypeResultQuery
@@ -87,10 +90,7 @@ private:
 
 struct User
 {
-	QTcpSocket* m_socket;
-	QByteArray  m_buffer;
-	int m_size_msg;
-
+public:
 	bool operator==(const User& right)
 	{
 		if (right.m_socket == this->m_socket)
@@ -98,8 +98,15 @@ struct User
 		else
 			return false;
 	}
-
 	friend bool operator==(const User& left, const User& right);
+
+public:
+	QTcpSocket* m_socket;
+	QByteArray  m_buffer;
+	bool isProven = false;
+	QString m_username;
+	QString m_password;
+	int m_size_msg;
 };
 
 class CServer : public QTcpServer
@@ -122,11 +129,11 @@ public slots:
 
 private:
 	void CreateDataBase();
-	void SendTable(ETypeTable type);
-	void CheckThisUser(QString username, QString password, TypeResultQuery* res);
-	void AddNewMedia(QString username, QString password, QByteArray* data, bool createNewArtist, bool createNewAlbum, TypeResultQuery* res);
-	void GetCoverArt(QString username, QString password, int id_album, QByteArray* data, TypeResultQuery* res);
-	void GetMedia(QString username, QString password, int id_media, QByteArray* data, TypeResultQuery* res);
+	QJsonArray GetTable(int id, ETypeTable type, TypeResultQuery* res);
+	void CheckThisUser(const int id, QString username, QString password, TypeResultQuery* res);
+	void AddNewMedia(int id, QByteArray* data, bool createNewArtist, bool createNewAlbum, TypeResultQuery* res);
+	void GetCoverArt(int id, int id_album, QByteArray* data, TypeResultQuery* res);
+	void GetMedia(int id, int id_media, QByteArray* data, TypeResultQuery* res);
 	int GetIdUser(QString username, QString password);
 	void CreateNewUser(QString username, QString password, TypeResultQuery* res);
 
@@ -135,9 +142,6 @@ private:
 	QTcpServer* server;
 	QMap<int, User> m_users;
 	QSqlDatabase db;
-
 };
-
-
 
 #endif

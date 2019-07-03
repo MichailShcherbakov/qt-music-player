@@ -6,7 +6,7 @@
 #include <QTextStream>
 
 /*taglib specific includes*/
-#include <taglib/tag.h>
+#include <taglib.h>
 #include <fileref.h>
 #include <tbytevector.h>			//ByteVector
 #include <mpegfile.h>				//mp3 file

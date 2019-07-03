@@ -1,32 +1,47 @@
 <RCC>
     <qresource prefix="/">
-        <file>Qml/Dialogs/dfile.qml</file>
-        <file>Qml/Styles/DottedRectangle.qml</file>
-        <file>Qml/Styles/Lable.qml</file>
-        <file>Qml/Styles/TextLine.qml</file>
-        <file>Qml/Windows/wlogin.qml</file>
-        <file>Qml/Windows/wplayer.qml</file>
-        <file>Themes/White/albums.svg</file>
-        <file>Themes/White/back_button.png</file>
-        <file>Themes/White/circle.png</file>
-        <file>Themes/White/cross_button.svg</file>
-        <file>Themes/White/delete_off.png</file>
-        <file>Themes/White/delete_on.png</file>
-        <file>Themes/White/folder.svg</file>
-        <file>Themes/White/heart.png</file>
-        <file>Themes/White/heart.svg</file>
-        <file>Themes/White/line_button.svg</file>
-        <file>Themes/White/microphone.svg</file>
-        <file>Themes/White/next_button.png</file>
-        <file>Themes/White/note.svg</file>
-        <file>Themes/White/play_button.png</file>
-        <file>Themes/White/red_heart.png</file>
-        <file>Themes/White/repeat_button.png</file>
-        <file>Themes/White/repeat_off_button.png</file>
-        <file>Themes/White/speaker.png</file>
-        <file>Themes/White/square_button.svg</file>
-        <file>Themes/White/standard_cover.jpg</file>
-        <file>Themes/White/standard_cover_x1000.jpg</file>
-        <file>Fonts/Gilroy.ttf</file>
+        <file>SourceFiles/Qml Files/Windows/Login/main.qml</file>
+        <file>SourceFiles/Qml Files/Styles/TextInputs/TextLine.qml</file>
+        <file>Resources/Icons/background.png</file>
+        <file>Resources/Fonts/Gilroy.ttf</file>
+        <file>Resources/Icons/checkbox.png</file>
+        <file>Resources/Icons/checkbox_hovered.png</file>
+        <file>Resources/Icons/cross.png</file>
+        <file>Resources/Icons/cross_hovered.png</file>
+        <file>Resources/Icons/substract.png</file>
+        <file>Resources/Icons/substract_hovered.png</file>
+        <file>Resources/Icons/add.png</file>
+        <file>Resources/Icons/add_hovered.png</file>
+        <file>Resources/Icons/add_play.png</file>
+        <file>Resources/Icons/add_play_hovered.png</file>
+        <file>Resources/Icons/arrow_back.png</file>
+        <file>Resources/Icons/arrow_next.png</file>
+        <file>Resources/Icons/back.png</file>
+        <file>Resources/Icons/dotted_button.png</file>
+        <file>Resources/Icons/genres.png</file>
+        <file>Resources/Icons/genres_hovered.png</file>
+        <file>Resources/Icons/heart.png</file>
+        <file>Resources/Icons/heart_hovered.png</file>
+        <file>Resources/Icons/history.png</file>
+        <file>Resources/Icons/history_hovered.png</file>
+        <file>Resources/Icons/magnifier.png</file>
+        <file>Resources/Icons/microphone.png</file>
+        <file>Resources/Icons/microphone_hovered.png</file>
+        <file>Resources/Icons/next.png</file>
+        <file>Resources/Icons/play.png</file>
+        <file>Resources/Icons/play_list.png</file>
+        <file>Resources/Icons/playlist.png</file>
+        <file>Resources/Icons/playlist_hovered.png</file>
+        <file>Resources/Icons/plus.png</file>
+        <file>Resources/Icons/repeat.png</file>
+        <file>Resources/Icons/repeat_hovered.png</file>
+        <file>Resources/Icons/shuffle.png</file>
+        <file>Resources/Icons/shuffle_hovered.png</file>
+        <file>Resources/Icons/songs.png</file>
+        <file>Resources/Icons/songs_hovered.png</file>
+        <file>Resources/Icons/user_button.png</file>
+        <file>SourceFiles/Qml Files/Windows/Player/main.qml</file>
+        <file>SourceFiles/Qml Files/Styles/ListsView/ListViewMenu.qml</file>
+        <file>Resources/Icons/cover.jpg</file>
     </qresource>
 </RCC>
