@@ -135,7 +135,7 @@ private:
 	void GetCoverArt(int id, int id_album, QByteArray* data, TypeResultQuery* res);
 	void GetMedia(int id, int id_media, QByteArray* data, TypeResultQuery* res);
 	int GetIdUser(QString username, QString password);
-	void CreateNewUser(QString username, QString password, TypeResultQuery* res);
+	void CreateNewUser(const int id, const QString username, const QString password, TypeResultQuery* res);
 
 private:
 	QString m_path = QCoreApplication::applicationDirPath() + "/DataServer";

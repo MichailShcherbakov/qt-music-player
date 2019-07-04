@@ -34,7 +34,8 @@ public:
 	void Run();
 	
 private:
-	void createWindow(ETypeWindow type);
+	void CreateNewWindow(ETypeWindow type);
+	void SetConnections();
 
 public slots:
 	void WindowIsClosed();
@@ -44,13 +45,13 @@ signals:
 	void onSendToSocket(const QByteArray& data);
 
 private:
-	QThread* m_thread;
-	Socket* m_socket;
-	IWindow* m_window;
-	QQmlApplicationEngine* m_engine;
-	QQmlContext* m_rootContext;
+	QThread* m_pThread;
+	Socket* m_pSocket;
+	IWindow* m_pWindow;
+	QQmlApplicationEngine* m_pEngine;
+	QQmlContext* m_pRootContext;
 	ETypeWindow m_openWindow;
-	ImageProvider* m_rootImageProvider;
+	ImageProvider* m_pRootImageProvider;
 };
 
 #endif

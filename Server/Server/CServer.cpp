@@ -98,7 +98,7 @@ void CServer::SocketReady()
 		{
 		case ETypeQuery::Create_New_User:
 		{
-			CreateNewUser(header["username"].toString(), header["password"].toString(), res);
+			CreateNewUser(id, header["username"].toString(), header["password"].toString(), res);
 			break;
 		}
 		case ETypeQuery::Check_This_User:
@@ -486,7 +486,7 @@ int CServer::GetIdUser(QString username, QString password)
 	return -1;
 }
 
-void CServer::CreateNewUser(QString username, QString password, TypeResultQuery* res)
+void CServer::CreateNewUser(const int idUser, const QString username, const QString password, TypeResultQuery* res)
 {
 	QSqlQuery q("USE data_server;");
 	if (!q.exec("INSERT INTO users (username, password, registration_time) VALUES (\'" + username + "\', \'" + password + "\', NOW());"))
@@ -501,7 +501,6 @@ void CServer::CreateNewUser(QString username, QString password, TypeResultQuery*
 	q.exec("CREATE TABLE artists (id_artist INT PRIMARY KEY AUTO_INCREMENT,name VARCHAR(150) NOT NULL);");
 	q.exec("CREATE TABLE albums (id_album INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(150) NOT NULL);");
 	q.exec("CREATE TABLE genres (id_genre INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(150) NOT NULL UNIQUE);");
-	q.exec("INSERT INTO genres (title) VALUES ('Alternative Metal');");
 	q.exec("CREATE TABLE media (id_media INT PRIMARY KEY AUTO_INCREMENT,title VARCHAR(150) NOT NULL,id_artist INT NOT NULL,id_album INT NOT NULL,year INT NOT NULL,id_genre INT NOT NULL,duraction INT NOT NULL,bitrate INT NOT NULL,add_time DATETIME NOT NULL,path VARCHAR(150) NOT NULL UNIQUE,FOREIGN KEY(id_artist) REFERENCES artists(id_artist) ON DELETE CASCADE,FOREIGN KEY(id_album) REFERENCES albums(id_album) ON DELETE CASCADE,FOREIGN KEY(id_genre) REFERENCES genres(id_genre) ON DELETE CASCADE);");
 
 	/*
@@ -541,7 +540,9 @@ void CServer::CreateNewUser(QString username, QString password, TypeResultQuery*
 	select id_media, media.title as title, albums.title as album, name as artist, year, duraction, bitrate, path, add_time from media
 	inner join artists using(id_artist) inner join albums using(id_album) inner join genres using(id_genre);
 	*/
-
+	m_users[idUser].isProven = true;
+	m_users[idUser].m_username = username;
+	m_users[idUser].m_password = password;
 	QDir().mkdir(m_path + "/user_" + QString::number(id));
 	res->SetValue(ETypeResultQuery::Success);
 }

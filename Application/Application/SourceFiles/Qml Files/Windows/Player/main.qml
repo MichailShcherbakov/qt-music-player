@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-/*import QtGraphicalEffects 1.0*/
+import QtGraphicalEffects 1.0
 
 import "../../Styles/ListsView"
 
@@ -130,12 +130,12 @@ FWindow
                                         anchors.topMargin: -1;
                                     }
 
-                                    /*OpacityMask
+                                    OpacityMask
                                     {
                                         anchors.fill: image_user;
                                         source: image_user;
                                         maskSource: mask_image_user;
-                                    }*/
+                                    }
                                 }
 
                                 Label
@@ -335,7 +335,7 @@ FWindow
                     anchors.leftMargin: 10
                 }
 
-                /*Rectangle
+                Rectangle
                 {
                     id: mask
                     width: cover.width
@@ -361,13 +361,12 @@ FWindow
                     samples: 17
                     color: "#20000000"
                     source: coverMask
-                }*/
+                }
             }
 
         }
-    }
-}
-        /*Item
+        
+        Item
         {
             id: right_field;
             width: parent.width - left_field.width;
@@ -378,7 +377,7 @@ FWindow
                 anchors.fill: parent;
                 spacing: 0;
 
-                /*Item
+                Item
                 {
                     id: center_field;
                     width: parent.width;
@@ -656,7 +655,7 @@ FWindow
                                         color: "#2ED297"
                                     }
 
-                                    /*ListView
+                                    ListView
                                     {
                                         width: contentsContaner.width - 32;
                                         height: 200;
@@ -1004,9 +1003,9 @@ FWindow
                             }
                         }
                     }
-                }*/
+                }
 
-                /*Item
+                Item
                 {
                     id: under_field;
                     width: parent.width;
@@ -1019,7 +1018,7 @@ FWindow
                         radius: 16;
                     }*/
 
-                    /*Rectangle
+                    Rectangle
                     {
                         anchors.fill: parent;
                         color: "#16171B";
@@ -1359,8 +1358,6 @@ FWindow
         }
     }
 }
-*/
-
 
 
 

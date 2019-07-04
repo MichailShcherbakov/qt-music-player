@@ -17,7 +17,7 @@ class Login : public IWindow
 	Q_OBJECT
 
 public:
-	Login(QQuickWindow* window);
+	Login(QQuickWindow* window = Q_NULLPTR);
 	virtual ~Login();
 
 public:
