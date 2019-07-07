@@ -36,12 +36,16 @@ void LogSystem::WriteLog(QString msg)
 {
 	if (!fileIsCreated)
 	{
+		if (!QDir("Logs").exists())
+		{
+			QDir().mkdir("Logs");
+		}
 		m_fileName = "Logs/Log_" + QDateTime().currentDateTime().toString("yyyy.mm.dd_hh.mm.ss") + ".txt";
-		fileIsCreated = false;
+		fileIsCreated = true;
 	}
 
 	QFile f(m_fileName);
 	f.open(QIODevice::Append | QIODevice::WriteOnly);
-	f.write(msg.toUtf8());
+	f.write(msg.toUtf8() + '\n');
 	f.close();
 }
