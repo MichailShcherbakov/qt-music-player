@@ -119,8 +119,10 @@
     <ClCompile Include="SourceFiles\Custom Types\ImageProvider\ImageProvider.cpp" />
     <ClCompile Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\List\List.cpp" />
     <ClCompile Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\Model\Model.cpp" />
+    <ClCompile Include="SourceFiles\Log System\LogSystem.cpp" />
     <ClCompile Include="SourceFiles\Network\Socket.cpp" />
     <ClCompile Include="SourceFiles\Tools\Table\Table.cpp" />
+    <ClCompile Include="SourceFiles\Windows Manager\WindowManager.cpp" />
     <ClCompile Include="SourceFiles\Windows\Login\Login.cpp" />
     <ClCompile Include="SourceFiles\Windows\Player\Player.cpp" />
   </ItemGroup>
@@ -137,6 +139,14 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SourceFiles\Log System\LogSystem.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\SourceFiles\Qml Files;.\SourceFiles\Tools;.\SourceFiles\Windows;.\SourceFiles\Custom Types;.\SourceFiles;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtQml;$(QTDIR)\include\QtQuick;$(QTDIR)\include\QtQuickControls2</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\SourceFiles\Qml Files;.\SourceFiles\Tools;.\SourceFiles\Windows;.\SourceFiles\Custom Types;.\SourceFiles;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtQml;$(QTDIR)\include\QtQuick;$(QTDIR)\include\QtQuickControls2</IncludePath>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\Windows Manager\WindowManager.h">
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\SourceFiles\Qml Files;.\SourceFiles\Tools;.\SourceFiles\Windows;.\SourceFiles\Custom Types;.\SourceFiles;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtQml;$(QTDIR)\include\QtQuick;$(QTDIR)\include\QtQuickControls2</IncludePath>
+      <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\SourceFiles\Qml Files;.\SourceFiles\Tools;.\SourceFiles\Windows;.\SourceFiles\Custom Types;.\SourceFiles;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtQml;$(QTDIR)\include\QtQuick;$(QTDIR)\include\QtQuickControls2</IncludePath>
+    </ClInclude>
     <QtMoc Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\List\List.h">
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\SourceFiles\Qml Files;.\SourceFiles\Tools;.\SourceFiles\Windows;.\SourceFiles\Custom Types;.\SourceFiles;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtQml;$(QTDIR)\include\QtQuick;$(QTDIR)\include\QtQuickControls2;$(QTDIR)\include\QtWidgets</IncludePath>
       <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\SourceFiles\Qml Files;.\SourceFiles\Tools;.\SourceFiles\Windows;.\SourceFiles\Custom Types;.\SourceFiles;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtMultimedia;$(QTDIR)\include\QtNetwork;$(QTDIR)\include\QtQml;$(QTDIR)\include\QtQuick;$(QTDIR)\include\QtQuickControls2;$(QTDIR)\include\QtWidgets</IncludePath>

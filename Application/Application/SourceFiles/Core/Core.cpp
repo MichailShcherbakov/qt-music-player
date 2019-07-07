@@ -21,15 +21,23 @@ Core::~Core()
 
 void Core::Run()
 {
+	MSG(ETypeMessage::Log, "Registration custom types");
+
 	qmlRegisterType<FWindow>("my.window", 1, 0, "FWindow");
 
 	qmlRegisterType<HorizontalModel1::Model>("horizontalModel1", 1, 0, "HorizontalModel1");
 	qmlRegisterUncreatableType<HorizontalModel1::List>("horizontalModel1", 1, 0, "ListHorModel1", QStringLiteral("Upps.. :)"));
 
+	MSG(ETypeMessage::Log, "Qml engine initialization");
+
 	m_pEngine = new QQmlApplicationEngine;
+
+	MSG(ETypeMessage::Log, "Root image provider initialization");
 
 	m_pRootImageProvider = new ImageProvider;
 	m_pEngine->addImageProvider(QLatin1String("rootImageDirectory"), m_pRootImageProvider);
+
+	MSG(ETypeMessage::Log, "Socket initialization and connect to the server");
 
 	// Network
 	m_pSocket = new Socket;
@@ -40,7 +48,11 @@ void Core::Run()
 	m_pSocket->moveToThread(m_pThread);
 	m_pThread->start();
 
+	MSG(ETypeMessage::Log, "Parameters initialization");
+
 	EParams params(m_pEngine, m_pEngine->rootContext(), m_pSocket, m_pRootImageProvider);
+
+	MSG(ETypeMessage::Log, "Initialization window manager");
 
 	m_pWinManager = new WinManager(params);
 	m_pWinManager->Initialize();

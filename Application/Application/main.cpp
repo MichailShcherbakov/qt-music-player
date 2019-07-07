@@ -7,6 +7,8 @@ int main(int argc, char *argv[])
 
 	QGuiApplication app(argc, argv);
 
+	MSG(ETypeMessage::Log, "Core start");
+	
 	Core core;
 	core.Run();
 

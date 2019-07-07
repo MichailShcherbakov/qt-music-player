@@ -65,3 +65,8 @@ void WinManager::SetConnections()
 	connect(m_params.m_pSocket, &Socket::onGetFromServer, m_pHandleWindow, &IWindow::GetFromSocket);
 	connect(m_pHandleWindow, &IWindow::onClosing, this, &WinManager::WindowIsClosed);
 }
+
+void WinManager::WindowIsClosed()
+{
+
+}

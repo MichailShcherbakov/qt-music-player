@@ -78,6 +78,12 @@
     <Filter Include="Custom Types\ListViewModels\Horizontal\Type 1\Model">
       <UniqueIdentifier>{814b97bc-b71b-4ca8-af5c-e4f2458ec3f6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Window Manager">
+      <UniqueIdentifier>{7e4c284f-b3b4-4da3-a9ea-cbbfe1e814c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log System">
+      <UniqueIdentifier>{7aff32c4-1fa4-47c1-a4ef-4a7aad1b6002}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources.qrc">
@@ -112,6 +118,12 @@
     </ClCompile>
     <ClCompile Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\Model\Model.cpp">
       <Filter>Custom Types\ListViewModels\Horizontal\Type 1\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Windows Manager\WindowManager.cpp">
+      <Filter>Window Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Log System\LogSystem.cpp">
+      <Filter>Log System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,6 +164,12 @@
     </ClInclude>
     <ClInclude Include="SourceFiles\Tools\Table\Table.h">
       <Filter>Tools\Table</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\Windows Manager\WindowManager.h">
+      <Filter>Window Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceFiles\Log System\LogSystem.h">
+      <Filter>Log System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

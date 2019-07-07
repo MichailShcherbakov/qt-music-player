@@ -29,9 +29,6 @@ public:
 public:
 	void Run();
 
-public slots:
-	void WindowIsClosed();
-
 private:
 	QThread* m_pThread;
 	Socket* m_pSocket;

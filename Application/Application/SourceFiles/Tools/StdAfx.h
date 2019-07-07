@@ -5,6 +5,8 @@
 
 #include <QGuiApplication>
 
+#include "Log System/LogSystem.h"
+
 enum class ETypeWindow : int
 {
 	Unknown = -1,
