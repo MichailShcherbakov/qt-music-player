@@ -27,6 +27,11 @@ void LogSystem::Msg(ETypeMessage type, QString log, QString file, QString func, 
 		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Error] " + log;
 		break;
 	}
+	case ETypeMessage::FatalError:
+	{
+		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Fatal Error] " + log;
+		break;
+	}
 	}
 	WriteLog(msg);
 	qDebug() << msg;

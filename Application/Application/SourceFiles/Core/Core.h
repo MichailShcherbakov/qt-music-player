@@ -29,6 +29,9 @@ public:
 public:
 	void Run();
 
+signals:
+	void Push(QByteArray);
+
 private:
 	QThread* m_pThread;
 	Socket* m_pSocket;

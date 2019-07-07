@@ -17,18 +17,11 @@ void Player::Initialize()
 	RootImageProvider()->DeleteList();
 
 	LoadNext(ENetworkState::GetTableMedia);
-	m_networkListStates.append(ENetworkState::GetTableMedia);
-
 	LoadNext(ENetworkState::GetTableAlbums);
-	m_networkListStates.append(ENetworkState::GetTableAlbums);
-
 	LoadNext(ENetworkState::GetTableArtists);
-	m_networkListStates.append(ENetworkState::GetTableArtists);
-
 	LoadNext(ENetworkState::GetTableGenres);
-	m_networkListStates.append(ENetworkState::GetTableGenres);
 
-	connect(this, &Player::onGotGenresTable, this, &Player::InitializeScreen);
+	m_networkListStates.append(ENetworkState::End);
 }
 
 void Player::GetFromSocket(QByteArray data)
@@ -78,6 +71,17 @@ void Player::GetFromSocket(QByteArray data)
 			emit onGotMedia();
 			break;
 		}
+		case ENetworkState::End:
+		{
+				temp = new Section(m_tables.m_mediaTable, m_tables.m_artistsTable, m_tables.m_genresTable, m_tables.m_albumsTable, &m_listHorModel, RootImageProvider());
+
+				connect(temp, &Section::onSendToSocket, this, &Player::GetFromSection);
+				connect(this, &Player::onSendToSection, temp, &Section::GetFromServer);
+
+				temp->Initialize();
+			
+			break;
+		}
 		}
 		m_networkListStates.removeFirst();
 	}
@@ -85,6 +89,8 @@ void Player::GetFromSocket(QByteArray data)
 
 void Player::LoadNext(ENetworkState state, Query query)
 {
+	m_networkListStates.append(state);
+
 	switch (state)
 	{
 	case ENetworkState::GetTableMedia:
@@ -125,26 +131,33 @@ void Player::LoadNext(ENetworkState state, Query query)
 	emit onSendToSocket(query.toByteArray());
 }
 
+void Player::GetFromSection(const QByteArray& data)
+{
+	Query t;
+	t.fromByteArray(data);
+	LoadNext(ENetworkState::GetArtCover, t);
+}
+
 void Player::GetMediaTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_mediaTable)
+	if (m_tables.m_mediaTable)
 	{
-		SAFE_DELETE(m_mediaTable);
+		SAFE_DELETE(m_tables.m_mediaTable);
 	}
 
-	m_mediaTable = new Table;
+	m_tables.m_mediaTable = new Table;
 
-	m_mediaTable->AddColumn("id_media");
-	m_mediaTable->AddColumn("title");
-	m_mediaTable->AddColumn("id_artist");
-	m_mediaTable->AddColumn("id_album");
-	m_mediaTable->AddColumn("year");
-	m_mediaTable->AddColumn("id_genre");
-	m_mediaTable->AddColumn("duraction");
-	m_mediaTable->AddColumn("bitrate");
-	m_mediaTable->AddColumn("add_time");
+	m_tables.m_mediaTable->AddColumn("id_media");
+	m_tables.m_mediaTable->AddColumn("title");
+	m_tables.m_mediaTable->AddColumn("id_artist");
+	m_tables.m_mediaTable->AddColumn("id_album");
+	m_tables.m_mediaTable->AddColumn("year");
+	m_tables.m_mediaTable->AddColumn("id_genre");
+	m_tables.m_mediaTable->AddColumn("duraction");
+	m_tables.m_mediaTable->AddColumn("bitrate");
+	m_tables.m_mediaTable->AddColumn("add_time");
 
 	if (!table.isEmpty())
 	{
@@ -159,7 +172,7 @@ void Player::GetMediaTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_mediaTable->AddRow(rowMedia);
+			m_tables.m_mediaTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -168,15 +181,15 @@ void Player::GetArtistsTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_artistsTable)
+	if (m_tables.m_artistsTable)
 	{
-		SAFE_DELETE(m_artistsTable);
+		SAFE_DELETE(m_tables.m_artistsTable);
 	}
 
-	m_artistsTable = new Table;
+	m_tables.m_artistsTable = new Table;
 
-	m_artistsTable->AddColumn("id_artist");
-	m_artistsTable->AddColumn("name");
+	m_tables.m_artistsTable->AddColumn("id_artist");
+	m_tables.m_artistsTable->AddColumn("name");
 
 	if (!table.isEmpty())
 	{
@@ -191,7 +204,7 @@ void Player::GetArtistsTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_artistsTable->AddRow(rowMedia);
+			m_tables.m_artistsTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -200,15 +213,15 @@ void Player::GetAlbumsTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_albumsTable)
+	if (m_tables.m_albumsTable)
 	{
-		SAFE_DELETE(m_albumsTable);
+		SAFE_DELETE(m_tables.m_albumsTable);
 	}
 
-	m_albumsTable = new Table;
+	m_tables.m_albumsTable = new Table;
 
-	m_albumsTable->AddColumn("id_album");
-	m_albumsTable->AddColumn("title");
+	m_tables.m_albumsTable->AddColumn("id_album");
+	m_tables.m_albumsTable->AddColumn("title");
 
 	if (!table.isEmpty())
 	{
@@ -223,7 +236,7 @@ void Player::GetAlbumsTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_albumsTable->AddRow(rowMedia);
+			m_tables.m_albumsTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -232,15 +245,15 @@ void Player::GetGenresTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_genresTable)
+	if (m_tables.m_genresTable)
 	{
-		SAFE_DELETE(m_genresTable);
+		SAFE_DELETE(m_tables.m_genresTable);
 	}
 
-	m_genresTable = new Table;
+	m_tables.m_genresTable = new Table;
 
-	m_genresTable->AddColumn("id_genre");
-	m_genresTable->AddColumn("title");
+	m_tables.m_genresTable->AddColumn("id_genre");
+	m_tables.m_genresTable->AddColumn("title");
 
 	if (!table.isEmpty())
 	{
@@ -255,7 +268,7 @@ void Player::GetGenresTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_genresTable->AddRow(rowMedia);
+			m_tables.m_genresTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -267,47 +280,6 @@ void Player::GetMedia(Query data)
 
 void Player::GetArtCover(Query data)
 {
-	QByteArray t = data.GetFromBody("cover-art").toVariant().toByteArray();
-}
-
-void Player::InitializeScreen()
-{
-		QFile img("Resources/Icons/cover.jpg");
-		img.open(QIODevice::ReadOnly);
-		QByteArray arrayImg = img.readAll(); //"image://rootImageDirectory/x128/" + model.cover_key;
-		img.close();
-
-		QImage p;
-		p.loadFromData(arrayImg, "JPG");
-
-		RootImageProvider()->AppendImage(p, "default");
-
-		for (int i = 0; i < m_albumsTable->Rows(); ++i)
-		{
-			HorizontalModel1::Item item;
-			item.id = i;
-			item.coverKey = "default";
-			item.textLineFirst = m_albumsTable->ValueAt("title", i).toString();
-
-			for (int j = 0; j < m_mediaTable->Rows(); ++j)
-			{
-				if (m_mediaTable->ValueAt("id_album", j).toInt() == m_albumsTable->ValueAt("id_album", i).toInt())
-				{
-					int idArtist = m_mediaTable->ValueAt("id_artist", j).toInt();
-					item.textLineSecond = m_artistsTable->ValueAt("name", idArtist-1).toString();
-					break;
-				}
-			}
-
-			m_listHorModel.AppendItem(item);
-		}
-
-		/*Query query;
-		query.InsertIntoHeader("id-album", m_genresTable->ValueAt("id_album", 0).toInt());
-		LoadNext(ENetworkState::GetArtCover, query);*/
-}
-
-Q_INVOKABLE void Player::clicked()
-{
-	
+	QByteArray t = data.GetFromBody("cover-art").toVariant().toString().toLatin1();
+	emit onSendToSection(t);
 }

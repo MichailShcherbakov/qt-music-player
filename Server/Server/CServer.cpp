@@ -141,7 +141,8 @@ void CServer::SocketReady()
 			{
 				QByteArray coverArt;
 				GetCoverArt(id, body["id-album"].toInt(), &coverArt, res);
-				sendBody.insert("cover-art", coverArt.data());
+				QString t = QString::fromLatin1(coverArt, coverArt.size());
+				sendBody.insert("cover-art", t);
 			}
 			else
 			{
@@ -319,6 +320,7 @@ void CServer::CheckThisUser(const int id, QString username, QString password, Ty
 	q.exec("SELECT * FROM users WHERE username='" + username + "' and password='" + password + "';");
 	if (!q.next())
 	{
+		STools::Msg(EMessage::Error, "User is not found");
 		res->SetValue(ETypeResultQuery::UserIsNotFound);
 		return;
 	}
@@ -422,9 +424,10 @@ void CServer::GetCoverArt(const int id, const int id_media, QByteArray* data, Ty
 		STools::Msg(EMessage::Error, "User is not found");
 		return;
 	}
-	if (!q.exec("SELECT path FROM media WHERE id_media=" + QString::number(id_media) + ";"))
+	if (!q.exec("SELECT path FROM media WHERE id_album=" + QString::number(id_media) + ";"))
 	{
 		res->SetValue(ETypeResultQuery::IsNotFound);
+		STools::Msg(EMessage::Error, "Is Not Found");
 		return;
 	}
 	if (q.next())
@@ -436,8 +439,10 @@ void CServer::GetCoverArt(const int id, const int id_media, QByteArray* data, Ty
 	else
 	{
 		res->SetValue(ETypeResultQuery::IsNotFound);
+		STools::Msg(EMessage::Error, "Is Not Found");
 		return;
 	}
+	res->SetValue(ETypeResultQuery::Success);
 }
 
 void CServer::GetMedia(const int id, const int id_media, QByteArray* data, TypeResultQuery* res)

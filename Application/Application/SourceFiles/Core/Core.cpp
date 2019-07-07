@@ -14,8 +14,6 @@ Core::~Core()
 	m_pThread->terminate();
 	SAFE_DELETE(m_pWinManager);
 	SAFE_DELETE(m_pThread);
-	SAFE_DELETE(m_pSocket);
-	SAFE_DELETE(m_pRootImageProvider);
 	SAFE_DELETE(m_pEngine);
 }
 
@@ -48,7 +46,9 @@ void Core::Run()
 	m_pSocket->moveToThread(m_pThread);
 	m_pThread->start();
 
-	MSG(ETypeMessage::Log, "Parameters initialization");
+	connect(m_pThread, &QThread::finished, m_pSocket, &QObject::deleteLater);
+
+	MSG(ETypeMessage::Log, "Window manager parameters initialization");
 
 	EParams params(m_pEngine, m_pEngine->rootContext(), m_pSocket, m_pRootImageProvider);
 

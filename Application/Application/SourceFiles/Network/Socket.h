@@ -1,6 +1,7 @@
 #ifndef _SOCKET_H_
 #define _SOCKET_H_
 
+#include "StdAfx.h"
 
 #include <QString>
 #include <QTcpSocket>
@@ -34,7 +35,7 @@ signals:
 
 private:
 	int			m_port = 6150;
-	QString		m_ip = "192.168.0.105"; // Laptop - 192.168.0.105  Desktop - 192.168.0.108
+	QString		m_ip = "192.168.0.108"; // Laptop - 192.168.0.105  Desktop - 192.168.0.108
 	int			m_size_msg = 0;
 	bool		m_isConnected = false;
 	bool		m_isDataSent = false;

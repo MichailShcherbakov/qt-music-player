@@ -7,6 +7,8 @@
 #include <QString>
 #include <QDebug>
 
+#include <stdexcept>
+
 enum class ETypeMessage
 {
 	Unknown = 0,
@@ -14,6 +16,7 @@ enum class ETypeMessage
 	Success,
 	Warning,
 	Error,
+	FatalError,
 };
 
 namespace LogSystem

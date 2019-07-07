@@ -25,6 +25,7 @@ void Socket::Initialize()
 
 void Socket::Disconnected()
 {
+	emit onCheckConnect();
 }
 
 void Socket::CheckConnect()
@@ -35,10 +36,16 @@ void Socket::CheckConnect()
 	{
 		QMetaObject::invokeMethod(this, "CheckConnect", Qt::QueuedConnection);
 	}
+	else
+	{
+		MSG(ETypeMessage::Log, "Connected to the server");
+	}
 }
 
 void Socket::SendToServer(const QByteArray& query)
 {
+	MSG(ETypeMessage::Log, "Sending data to server");
+
 	QByteArray msg;
 	QDataStream out(&msg, QIODevice::WriteOnly);
 	out.setVersion(QDataStream::Qt_5_12);
@@ -69,11 +76,15 @@ void Socket::ReadyRead()
 		out.setVersion(QDataStream::Qt_5_12);
 		out >> m_size_msg;
 
+		MSG(ETypeMessage::Log, "Size of msg: " + QString::number(m_size_msg) + " bits");
+
 		m_buffer.remove(0, sizeof(int));
 	}
 
 	if (m_size_msg == m_buffer.size())
 	{
+		MSG(ETypeMessage::Success, "Data is gotten from the server fully");
+
 		m_size_msg = 0;
 		emit onGetFromServer(m_buffer);
 		m_buffer.clear();

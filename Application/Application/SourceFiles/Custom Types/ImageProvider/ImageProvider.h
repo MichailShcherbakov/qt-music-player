@@ -14,9 +14,14 @@ public:
 	void AppendImage(QImage image, QString id);
 	void DeleteList();
 	QImage GetImage(QString id);
+	QString Find(QImage image);
+	bool Contains(QString id);
+	void Remove(QString id);
+	int SafeId();
 	int Size();
 
 private:
+	unsigned long long m_safeId = 0;
 	QMap<QString, QImage> m_list;
 };
 

@@ -20,14 +20,16 @@ struct EParams
 	{
 	}
 
-	QQmlApplicationEngine* const m_pEngine;
-	QQmlContext* const m_pRootContext;
-	Socket* const m_pSocket;
-	ImageProvider* const m_pRootImageProvider;
+	QQmlApplicationEngine* m_pEngine;
+	QQmlContext* m_pRootContext;
+	Socket* m_pSocket;
+	ImageProvider* m_pRootImageProvider;
 };
 
 class WinManager : public QObject
 {
+	Q_OBJECT
+
 public:
 	WinManager(EParams params);
 	~WinManager();
@@ -39,6 +41,10 @@ private:
 	void OpenWindow();
 	void SetConnections();
 	void InitializeWindow(ETypeWindow type);
+
+signals:
+	void Push(QByteArray);
+	void onSendToServer(QByteArray);
 
 public slots:
 	void WindowIsClosed();

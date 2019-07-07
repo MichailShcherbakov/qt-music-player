@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-import QtGraphicalEffects 1.0
+import QtGraphicalEffects 1.12
 
 import "../../Styles/ListsView"
 
@@ -685,7 +685,7 @@ FWindow
                                                     {
                                                         id: cover_album
                                                         anchors.fill: parent;
-                                                        source: "qrc:/Resources/Icons/cover.jpg";
+                                                        source: "image://rootImageDirectory/x128/" + model.cover_key;
                                                         smooth: true;
                                                         visible: true;
                                                     }

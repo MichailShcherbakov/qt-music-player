@@ -28,6 +28,7 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 void ImageProvider::AppendImage(QImage image, QString id)
 {
 	m_list.insert(id, image);
+	m_safeId++;
 }
 
 void ImageProvider::DeleteList()
@@ -42,6 +43,26 @@ QImage ImageProvider::GetImage(QString id)
 		return m_list.value(id);
 	}
 	return QImage();
+}
+
+QString ImageProvider::Find(QImage image)
+{
+	return m_list.key(image);
+}
+
+bool ImageProvider::Contains(QString id)
+{
+	return m_list.contains(id);
+}
+
+void ImageProvider::Remove(QString id)
+{
+	m_list.remove(id);
+}
+
+int ImageProvider::SafeId()
+{
+	return m_safeId++;
 }
 
 int ImageProvider::Size()
