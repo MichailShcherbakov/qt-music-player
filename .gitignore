@@ -1,5 +1,6 @@
 # own
-*/Logs/*.*
+Application/Application/Logs/
+
 
 # Created by https://www.gitignore.io/api/qt,windows,qtcreator
 # Edit at https://www.gitignore.io/?templates=qt,windows,qtcreator
