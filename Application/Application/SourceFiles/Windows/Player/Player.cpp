@@ -12,16 +12,36 @@ Player::~Player()
 
 void Player::Initialize()
 {
+	MSG(ETypeMessage::Log, "Initialization");
+
 	RootContext()->setContextProperty(QStringLiteral("albumsModelList"), &m_listHorModel);
 
 	RootImageProvider()->DeleteList();
 
-	LoadNext(ENetworkState::GetTableMedia);
-	LoadNext(ENetworkState::GetTableAlbums);
-	LoadNext(ENetworkState::GetTableArtists);
-	LoadNext(ENetworkState::GetTableGenres);
+	connect(this, &Player::onLoad, this, &Player::Load);
 
-	m_networkListStates.append(ENetworkState::End);
+	QFile img("Resources/Icons/cover.jpg");
+	img.open(QIODevice::ReadOnly);
+	QByteArray arrayImg = img.readAll();
+	img.close();
+
+	QImage p;
+	p.loadFromData(arrayImg, "JPG");
+
+	RootImageProvider()->AppendImage(p, "default");
+
+	MSG(ETypeMessage::Log, "Sections Loading");
+
+	m_hor1section = new HorizontalModel1::Section(&m_listHorModel, RootImageProvider());
+	m_sections.append(m_hor1section);
+
+	MSG(ETypeMessage::Log, "Set connections with sections");
+
+	for (auto it : m_sections)
+	{
+		connect(it, &ISection::onSendQuery, this, &Player::GetFromSection);
+		it->Initialize();
+	}
 }
 
 void Player::GetFromSocket(QByteArray data)
@@ -33,131 +53,232 @@ void Player::GetFromSocket(QByteArray data)
 
 	if (res == ETypeResultQuery::Success)
 	{
-		switch (m_networkListStates.first())
+		MSG(ETypeMessage::Log, "The query was done correctly");
+
+		ISection* section = m_requests.first().first;
+		SectionQuery query = m_requests.first().second;
+		const char* signal;
+		const char* slot;
+
+		switch (query.first)
 		{
 		case ENetworkState::GetTableMedia:
 		{
 			GetMediaTable(result);
-			emit onGotMediaTable();
+			signal = SIGNAL(onGotMediaTable(Table*));
+			slot = SLOT(GetTable(Table*));
+
+			for (auto it : m_requests)
+			{
+				ISection* s = it.first;
+				SectionQuery q = it.second;
+
+				if (q.first == query.first)
+				{
+					connect(this, signal, s, slot);
+				}
+			}
+
+			emit onGotMediaTable(m_pMediaTable);
 			break;
 		}
 		case ENetworkState::GetTableArtists:
 		{
 			GetArtistsTable(result);
-			emit onGotArtistsTable();
+			signal = SIGNAL(onGotArtistsTable(Table*));
+			slot = SLOT(GetTable(Table*));
+
+			for (auto it : m_requests)
+			{
+				ISection* s = it.first;
+				SectionQuery q = it.second;
+
+				if (q.first == query.first)
+				{
+					connect(this, signal, s, slot);
+				}
+			}
+
+			emit onGotArtistsTable(m_pArtistsTable);
 			break;
 		}
 		case ENetworkState::GetTableAlbums:
 		{
 			GetAlbumsTable(result);
-			emit onGotAlbumsTable();
+			signal = SIGNAL(onGotAlbumsTable(Table*));
+			slot = SLOT(GetTable(Table*));
+
+			for (auto it : m_requests)
+			{
+				ISection* s = it.first;
+				SectionQuery q = it.second;
+
+				if (q.first == query.first)
+				{
+					connect(this, signal, s, slot);
+				}
+			}
+
+			emit onGotAlbumsTable(m_pAlbumsTable);
 			break;
 		}
 		case ENetworkState::GetTableGenres:
 		{
 			GetGenresTable(result);
-			emit onGotGenresTable();
+			signal = SIGNAL(onGotGenresTable(Table*));
+			slot = SLOT(GetTable(Table*));
+
+			for (auto it : m_requests)
+			{
+				ISection* s = it.first;
+				SectionQuery q = it.second;
+
+				if (q.first == query.first)
+				{
+					connect(this, signal, s, slot);
+				}
+			}
+
+			emit onGotGenresTable(m_pGenresTable);
 			break;
 		}
 		case ENetworkState::GetArtCover:
 		{
 			GetArtCover(result);
-			emit onGotArtCover();
+			signal = SIGNAL(onGotArtCover(QByteArray));
+			slot = SLOT(GetByteArray(QByteArray));
+			
+			connect(this, signal, section, slot);
+
+			emit onGotArtCover(m_buffer);
 			break;
 		}
 		case ENetworkState::GetMedia:
 		{
 			GetMedia(result);
-			emit onGotMedia();
+			signal = SIGNAL(onGotMedia(QByteArray));
+			slot = SLOT(GetByteArray(QByteArray));
+
+			connect(this, signal, section, slot);
+
+			emit onGotMedia(m_buffer);
 			break;
 		}
-		case ENetworkState::End:
+		default: 
 		{
-				temp = new Section(m_tables.m_mediaTable, m_tables.m_artistsTable, m_tables.m_genresTable, m_tables.m_albumsTable, &m_listHorModel, RootImageProvider());
-
-				connect(temp, &Section::onSendToSocket, this, &Player::GetFromSection);
-				connect(this, &Player::onSendToSection, temp, &Section::GetFromServer);
-
-				temp->Initialize();
-			
-			break;
+			MSG(ETypeMessage::Error, "Unknown network state");
+			return;
 		}
 		}
-		m_networkListStates.removeFirst();
+
+		if (ENetworkState::GetArtCover != query.first && ENetworkState::GetMedia != query.first)
+		{
+			for (auto it : m_requests)
+			{
+				ISection* s = it.first;
+				SectionQuery q = it.second;
+
+				if (q.first == query.first)
+				{
+					disconnect(this, signal, s, slot);
+
+					int id = m_requests.indexOf(it);
+					m_requests.removeAt(id);
+				}
+			}
+		}
+		else
+		{
+			disconnect(this, signal, section, slot);
+			m_requests.removeFirst();
+		}
+	}
+	else
+	{
+		MSG(ETypeMessage::Error, "The query was not done");
 	}
 }
 
-void Player::LoadNext(ENetworkState state, Query query)
+void Player::Load(const ENetworkState type, Query query)
 {
-	m_networkListStates.append(state);
-
-	switch (state)
+	switch (type)
 	{
 	case ENetworkState::GetTableMedia:
 	{
+		MSG(ETypeMessage::Log, "The query for getting a table of media");
+
 		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
 		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Media));
 		break;
 	}
 	case ENetworkState::GetTableAlbums:
 	{
+		MSG(ETypeMessage::Log, "The query for getting a table of albums");
+
 		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
 		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Albums));
 		break;
 	}
 	case ENetworkState::GetTableArtists:
 	{
+		MSG(ETypeMessage::Log, "The query for getting a table of artists");
+
 		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
 		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Artists));
 		break;
 	}
 	case ENetworkState::GetTableGenres:
 	{
+		MSG(ETypeMessage::Log, "The query for getting a table of genres");
+
 		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
 		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Genres));
 		break;
 	}
 	case ENetworkState::GetArtCover:
 	{
+		MSG(ETypeMessage::Log, "The query for getting a cover art");
+
 		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Cover_Art));
 		break;
 	}
 	case ENetworkState::GetMedia:
 	{
+		MSG(ETypeMessage::Log, "The query for getting a media");
+
 		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
 		break;
 	}
+	default:
+	{
+		MSG(ETypeMessage::Error, "Unknown network state");
+		return;
 	}
-	emit onSendToSocket(query.toByteArray());
-}
+	}
 
-void Player::GetFromSection(const QByteArray& data)
-{
-	Query t;
-	t.fromByteArray(data);
-	LoadNext(ENetworkState::GetArtCover, t);
+	emit onSendToSocket(query.toByteArray());
 }
 
 void Player::GetMediaTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_tables.m_mediaTable)
+	if (m_pMediaTable)
 	{
-		SAFE_DELETE(m_tables.m_mediaTable);
+		SAFE_DELETE(m_pMediaTable);
 	}
 
-	m_tables.m_mediaTable = new Table;
+	m_pMediaTable = new Table;
 
-	m_tables.m_mediaTable->AddColumn("id_media");
-	m_tables.m_mediaTable->AddColumn("title");
-	m_tables.m_mediaTable->AddColumn("id_artist");
-	m_tables.m_mediaTable->AddColumn("id_album");
-	m_tables.m_mediaTable->AddColumn("year");
-	m_tables.m_mediaTable->AddColumn("id_genre");
-	m_tables.m_mediaTable->AddColumn("duraction");
-	m_tables.m_mediaTable->AddColumn("bitrate");
-	m_tables.m_mediaTable->AddColumn("add_time");
+	m_pMediaTable->AddColumn("id_media");
+	m_pMediaTable->AddColumn("title");
+	m_pMediaTable->AddColumn("id_artist");
+	m_pMediaTable->AddColumn("id_album");
+	m_pMediaTable->AddColumn("year");
+	m_pMediaTable->AddColumn("id_genre");
+	m_pMediaTable->AddColumn("duraction");
+	m_pMediaTable->AddColumn("bitrate");
+	m_pMediaTable->AddColumn("add_time");
 
 	if (!table.isEmpty())
 	{
@@ -172,7 +293,7 @@ void Player::GetMediaTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_tables.m_mediaTable->AddRow(rowMedia);
+			m_pMediaTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -181,15 +302,15 @@ void Player::GetArtistsTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_tables.m_artistsTable)
+	if (m_pArtistsTable)
 	{
-		SAFE_DELETE(m_tables.m_artistsTable);
+		SAFE_DELETE(m_pArtistsTable);
 	}
 
-	m_tables.m_artistsTable = new Table;
+	m_pArtistsTable = new Table;
 
-	m_tables.m_artistsTable->AddColumn("id_artist");
-	m_tables.m_artistsTable->AddColumn("name");
+	m_pArtistsTable->AddColumn("id_artist");
+	m_pArtistsTable->AddColumn("name");
 
 	if (!table.isEmpty())
 	{
@@ -204,7 +325,7 @@ void Player::GetArtistsTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_tables.m_artistsTable->AddRow(rowMedia);
+			m_pArtistsTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -213,15 +334,15 @@ void Player::GetAlbumsTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_tables.m_albumsTable)
+	if (m_pAlbumsTable)
 	{
-		SAFE_DELETE(m_tables.m_albumsTable);
+		SAFE_DELETE(m_pAlbumsTable);
 	}
 
-	m_tables.m_albumsTable = new Table;
+	m_pAlbumsTable = new Table;
 
-	m_tables.m_albumsTable->AddColumn("id_album");
-	m_tables.m_albumsTable->AddColumn("title");
+	m_pAlbumsTable->AddColumn("id_album");
+	m_pAlbumsTable->AddColumn("title");
 
 	if (!table.isEmpty())
 	{
@@ -236,7 +357,7 @@ void Player::GetAlbumsTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_tables.m_albumsTable->AddRow(rowMedia);
+			m_pAlbumsTable->AddRow(rowMedia);
 		}
 	}
 }
@@ -245,15 +366,15 @@ void Player::GetGenresTable(Query data)
 {
 	QJsonArray table = data.GetFromBody("table").toArray();
 
-	if (m_tables.m_genresTable)
+	if (m_pGenresTable)
 	{
-		SAFE_DELETE(m_tables.m_genresTable);
+		SAFE_DELETE(m_pGenresTable);
 	}
 
-	m_tables.m_genresTable = new Table;
+	m_pGenresTable = new Table;
 
-	m_tables.m_genresTable->AddColumn("id_genre");
-	m_tables.m_genresTable->AddColumn("title");
+	m_pGenresTable->AddColumn("id_genre");
+	m_pGenresTable->AddColumn("title");
 
 	if (!table.isEmpty())
 	{
@@ -268,18 +389,33 @@ void Player::GetGenresTable(Query data)
 				auto value = obj.constBegin();
 				rowMedia.Append(*value);
 			}
-			m_tables.m_genresTable->AddRow(rowMedia);
+			m_pGenresTable->AddRow(rowMedia);
 		}
 	}
 }
 
 void Player::GetMedia(Query data)
 {
-	QByteArray t = data.GetFromBody("media").toVariant().toByteArray();
+	m_buffer.clear();
+	m_buffer = data.GetFromBody("media").toVariant().toString().toLatin1();
 }
 
 void Player::GetArtCover(Query data)
 {
-	QByteArray t = data.GetFromBody("cover-art").toVariant().toString().toLatin1();
-	emit onSendToSection(t);
+	m_buffer.clear();
+	m_buffer = data.GetFromBody("cover-art").toVariant().toString().toLatin1();
 }
+
+void Player::GetFromSection(ISection* section, ENetworkState type, Query query)
+{
+	MSG(ETypeMessage::Log, "The query was gave from the section");
+
+	SectionQuery q;
+	q.first = type;
+	q.second = query;
+
+	m_requests.append(QPair<ISection*, SectionQuery>(section, q));
+
+	emit onLoad(type, query);
+}
+

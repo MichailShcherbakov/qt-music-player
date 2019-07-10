@@ -9,27 +9,27 @@ void LogSystem::Msg(ETypeMessage type, QString log, QString file, QString func, 
 	{
 	case ETypeMessage::Log:
 	{
-		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Log] " + log;
+		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [Log] [" + func + "] [" + QString::number(line) + "] " + log;
 		break;
 	}
 	case ETypeMessage::Warning:
 	{
-		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Warning] " + log;
+		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [Warning] [" + func + "] [" + QString::number(line) + "] " + log;
 		break;
 	}
 	case ETypeMessage::Success:
 	{
-		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Success] " + log;
+		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [Success] [" + func + "] [" + QString::number(line) + "] " + log;
 		break;
 	}
 	case ETypeMessage::Error:
 	{
-		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Error] " + log;
+		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [Error] [" + func + "] [" + QString::number(line) + "] " + log;
 		break;
 	}
 	case ETypeMessage::FatalError:
 	{
-		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [" + func + "] [" + QString::number(line) + "] [Fatal Error] " + log;
+		msg = "[" + time.currentTime().toString("hh:mm:ss.zzz") + "] [Fatal Error] [" + func + "] [" + QString::number(line) + "] " + log;
 		break;
 	}
 	}

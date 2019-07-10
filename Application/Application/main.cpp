@@ -2,8 +2,9 @@
 
 int main(int argc, char *argv[])
 {
-	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-	QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Direct3D12);
+	//QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
+	//QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Software);
 
 	QGuiApplication app(argc, argv);
 

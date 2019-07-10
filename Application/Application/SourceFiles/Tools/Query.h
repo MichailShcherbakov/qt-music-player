@@ -91,6 +91,22 @@ public:
 		return QJsonValue();
 	}
 
+	friend bool operator==(const Query& l, const Query& r)
+	{
+		if (l.doc == r.doc &&
+			l.main == r.main &&
+			l.header == r.header &&
+			l.body == r.body &&
+			l.footer == r.footer)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	inline QByteArray toByteArray()
 	{
 		main.insert("header", header);

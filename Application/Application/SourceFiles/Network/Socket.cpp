@@ -20,12 +20,12 @@ void Socket::Initialize()
 	connect(this, &Socket::onNextLoad, this, &Socket::SendToServer);
 	connect(this, &Socket::onCheckConnect, this, &Socket::CheckConnect);
 
-	emit onCheckConnect();
+	//emit onCheckConnect();
 }
 
 void Socket::Disconnected()
 {
-	emit onCheckConnect();
+	//emit onCheckConnect();
 }
 
 void Socket::CheckConnect()

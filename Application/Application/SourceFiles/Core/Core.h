@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QThread>
 
+#include <QGraphicseffect>
+
 // Network
 #include "Network/Socket.h"
 

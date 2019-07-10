@@ -12,14 +12,16 @@ import horizontalModel1 1.0
 FWindow
 {
     id: window
+    /*width: 1200;
+    height: 720;;*/
     m_width: 1200;
     m_height: 720;
     m_minWidth: 1200;
     m_minHeight: 720;
     m_maxWidth: 1980;
-    m_maxHeight: 1080;
+    m_maxHeight: 1080
 
-    visible: false
+    visible: true;
 
     FontLoader { id: localFont; source: "qrc:/Resources/Fonts/Gilroy.ttf" }
 
@@ -130,12 +132,12 @@ FWindow
                                         anchors.topMargin: -1;
                                     }
 
-                                    OpacityMask
+                                    /*OpacityMask
                                     {
                                         anchors.fill: image_user;
                                         source: image_user;
                                         maskSource: mask_image_user;
-                                    }
+                                    }*/
                                 }
 
                                 Label
@@ -319,7 +321,7 @@ FWindow
                     id: cover
                     width: 196
                     height:  196
-                    visible: true
+                    visible: false
 
                     Image
                     {
@@ -352,7 +354,7 @@ FWindow
                     maskSource: mask
                 }
 
-                DropShadow
+                /*DropShadow
                 {
                     anchors.fill: coverMask
                     horizontalOffset: 0
@@ -361,7 +363,7 @@ FWindow
                     samples: 17
                     color: "#20000000"
                     source: coverMask
-                }
+                }*/
             }
 
         }
@@ -557,6 +559,11 @@ FWindow
                                 hoverEnabled: true;
                                 property bool m_state: false;
 
+                                property int oldWidth: 0;
+                                property int oldHeight: 0;
+
+                                property bool typeShow: true;
+
                                 onHoveredChanged:
                                 {
                                     m_state = m_state ? false : true;
@@ -566,7 +573,16 @@ FWindow
 
                                 onClicked:
                                 {
-                                    wRoot.clicked();
+                                   	if (typeShow)
+                                   	{
+                               			window.showFullScreen();
+                                   		typeShow = false;
+                                   	}
+                                   	else
+                                   	{
+                                   		window.showNormal();   
+                                   		typeShow = true;		
+                                   	}
                                 }
                             }
                         }
@@ -612,8 +628,6 @@ FWindow
 
                     Item
                     {
-                        id: contentsContaner
-
                         width: parent.width;
                         height: parent.height - controlsButtons.height - 10;
 
@@ -621,13 +635,16 @@ FWindow
 
                         Column
                         {
+                        	id: contentsContaner
                             spacing: 0;
-                            width: parent.width - 32;
+                            width: parent.width - 64;
                             height: parent.height - 32;
                             anchors.top: parent.top;
                             anchors.topMargin: 32;
                             anchors.left: parent.left;
                             anchors.leftMargin: 32;
+                            anchors.right: parent.right;
+                            anchors.rightMargin: 32;
 
                             Item
                             {
@@ -655,94 +672,148 @@ FWindow
                                         color: "#2ED297"
                                     }
 
-                                    ListView
-                                    {
-                                        width: contentsContaner.width - 32;
-                                        height: 200;
-                                        clip: true;
-                                        spacing: 32;
-                                        orientation: ListView.Horizontal;
+	                            	ListView
+	                                {
+	                                    width: contentsContaner.width;
+	                                    height: 200;
+	                                    clip: true;
+	                                   	spacing: 32;
+	                                    orientation: ListView.Horizontal;
 
-                                        model: HorizontalModel1
+	                                    model: HorizontalModel1
 										{
 											list: albumsModelList
 										}
 
-                                        delegate: Item
-                                        {
-                                            id: album
-                                            width: 128;
+	                                    delegate: Item
+	                                    {
+	                                        id: album
+	                                        width: 128;
 
-                                            Column
-                                            {
-                                                spacing: 10;
-                                                Item
-                                                {
-                                                    width: album.width;
-                                                    height: 128;
+	                                        opacity: 1;
 
-                                                    Image
-                                                    {
-                                                        id: cover_album
-                                                        anchors.fill: parent;
-                                                        source: "image://rootImageDirectory/x128/" + model.cover_key;
-                                                        smooth: true;
-                                                        visible: true;
-                                                    }
+	                                       	property int step: 1;
 
-                                                    Rectangle
-                                                    {
-                                                        id: mask_cover_album
-                                                        width: cover_album.width
-                                                        height:  cover_album.height
-                                                        radius: 4
-                                                        visible: false
-                                                    }
+	                                       	function isDefualt(title)
+											{
+											    if (title == "default")
+											    {
+											        opacityMaskAlbum.visible = false;
+											        mask_cover_album.visible = true;
+											        unknown_cover_album.visible = true;
+											    }
+											    else
+											    {
+													opacityMaskAlbum.visible = true;
+											        mask_cover_album.visible = false;
+											        unknown_cover_album.visible = false;
+											    }
+											    return title;
+											} 
 
-                                                    OpacityMask
-                                                    {
-                                                        id: opacityMaskAlbum
-                                                        anchors.fill: cover_album
-                                                        source: cover_album
-                                                        maskSource: mask_cover_album
-                                                    }
+	                                        Column
+	                                        {
+	                                            spacing: 10;
 
-                                                    DropShadow
-                                                    {
-                                                        anchors.fill: opacityMaskAlbum
-                                                        horizontalOffset: 0
-                                                        verticalOffset: 10
-                                                        radius: 12.0
-                                                        samples: 17
-                                                        color: "#9FF0D2"
-                                                        source: opacityMaskAlbum
-                                                    }
-                                                }
+	                                            Item
+	                                            {
+	                                                width: album.width;
+	                                                height: 128;
 
-                                                Column
-                                                {
-                                                    spacing: 2;
-                                                    Label
-                                                    {
-                                                        font.pixelSize: 15
-                                                        font.family: "Gilroy"
-                                                        text: model.text_line_first;
-                                                        color: "#fff"
-                                                        leftPadding: 10;
-                                                    }
+	                                                Image
+	                                                {
+	                                                    id: cover_album
+	                                                    anchors.fill: parent;
+	                                                    source: "image://rootImageDirectory/x128/" + isDefualt(model.cover_key);
+	                                                   	smooth: true;
+	                                                    visible: false;
+	                                               	}
 
-                                                    Label
-                                                    {
-                                                        font.pixelSize: 12
-                                                        font.family: "Gilroy"
-                                                        text: model.text_line_second;
-                                                        color: "#676D7A"
-                                                        leftPadding: 10;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+	                                                Rectangle
+	                                                {
+	                                                    id: mask_cover_album;
+	                                                    width: cover_album.width;
+	                                                    height:  cover_album.height;
+	                                                    radius: 4;
+	                                                    color: "#1B1D23";
+	                                                    visible: false;
+	                                                }
+
+	                                                OpacityMask
+	                                                {
+	                                                    id: opacityMaskAlbum
+	                                                    anchors.fill: cover_album
+	                                                    source: cover_album
+	                                                    maskSource: mask_cover_album
+													}
+
+													Image
+	                                                {
+	                                                    id: unknown_cover_album
+	                                                    width: 64;
+	                                                    height: 64;
+	                                                    source: "qrc:/Resources/Icons/cover_note.png";
+	                                                   	smooth: true;
+
+	                                                    anchors.verticalCenter: opacityMaskAlbum.verticalCenter;
+	                                                    anchors.horizontalCenter: opacityMaskAlbum.horizontalCenter;
+	                                               	}
+
+													
+	                                                    /*DropShadow
+	                                                    {
+	                                                        anchors.fill: opacityMaskAlbum
+	                                                        horizontalOffset: 0
+	                                                        verticalOffset: 10
+	                                                        radius: 12.0
+	                                                        samples: 17
+	                                                        color: "#9FF0D2"
+	                                                        source: opacityMaskAlbum
+	                                                    }*/
+	                                            }
+
+	                                            Column
+	                                            {
+	                                                spacing: 2;
+	                                                Label
+	                                                {
+	                                                    font.pixelSize: 15
+	                                                    font.family: "Gilroy"
+	                                        	        text: points(model.text_line_first, 14);
+	                                                   	color: "#fff"
+	                                                    leftPadding: 10;
+	                                                }
+
+	                                                Label
+	                                                {
+	                                                    font.pixelSize: 12
+	                                                    font.family: "Gilroy"
+	                                                    text:  points(model.text_line_second, 14);
+	                                                    color: "#676D7A"
+	                                                    leftPadding: 10;
+	                                                }
+	                                            }
+	                                        }
+
+	                                        PropertyAnimation
+									        {
+									            id: animation_opacity_album;
+									            targets: [ album, opacityMaskAlbum ];
+									            to: 1;
+									            property: "opacity";
+									            duration: 200;
+									            easing.type: Easing.InOutQuad;
+									        }
+
+
+	                                        Component.onCompleted:
+	                                        {
+	                                        	//album.opacity = 0;
+	                                        	opacityMaskAlbum.opacity = 0;
+	                                        	animation_opacity_album.start();
+	                                        }   
+	                                    }
+	                                }
                                 }
                             }
 
@@ -916,12 +987,12 @@ FWindow
                                                     visible: false
                                                 }
 
-                                                OpacityMask
+                                                /*OpacityMask
                                                 {
                                                     anchors.fill: cover_list
                                                     source: cover_list
                                                     maskSource: mask_cover_list
-                                                }
+                                                }*/
                                             }
 
                                             Column
@@ -1356,7 +1427,27 @@ FWindow
                 }
             }
         }
-    }
+    }                                             	
+
+    function points(str, size)
+	{
+		if (str.length > size)
+		{
+			var newStr = new String("");
+
+			for (var i = 0; i < size; ++i)
+			{
+				newStr += str[i];
+			}
+
+			newStr += "...";
+			return newStr;
+		}
+		else
+		{
+			return str;
+		}
+	}
 }
 
 

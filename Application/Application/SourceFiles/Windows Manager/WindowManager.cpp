@@ -14,6 +14,7 @@ void WinManager::Initialize()
 {
 	// TEMP
 	connect(this, &WinManager::onSendToServer, m_params.m_pSocket, &Socket::SendToServer);
+	connect(m_params.m_pSocket, &Socket::onGetFromServer, this, &WinManager::Continue);
 
 	Query query;
 	query.InsertIntoHeader("username", "1");
@@ -21,11 +22,11 @@ void WinManager::Initialize()
 	query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
 	emit onSendToServer(query.toByteArray());
 
-	MSG(ETypeMessage::Log, "Default window initialisation");
+	/*MSG(ETypeMessage::Log, "Default window initialisation");
 	InitializeWindow(ETypeWindow::Player);
 
 	MSG(ETypeMessage::Log, "Opening a window");
-	OpenWindow();
+	OpenWindow();*/
 }
 
 void WinManager::InitializeWindow(ETypeWindow type)
@@ -69,6 +70,25 @@ void WinManager::InitializeWindow(ETypeWindow type)
 		break;
 	}
 	}
+}
+
+void WinManager::Continue(QByteArray d)
+{
+	if (t)
+	{
+		disconnect(m_params.m_pSocket, &Socket::onGetFromServer, this, &WinManager::Continue);
+		
+		MSG(ETypeMessage::Log, "Default window initialisation");
+		InitializeWindow(ETypeWindow::Player);
+
+		MSG(ETypeMessage::Log, "Opening a window");
+		OpenWindow();
+	}
+	else
+	{
+		t = true;
+	}
+	
 }
 
 void WinManager::OpenWindow()

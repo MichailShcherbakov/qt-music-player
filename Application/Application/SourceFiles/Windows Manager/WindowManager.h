@@ -48,10 +48,14 @@ signals:
 
 public slots:
 	void WindowIsClosed();
+	void Continue(QByteArray);
 
 private:
 	IWindow* m_pHandleWindow;
 	EParams m_params;
+
+	// Temp 
+	bool t = true;
 };
 
 #endif

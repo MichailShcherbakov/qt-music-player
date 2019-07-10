@@ -111,10 +111,14 @@ QVariant Table::ValueAt(const QString& title, const int& index)
 
 int Table::IndexAt(const QString& title, const QVariant& row)
 {
-	/*if (m_list.contains(title))
-		return m_list.find(title).value().IndexAt(row);
-	else return -1;*/
-	return 0;
+	for (auto it : m_list)
+	{
+		if (it.first == title)
+		{
+			return it.second->IndexAt(row);
+		}
+	}
+	return -1;
 }
 
 void Table::Clear()

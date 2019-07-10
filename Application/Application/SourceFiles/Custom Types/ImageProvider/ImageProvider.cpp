@@ -55,6 +55,18 @@ bool ImageProvider::Contains(QString id)
 	return m_list.contains(id);
 }
 
+bool ImageProvider::Contains(QImage id)
+{
+	for (auto it : m_list)
+	{
+		if (it == id)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void ImageProvider::Remove(QString id)
 {
 	m_list.remove(id);

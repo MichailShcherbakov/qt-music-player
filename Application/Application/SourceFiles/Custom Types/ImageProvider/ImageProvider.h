@@ -16,6 +16,7 @@ public:
 	QImage GetImage(QString id);
 	QString Find(QImage image);
 	bool Contains(QString id);
+	bool Contains(QImage id);
 	void Remove(QString id);
 	int SafeId();
 	int Size();

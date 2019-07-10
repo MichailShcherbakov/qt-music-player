@@ -1,5 +1,5 @@
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#ifndef _IWINDOW_H_
+#define _IWINDOW_H_
 
 #include "Tools/StdAfx.h"
 

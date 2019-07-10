@@ -7,6 +7,11 @@ List::List(QObject* parent) :
 {
 }
 
+List::List(const List& list)
+{
+	m_list = list.m_list;
+}
+
 List::~List()
 {
 
@@ -79,4 +84,16 @@ Item List::At(int index)
 int List::Size()
 {
 	return m_list.size();
+}
+
+void HorizontalModel1::List::Clear()
+{
+	for (int i = 0; i < m_list.size(); ++i)
+	{
+		emit preItemRemoved(i);
+
+		m_list.removeAt(i);
+
+		emit postItemRemoved();
+	}	
 }

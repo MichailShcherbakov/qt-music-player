@@ -139,8 +139,8 @@ ListView
             }
         }
 
-         PropertyAnimation
-         {
+        PropertyAnimation
+        {
             id: animation_shadow
             target: shadow
             property: "opacity"
@@ -148,8 +148,8 @@ ListView
             easing.type: Easing.InOutQuad
         }
 
-         PropertyAnimation
-         {
+        PropertyAnimation
+        {
             id: animation_item
             targets: [imageItem, textItem]
             property: "opacity"
@@ -157,8 +157,8 @@ ListView
             easing.type: Easing.InOutQuad
         }
 
-         PropertyAnimation
-         {
+        PropertyAnimation
+        {
             id: animation_item_hovered
             targets: [imageItemHovered, textItemHovered]
             property: "opacity"

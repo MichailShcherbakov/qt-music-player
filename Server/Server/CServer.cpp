@@ -38,9 +38,11 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 	connect(user.m_socket, &QTcpSocket::readyRead, this, &CServer::SocketReady);
 	connect(user.m_socket, &QTcpSocket::disconnected, this, &CServer::SocketDisconnected);
 
-	STools::Msg(EMessage::Success, "Client " + QString::number(socketDescriptor) + " is connected");
+	STools::Msg(EMessage::Log, "Client " + QString::number(socketDescriptor) + " is connected");
 
-	QJsonDocument doc;
+	// TEMP
+
+	/*QJsonDocument doc;
 	QJsonObject mainObj, header, body, footer;
 
 	header.insert("query-result", "You are Connected");
@@ -51,13 +53,11 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 
 	doc.setObject(mainObj);
 
-	Send(socket, &doc.toJson());
+	Send(socket, &doc.toJson());*/
 }
 
 void CServer::SocketReady()
 {
-	STools::Msg(EMessage::Warning, "Signal is came");
-
 	QTcpSocket* socket = (QTcpSocket*)sender();
 	int id = socket->socketDescriptor();
 
@@ -72,14 +72,14 @@ void CServer::SocketReady()
 		out.setVersion(QDataStream::Qt_5_12);
 		out >> m_users[id].m_size_msg;
 
+		STools::Msg(EMessage::Log, "Size msg: " + QString::number(m_users[id].m_size_msg) + " bytes");
+
 		m_users[id].m_buffer.remove(0, sizeof(int));
 	}
 
-	STools::Msg(EMessage::Warning, "Size msg: " + QString::number(m_users[id].m_buffer.size()));
-
 	if (m_users[id].m_size_msg == m_users[id].m_buffer.size())
 	{
-		STools::Msg(EMessage::Success, "Data is came");
+		STools::Msg(EMessage::Success, "Data is came fully");
 
 		QJsonDocument doc = QJsonDocument::fromJson(m_users[id].m_buffer);
 
@@ -98,16 +98,22 @@ void CServer::SocketReady()
 		{
 		case ETypeQuery::Create_New_User:
 		{
+			STools::Msg(EMessage::Log, "The request for creating a new user");
+
 			CreateNewUser(id, header["username"].toString(), header["password"].toString(), res);
 			break;
 		}
 		case ETypeQuery::Check_This_User:
 		{
+			STools::Msg(EMessage::Log, "The request for checking the user");
+
 			CheckThisUser(id, header["username"].toString(), header["password"].toString(), res);
 			break;
 		}
 		case ETypeQuery::Add_New_Media:
 		{
+			STools::Msg(EMessage::Log, "The request for adding a new media");
+
 			if (m_users[id].isProven)
 			{
 				QByteArray media = body["media"].toString().toLatin1();
@@ -122,6 +128,8 @@ void CServer::SocketReady()
 		}
 		case ETypeQuery::Send_Table:
 		{
+			STools::Msg(EMessage::Log, "The request for sending the table");
+
 			if (m_users[id].isProven)
 			{
 				ETypeTable type_table = static_cast<ETypeTable>(header["type-table"].toInt());
@@ -137,6 +145,8 @@ void CServer::SocketReady()
 		}
 		case ETypeQuery::Send_Cover_Art:
 		{
+			STools::Msg(EMessage::Log, "The request for sending the art cover");
+
 			if (m_users[id].isProven)
 			{
 				QByteArray coverArt;
@@ -153,6 +163,8 @@ void CServer::SocketReady()
 		}
 		case ETypeQuery::Send_Media:
 		{
+			STools::Msg(EMessage::Log, "The request for sending the media");
+
 			if (m_users[id].isProven)
 			{
 				QByteArray media;
@@ -165,6 +177,10 @@ void CServer::SocketReady()
 				STools::Msg(EMessage::Error, "User is not authorized");
 			}
 			break;
+		}
+		default:
+		{
+			STools::Msg(EMessage::Error, "Unknown type query");
 		}
 		}
 
@@ -181,13 +197,13 @@ void CServer::SocketReady()
 		m_users[id].m_size_msg = 0;
 		m_users[id].m_buffer.clear();
 
-		STools::Msg(EMessage::Success, "Data is sended");
+		STools::Msg(EMessage::Log, "Reply has been sent");
 	}
 }
 
 void CServer::SocketDisconnected()
 {
-	STools::Msg(EMessage::Log,"Client is disconnected");
+	STools::Msg(EMessage::Log, "Client is disconnected");
 
 	QTcpSocket* clientSocket = (QTcpSocket*)sender();
 
@@ -216,6 +232,8 @@ void CServer::Send(QTcpSocket* socket, QByteArray* data)
  
 void CServer::CreateDataBase()
 {
+	STools::Msg(EMessage::Log, "Creating a database");
+
 	db = QSqlDatabase::addDatabase("QMYSQL");
 	db.setHostName("localhost");
 	db.setUserName("root");

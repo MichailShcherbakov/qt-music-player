@@ -22,11 +22,14 @@ void FWindow::mousePressEvent(QMouseEvent* event)
 			isResizing = true;
 		}
 	}
+
 	QQuickWindow::mousePressEvent(event);
 }
 
 void FWindow::mouseMoveEvent(QMouseEvent* event)
 {
+	QQuickWindow::mouseMoveEvent(event);
+
 	if (isMoving)
 	{
 		const QPointF delta = event->globalPos() - m_mousePoint;
@@ -182,11 +185,12 @@ void FWindow::mouseMoveEvent(QMouseEvent* event)
 	}
 	m_fieldType = GetFieldType(event);
 	SetCursor(m_fieldType);
-	QQuickWindow::mouseMoveEvent(event);
 }
 
 void FWindow::mouseReleaseEvent(QMouseEvent* event)
 {
+	QQuickWindow::mouseReleaseEvent(event);
+
 	if (isMoving)
 	{
 		isMoving = false;
@@ -196,7 +200,6 @@ void FWindow::mouseReleaseEvent(QMouseEvent* event)
 		isResizing = false;
 	}
 	m_fieldType = EFieldType::Unknown;
-	QQuickWindow::mouseReleaseEvent(event);
 }
 
 EFieldType FWindow::GetFieldType(QMouseEvent* event)

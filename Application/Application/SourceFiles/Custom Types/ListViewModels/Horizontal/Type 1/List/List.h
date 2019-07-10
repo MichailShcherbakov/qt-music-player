@@ -21,6 +21,7 @@ namespace HorizontalModel1
 
 	public:
 		List(QObject* parent = Q_NULLPTR);
+		List(const List& list);
 		~List();
 
 		QVector<Item> GetItems() const;
@@ -44,6 +45,7 @@ namespace HorizontalModel1
 
 	public:
 		int Size();
+		void Clear();
 
 	private:
 		QVector <Item> m_list;

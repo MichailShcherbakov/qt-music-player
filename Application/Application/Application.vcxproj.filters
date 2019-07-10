@@ -84,6 +84,9 @@
     <Filter Include="Log System">
       <UniqueIdentifier>{7aff32c4-1fa4-47c1-a4ef-4a7aad1b6002}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Custom Types\ListViewModels\Horizontal\Type 1\Section">
+      <UniqueIdentifier>{499b017e-93cd-4c6a-8035-76c6a4dfd01a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Resources.qrc">
@@ -125,6 +128,9 @@
     <ClCompile Include="SourceFiles\Log System\LogSystem.cpp">
       <Filter>Log System</Filter>
     </ClCompile>
+    <ClCompile Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\Section\Section.cpp">
+      <Filter>Custom Types\ListViewModels\Horizontal\Type 1\Section</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SourceFiles\Core\Core.h">
@@ -153,6 +159,15 @@
     </QtMoc>
     <QtMoc Include="SourceFiles\Windows Manager\WindowManager.h">
       <Filter>Window Manager</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IList.h">
+      <Filter>Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\ISection.h">
+      <Filter>Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\Section\Section.h">
+      <Filter>Custom Types\ListViewModels\Horizontal\Type 1\Section</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
