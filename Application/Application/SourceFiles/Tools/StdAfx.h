@@ -4,6 +4,8 @@
 #define SAFE_DELETE(ptr) if (ptr) {delete ptr; ptr = nullptr;} else {ptr = nullptr;}
 
 #include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
 
 #include "Log System/LogSystem.h"
 

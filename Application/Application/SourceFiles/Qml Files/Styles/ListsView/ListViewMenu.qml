@@ -1,12 +1,14 @@
 ﻿import QtQuick 2.12
-import QtGraphicalEffects 1.0
 import QtQuick.Controls 2.12
+import QtGraphicalEffects 1.12
 
 ListView
 {
     property ListModel m_model: ListModel {}
     property int m_width: 100;
     property int m_countItems: 4;
+
+    signal cliked(string title);
 
 
     id: browseMusicList
@@ -77,7 +79,7 @@ ListView
         {
             id: textItem
             text: model.text;
-            color: colorItems;
+            color: "#4C5458";
             font.family: "Gilroy";
             font.pixelSize: 14;
             opacity: 1;
@@ -91,7 +93,7 @@ ListView
         {
             id: textItemHovered
             text: model.text;
-            color: colorHoveredItems;
+            color: "#2ED297";
             font.family: "Gilroy";
             font.pixelSize: 14;
             opacity: 0;
@@ -135,7 +137,7 @@ ListView
 
             onClicked:
             {
-                console.log("clicked");
+                browseMusicList.cliked(textItem.text);
             }
         }
 

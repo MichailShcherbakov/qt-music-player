@@ -1,9 +1,11 @@
 #ifndef _LOGIN_H_
 #define _LOGIN_H_
 
-#include "Tools/StdAfx.h"
+#include "StdAfx.h"
+#include "EParams.h"
 
 #include "Interfaces/IWindow.h"
+#include "Screens/Registration/RegistrationScreen.h"
 
 enum class EState : int
 {
@@ -17,13 +19,12 @@ class Login : public IWindow
 	Q_OBJECT
 
 public:
-	Login(QQuickWindow* window = Q_NULLPTR);
-	virtual ~Login();
+	Login(const EParams* const params, QQuickWindow* window = Q_NULLPTR);
+	~Login() override;
 
 public:
 	// IWindow
 	virtual void Initialize() override;
-	virtual void GetFromSocket(QByteArray data) override;
 	// ~IWindow
 
 private:
@@ -38,6 +39,7 @@ public:
 	Q_INVOKABLE void getLoginAndPassword(QString user, QString pass, int state);
 
 private:
+	RegistrationScreen* m_pRegistrationScreen;
 	EState m_state;
 };
 

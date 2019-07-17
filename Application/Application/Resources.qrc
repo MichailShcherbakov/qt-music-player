@@ -44,5 +44,17 @@
         <file>SourceFiles/Qml Files/Styles/ListsView/ListViewMenu.qml</file>
         <file>Resources/Icons/cover.jpg</file>
         <file>Resources/Icons/cover_note.png</file>
+        <file>Resources/Icons/play-button.png</file>
+        <file>Resources/Icons/like.png</file>
+        <file>Resources/Icons/arrow-point-to-right.png</file>
+        <file>Resources/Icons/arrow-point-to-left.png</file>
+        <file>SourceFiles/Qml Files/Styles/ListsView/Hor1ListView.qml</file>
+        <file>SourceFiles/Qml Files/Styles/Buttons/WinControlButtons.qml</file>
+        <file>SourceFiles/Qml Files/Styles/Screens/Browse.qml</file>
+        <file>SourceFiles/Qml Files/Styles/Screens/Playlists.qml</file>
+        <file>SourceFiles/Qml Files/Styles/Screens/Songs.qml</file>
+        <file>SourceFiles/Qml Files/Styles/ListsView/Ver1ListView.qml</file>
+        <file>Resources/Icons/dotted_button_item.png</file>
+        <file>Resources/Icons/pause.png</file>
     </qresource>
 </RCC>

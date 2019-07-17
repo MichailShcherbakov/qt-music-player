@@ -125,7 +125,7 @@ public slots:
 	void incomingConnection(qintptr socketDescriptor);
 	void SocketReady();
 	void SocketDisconnected();
-	void Send(QTcpSocket* socket, QByteArray* data);
+	void Send(QTcpSocket* socket, QByteArray data);
 
 private:
 	void CreateDataBase();

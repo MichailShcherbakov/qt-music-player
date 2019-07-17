@@ -1,5 +1,5 @@
-#ifndef _LIST_H_
-#define _LIST_H_
+#ifndef _LIST_HOR_TYPE_1_H_
+#define _LIST_HOR_TYPE_1_H_
 
 #include <QObject>
 #include <QVector>

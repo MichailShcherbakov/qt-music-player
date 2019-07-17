@@ -53,7 +53,7 @@ void CServer::incomingConnection(qintptr socketDescriptor)
 
 	doc.setObject(mainObj);
 
-	Send(socket, &doc.toJson());*/
+	Send(socket, doc.toJson());*/
 }
 
 void CServer::SocketReady()
@@ -169,7 +169,13 @@ void CServer::SocketReady()
 			{
 				QByteArray media;
 				GetMedia(id, body["id-media"].toInt(), &media, res);
-				sendBody.insert("media", media.data());
+				Send(socket, media);
+
+				m_users[id].m_size_msg = 0;
+				m_users[id].m_buffer.clear();
+
+				STools::Msg(EMessage::Log, "Reply has been sent");
+				return;
 			}
 			else
 			{
@@ -192,7 +198,7 @@ void CServer::SocketReady()
 
 		sendDoc.setObject(sendMainObj);
 
-		Send(socket, &sendDoc.toJson());
+		Send(socket, sendDoc.toJson());
 
 		m_users[id].m_size_msg = 0;
 		m_users[id].m_buffer.clear();
@@ -219,13 +225,13 @@ void CServer::SocketDisconnected()
 	}
 }
 
-void CServer::Send(QTcpSocket* socket, QByteArray* data)
+void CServer::Send(QTcpSocket* socket, QByteArray data)
 {
 	QByteArray msg;
 	QDataStream out(&msg, QIODevice::WriteOnly);
 	out.setVersion(QDataStream::Qt_5_12);
-	out << data->size();
-	msg.append(*data);
+	out << data.size();
+	msg.append(data);
 
 	socket->write(msg);
 }

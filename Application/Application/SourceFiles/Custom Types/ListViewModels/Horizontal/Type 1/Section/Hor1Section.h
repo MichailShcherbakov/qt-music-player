@@ -6,7 +6,7 @@
 #include "Tools/Query.h"
 #include "Interfaces/ISection.h"
 
-#include "ListViewModels/Horizontal/Type 1/Model/Model.h"
+#include "ListViewModels/Horizontal/Type 1/Model/Hor1Model.h"
 
 namespace HorizontalModel1
 {

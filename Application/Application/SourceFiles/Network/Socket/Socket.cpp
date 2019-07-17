@@ -2,8 +2,7 @@
 
 
 
-Socket::Socket() :
-	m_buffer(nullptr)
+Socket::Socket()
 {
 }
 
@@ -42,7 +41,7 @@ void Socket::CheckConnect()
 	}
 }
 
-void Socket::SendToServer(const QByteArray& query)
+void Socket::SendToServer(INetwork* sender, const QByteArray query)
 {
 	MSG(ETypeMessage::Log, "Sending data to server");
 
@@ -52,25 +51,24 @@ void Socket::SendToServer(const QByteArray& query)
 	out << query.size();
 	msg.append(query);
 
-	if (!m_isDataSent)
+	m_requestsList.append(QPair<INetwork*, QByteArray>(sender, query));
+
+	if (m_isQueueFree)
 	{
-		m_isDataSent = true;
+		m_isQueueFree = false;
 		this->write(msg);
-	}
-	else
-	{
-		m_list.append(query);
 	}
 }
 
 void Socket::ReadyRead()
 {
-	m_buffer.append(this->readAll());
+	QByteArray buffer = this->readAll();
+	m_size_packages += buffer.size();
 
 	if (m_size_msg == 0)
 	{
 		QByteArray sizeArray;
-		for (int i = 0; i < sizeof(int); ++i) sizeArray.append(m_buffer.at(i));
+		for (int i = 0; i < sizeof(int); ++i) sizeArray.append(buffer.at(i));
 
 		QDataStream out(&sizeArray, QIODevice::ReadOnly);
 		out.setVersion(QDataStream::Qt_5_12);
@@ -78,23 +76,40 @@ void Socket::ReadyRead()
 
 		MSG(ETypeMessage::Log, "Size of msg: " + QString::number(m_size_msg) + " bits");
 
-		m_buffer.remove(0, sizeof(int));
+		buffer.remove(0, sizeof(int));
+		m_size_packages -= sizeof(int);
 	}
 
-	if (m_size_msg == m_buffer.size())
+	connect(this, &Socket::onGetFromServer, m_requestsList.first().first, &INetwork::GetFromSocket);
+	emit onGetFromServer(buffer);
+	disconnect(this, &Socket::onGetFromServer, m_requestsList.first().first, &INetwork::GetFromSocket);
+
+	if (m_size_msg == m_size_packages)
 	{
 		MSG(ETypeMessage::Success, "Data is gotten from the server fully");
 
 		m_size_msg = 0;
-		emit onGetFromServer(m_buffer);
-		m_buffer.clear();
+		m_size_packages = 0;
+		m_isQueueFree = true;
 
-		m_isDataSent = false;
-		if (!m_list.isEmpty())
+		INetwork* key = m_requestsList.first().first;
+		emit key->onLoaded();
+		m_requestsList.removeFirst();
+
+		if (!m_requestsList.isEmpty())
 		{
-			QByteArray t = m_list.first();
-			m_list.removeFirst();
-			emit onNextLoad(t);
+			m_isQueueFree = false;
+
+			QByteArray& query = m_requestsList.first().second;
+			INetwork* key = m_requestsList.first().first;
+			
+			QByteArray msg;
+			QDataStream out(&msg, QIODevice::WriteOnly);
+			out.setVersion(QDataStream::Qt_5_12);
+			out << query.size();
+			msg.append(query);
+
+			this->write(msg);
 		}
 	}
 }

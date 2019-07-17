@@ -27,6 +27,7 @@ enum class EFieldType : int
 class FWindow : public QQuickWindow
 {
 	Q_OBJECT
+	Q_PROPERTY(int m_hTitleBar READ GetHeightTitleBar WRITE SetHeightTitleBar NOTIFY heightTitleBarChanged);
 	Q_PROPERTY(int m_width READ GetWidth WRITE SetWidth);
 	Q_PROPERTY(int m_maxWidth READ GetMaxWidth WRITE SetMaxWidth);
 	Q_PROPERTY(int m_minWidth READ GetMinWidth WRITE SetMinWidth);
@@ -58,19 +59,25 @@ private:
 	void SetMinHeight(int minHeight);
 	int GetMaxHeight();
 	void SetMaxHeight(int maxHeight);
+	void SetHeightTitleBar(int size);
+	int GetHeightTitleBar();
+
+signals:
+	void heightTitleBarChanged();
+	void sizeChanged();
 
 private:
 	bool isMoving = false;
 	bool isResizing = false;
 	bool isNormalCursor = true;
 	const ushort m_edge = 5;
-	const ushort m_hTitleBar = 32; // height of the title bar
+	uint m_hTitleBar = 32; // Height of the title bar
 	uint m_width = 640;
 	uint m_height = 400;
 	uint m_minWidth = 640;
 	uint m_minHeight = 440;
 	uint m_maxWidth = 1200;
-	uint m_maxHeight = 720;
+	uint m_maxHeight = 720; 
 	EFieldType m_fieldType = EFieldType::Unknown;
 	QPointF m_mousePoint;
 };

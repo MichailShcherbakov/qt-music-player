@@ -1,24 +1,31 @@
 #ifndef _CORE_H_
 #define _CORE_H_
 
-#include "Tools/StdAfx.h"
+#include "StdAfx.h"
 
 #include <QObject>
 #include <QThread>
 
 #include <QGraphicseffect>
 
+// Parameters
+#include "EParams.h"
+
 // Network
-#include "Network/Socket.h"
+#include "Network/Socket/Socket.h"
 
 // Custom Window
 #include "FWindow/FWindow.h"
 
 // Models
-#include "ListViewModels/Horizontal/Type 1/Model/Model.h"
+#include "ListViewModels/Horizontal/Type 1/Model/Hor1Model.h"
+#include "ListViewModels/Vertical/Type 1/Model/Ver1Model.h"
 
 // Window Manager
 #include "Windows Manager/WindowManager.h"
+
+// Custom Items
+#include "Items/UnblockedMouseArea/UnblockedMouseArea.h"
 
 class Core : public QObject
 {
@@ -36,10 +43,8 @@ signals:
 
 private:
 	QThread* m_pThread;
-	Socket* m_pSocket;
-	QQmlApplicationEngine* m_pEngine;
 	WinManager* m_pWinManager;
-	ImageProvider* m_pRootImageProvider;
+	EParams* m_pParams;
 };
 
 #endif

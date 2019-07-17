@@ -1,9 +1,9 @@
 #include "Player/Player.h"
 
-Player::Player(QQmlContext* context, ImageProvider* imapeProvider, QQuickWindow* window) :
-	IWindow(window, context, imapeProvider)
+Player::Player(const EParams* const params, QQuickWindow* window)
+	: IWindow(params, window),
+	m_pListSongsScreen(Q_NULLPTR)
 {
-
 }
 
 Player::~Player()
@@ -14,408 +14,66 @@ void Player::Initialize()
 {
 	MSG(ETypeMessage::Log, "Initialization");
 
-	RootContext()->setContextProperty(QStringLiteral("albumsModelList"), &m_listHorModel);
-
-	RootImageProvider()->DeleteList();
-
-	connect(this, &Player::onLoad, this, &Player::Load);
-
-	QFile img("Resources/Icons/cover.jpg");
-	img.open(QIODevice::ReadOnly);
-	QByteArray arrayImg = img.readAll();
-	img.close();
-
-	QImage p;
-	p.loadFromData(arrayImg, "JPG");
-
-	RootImageProvider()->AppendImage(p, "default");
-
 	MSG(ETypeMessage::Log, "Sections Loading");
 
-	m_hor1section = new HorizontalModel1::Section(&m_listHorModel, RootImageProvider());
-	m_sections.append(m_hor1section);
+	m_pListSongsScreen = new ListSongsScreen(m_pParams);
+	m_pListSongsScreen->Initialize();
 
-	MSG(ETypeMessage::Log, "Set connections with sections");
+	ListSongsSection* section = qobject_cast<ListSongsSection*>(m_pListSongsScreen->Section(ListSongsScreen::ETypeSection::ListSongsSection));
 
-	for (auto it : m_sections)
-	{
-		connect(it, &ISection::onSendQuery, this, &Player::GetFromSection);
-		it->Initialize();
-	}
+	connect(section, &ListSongsSection::onChangeTitleSong, this, &Player::changeTitleSong);
+	connect(section, &ListSongsSection::onChangeArtistSong, this, &Player::changeArtistSong);
+	connect(section, &ListSongsSection::onChangeCoverArtSong, this, &Player::changeCoverArtSong);
+	connect(section, &ListSongsSection::onChangeTime, this, &Player::changeTime);
+
+	m_pMediaPlayer = new MediaPlayer(m_pParams);
+	m_pMediaPlayer->Initialize();
+
+	connect(m_pMediaPlayer, &MediaPlayer::onPositionChanged, this, &Player::positionChanged);
+	connect(m_pMediaPlayer, &MediaPlayer::onDurationChanged, this, &Player::durationChanged);
+	connect(m_pMediaPlayer, &MediaPlayer::onCurrentTimeChanged, this, &Player::currentTimeChanged);
+	connect(this, &Player::sliderPositionChanged, m_pMediaPlayer, &MediaPlayer::SetPosition);
+	connect(this, &Player::playModeChanged, m_pMediaPlayer, &MediaPlayer::SetPlayMode);
+
+	m_typeScreen = ETypeScreen::ListSongs;
 }
 
-void Player::GetFromSocket(QByteArray data)
+void Player::next()
 {
-	Query result;
-	result.fromByteArray(data);
+	m_pMediaPlayer->Next();
+}
 
-	ETypeResultQuery res = static_cast<ETypeResultQuery>(result.GetFromHeader("query-result").toInt());
+void Player::play()
+{
+	int id = m_pMediaPlayer->CurrentID();
+	m_pMediaPlayer->PlayTheSong(id);
+}
 
-	if (res == ETypeResultQuery::Success)
+void Player::previous()
+{
+	m_pMediaPlayer->Previous();
+}
+
+void Player::clickedItem(int type, int id)
+{
+	switch (m_typeScreen)
 	{
-		MSG(ETypeMessage::Log, "The query was done correctly");
+	case ETypeScreen::ListSongs:
+	{
+		ListSongsScreen::ETypeSection typeSection = static_cast<ListSongsScreen::ETypeSection>(type);
 
-		ISection* section = m_requests.first().first;
-		SectionQuery query = m_requests.first().second;
-		const char* signal;
-		const char* slot;
-
-		switch (query.first)
+		switch (typeSection)
 		{
-		case ENetworkState::GetTableMedia:
+		case ListSongsScreen::ETypeSection::ListSongsSection:
 		{
-			GetMediaTable(result);
-			signal = SIGNAL(onGotMediaTable(Table*));
-			slot = SLOT(GetTable(Table*));
+			ListSongsSection* section = qobject_cast<ListSongsSection*>(m_pListSongsScreen->Section(typeSection));
 
-			for (auto it : m_requests)
-			{
-				ISection* s = it.first;
-				SectionQuery q = it.second;
-
-				if (q.first == query.first)
-				{
-					connect(this, signal, s, slot);
-				}
-			}
-
-			emit onGotMediaTable(m_pMediaTable);
+			m_pMediaPlayer->SetConnnectWithSection(section);
+			m_pMediaPlayer->PlayTheSong(id);
 			break;
 		}
-		case ENetworkState::GetTableArtists:
-		{
-			GetArtistsTable(result);
-			signal = SIGNAL(onGotArtistsTable(Table*));
-			slot = SLOT(GetTable(Table*));
-
-			for (auto it : m_requests)
-			{
-				ISection* s = it.first;
-				SectionQuery q = it.second;
-
-				if (q.first == query.first)
-				{
-					connect(this, signal, s, slot);
-				}
-			}
-
-			emit onGotArtistsTable(m_pArtistsTable);
-			break;
 		}
-		case ENetworkState::GetTableAlbums:
-		{
-			GetAlbumsTable(result);
-			signal = SIGNAL(onGotAlbumsTable(Table*));
-			slot = SLOT(GetTable(Table*));
-
-			for (auto it : m_requests)
-			{
-				ISection* s = it.first;
-				SectionQuery q = it.second;
-
-				if (q.first == query.first)
-				{
-					connect(this, signal, s, slot);
-				}
-			}
-
-			emit onGotAlbumsTable(m_pAlbumsTable);
-			break;
-		}
-		case ENetworkState::GetTableGenres:
-		{
-			GetGenresTable(result);
-			signal = SIGNAL(onGotGenresTable(Table*));
-			slot = SLOT(GetTable(Table*));
-
-			for (auto it : m_requests)
-			{
-				ISection* s = it.first;
-				SectionQuery q = it.second;
-
-				if (q.first == query.first)
-				{
-					connect(this, signal, s, slot);
-				}
-			}
-
-			emit onGotGenresTable(m_pGenresTable);
-			break;
-		}
-		case ENetworkState::GetArtCover:
-		{
-			GetArtCover(result);
-			signal = SIGNAL(onGotArtCover(QByteArray));
-			slot = SLOT(GetByteArray(QByteArray));
-			
-			connect(this, signal, section, slot);
-
-			emit onGotArtCover(m_buffer);
-			break;
-		}
-		case ENetworkState::GetMedia:
-		{
-			GetMedia(result);
-			signal = SIGNAL(onGotMedia(QByteArray));
-			slot = SLOT(GetByteArray(QByteArray));
-
-			connect(this, signal, section, slot);
-
-			emit onGotMedia(m_buffer);
-			break;
-		}
-		default: 
-		{
-			MSG(ETypeMessage::Error, "Unknown network state");
-			return;
-		}
-		}
-
-		if (ENetworkState::GetArtCover != query.first && ENetworkState::GetMedia != query.first)
-		{
-			for (auto it : m_requests)
-			{
-				ISection* s = it.first;
-				SectionQuery q = it.second;
-
-				if (q.first == query.first)
-				{
-					disconnect(this, signal, s, slot);
-
-					int id = m_requests.indexOf(it);
-					m_requests.removeAt(id);
-				}
-			}
-		}
-		else
-		{
-			disconnect(this, signal, section, slot);
-			m_requests.removeFirst();
-		}
-	}
-	else
-	{
-		MSG(ETypeMessage::Error, "The query was not done");
-	}
-}
-
-void Player::Load(const ENetworkState type, Query query)
-{
-	switch (type)
-	{
-	case ENetworkState::GetTableMedia:
-	{
-		MSG(ETypeMessage::Log, "The query for getting a table of media");
-
-		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Media));
 		break;
 	}
-	case ENetworkState::GetTableAlbums:
-	{
-		MSG(ETypeMessage::Log, "The query for getting a table of albums");
-
-		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Albums));
-		break;
-	}
-	case ENetworkState::GetTableArtists:
-	{
-		MSG(ETypeMessage::Log, "The query for getting a table of artists");
-
-		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Artists));
-		break;
-	}
-	case ENetworkState::GetTableGenres:
-	{
-		MSG(ETypeMessage::Log, "The query for getting a table of genres");
-
-		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-		query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Genres));
-		break;
-	}
-	case ENetworkState::GetArtCover:
-	{
-		MSG(ETypeMessage::Log, "The query for getting a cover art");
-
-		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Cover_Art));
-		break;
-	}
-	case ENetworkState::GetMedia:
-	{
-		MSG(ETypeMessage::Log, "The query for getting a media");
-
-		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
-		break;
-	}
-	default:
-	{
-		MSG(ETypeMessage::Error, "Unknown network state");
-		return;
-	}
-	}
-
-	emit onSendToSocket(query.toByteArray());
-}
-
-void Player::GetMediaTable(Query data)
-{
-	QJsonArray table = data.GetFromBody("table").toArray();
-
-	if (m_pMediaTable)
-	{
-		SAFE_DELETE(m_pMediaTable);
-	}
-
-	m_pMediaTable = new Table;
-
-	m_pMediaTable->AddColumn("id_media");
-	m_pMediaTable->AddColumn("title");
-	m_pMediaTable->AddColumn("id_artist");
-	m_pMediaTable->AddColumn("id_album");
-	m_pMediaTable->AddColumn("year");
-	m_pMediaTable->AddColumn("id_genre");
-	m_pMediaTable->AddColumn("duraction");
-	m_pMediaTable->AddColumn("bitrate");
-	m_pMediaTable->AddColumn("add_time");
-
-	if (!table.isEmpty())
-	{
-		for (auto row : table)
-		{
-			Row rowMedia;
-			QJsonArray jsonRow = row.toArray();
-
-			for (auto column : jsonRow)
-			{
-				QJsonObject obj = column.toObject();
-				auto value = obj.constBegin();
-				rowMedia.Append(*value);
-			}
-			m_pMediaTable->AddRow(rowMedia);
-		}
 	}
 }
-
-void Player::GetArtistsTable(Query data)
-{
-	QJsonArray table = data.GetFromBody("table").toArray();
-
-	if (m_pArtistsTable)
-	{
-		SAFE_DELETE(m_pArtistsTable);
-	}
-
-	m_pArtistsTable = new Table;
-
-	m_pArtistsTable->AddColumn("id_artist");
-	m_pArtistsTable->AddColumn("name");
-
-	if (!table.isEmpty())
-	{
-		for (auto row : table)
-		{
-			Row rowMedia;
-			QJsonArray jsonRow = row.toArray();
-
-			for (auto column : jsonRow)
-			{
-				QJsonObject obj = column.toObject();
-				auto value = obj.constBegin();
-				rowMedia.Append(*value);
-			}
-			m_pArtistsTable->AddRow(rowMedia);
-		}
-	}
-}
-
-void Player::GetAlbumsTable(Query data)
-{
-	QJsonArray table = data.GetFromBody("table").toArray();
-
-	if (m_pAlbumsTable)
-	{
-		SAFE_DELETE(m_pAlbumsTable);
-	}
-
-	m_pAlbumsTable = new Table;
-
-	m_pAlbumsTable->AddColumn("id_album");
-	m_pAlbumsTable->AddColumn("title");
-
-	if (!table.isEmpty())
-	{
-		for (auto row : table)
-		{
-			Row rowMedia;
-			QJsonArray jsonRow = row.toArray();
-
-			for (auto column : jsonRow)
-			{
-				QJsonObject obj = column.toObject();
-				auto value = obj.constBegin();
-				rowMedia.Append(*value);
-			}
-			m_pAlbumsTable->AddRow(rowMedia);
-		}
-	}
-}
-
-void Player::GetGenresTable(Query data)
-{
-	QJsonArray table = data.GetFromBody("table").toArray();
-
-	if (m_pGenresTable)
-	{
-		SAFE_DELETE(m_pGenresTable);
-	}
-
-	m_pGenresTable = new Table;
-
-	m_pGenresTable->AddColumn("id_genre");
-	m_pGenresTable->AddColumn("title");
-
-	if (!table.isEmpty())
-	{
-		for (auto row : table)
-		{
-			Row rowMedia;
-			QJsonArray jsonRow = row.toArray();
-
-			for (auto column : jsonRow)
-			{
-				QJsonObject obj = column.toObject();
-				auto value = obj.constBegin();
-				rowMedia.Append(*value);
-			}
-			m_pGenresTable->AddRow(rowMedia);
-		}
-	}
-}
-
-void Player::GetMedia(Query data)
-{
-	m_buffer.clear();
-	m_buffer = data.GetFromBody("media").toVariant().toString().toLatin1();
-}
-
-void Player::GetArtCover(Query data)
-{
-	m_buffer.clear();
-	m_buffer = data.GetFromBody("cover-art").toVariant().toString().toLatin1();
-}
-
-void Player::GetFromSection(ISection* section, ENetworkState type, Query query)
-{
-	MSG(ETypeMessage::Log, "The query was gave from the section");
-
-	SectionQuery q;
-	q.first = type;
-	q.second = query;
-
-	m_requests.append(QPair<ISection*, SectionQuery>(section, q));
-
-	emit onLoad(type, query);
-}
-

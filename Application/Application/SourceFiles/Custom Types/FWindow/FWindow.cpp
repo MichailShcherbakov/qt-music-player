@@ -181,6 +181,8 @@ void FWindow::mouseMoveEvent(QMouseEvent* event)
 			break;
 		}
 		}
+
+		emit sizeChanged();
 		return;
 	}
 	m_fieldType = GetFieldType(event);
@@ -363,6 +365,16 @@ int FWindow::GetMaxHeight()
 void FWindow::SetMaxHeight(int maxHeight)
 {
 	m_maxHeight = maxHeight;
+}
+
+void FWindow::SetHeightTitleBar(int size)
+{
+	m_hTitleBar = size;
+}
+
+int FWindow::GetHeightTitleBar()
+{
+	return m_hTitleBar;
 }
 
 int FWindow::GetMinHeight()

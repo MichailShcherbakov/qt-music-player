@@ -1,32 +1,24 @@
 #include "WindowManager.h"
 
-WinManager::WinManager(EParams params) :
-	m_params(params),
+WinManager::WinManager(const EParams* const params) :
+	m_pParams(params),
+	m_typeWindow(ETypeWindow::Login),
 	m_pHandleWindow(Q_NULLPTR)
 {
 }
 
 WinManager::~WinManager()
 {
+	SAFE_DELETE(m_pHandleWindow);
 }
 
 void WinManager::Initialize()
 {
-	// TEMP
-	connect(this, &WinManager::onSendToServer, m_params.m_pSocket, &Socket::SendToServer);
-	connect(m_params.m_pSocket, &Socket::onGetFromServer, this, &WinManager::Continue);
-
-	Query query;
-	query.InsertIntoHeader("username", "1");
-	query.InsertIntoHeader("password", "1");
-	query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
-	emit onSendToServer(query.toByteArray());
-
-	/*MSG(ETypeMessage::Log, "Default window initialisation");
-	InitializeWindow(ETypeWindow::Player);
+	MSG(ETypeMessage::Log, "Default window initialisation");
+	InitializeWindow(ETypeWindow::Login);
 
 	MSG(ETypeMessage::Log, "Opening a window");
-	OpenWindow();*/
+	//OpenWindow();
 }
 
 void WinManager::InitializeWindow(ETypeWindow type)
@@ -42,53 +34,34 @@ void WinManager::InitializeWindow(ETypeWindow type)
 	{
 		MSG(ETypeMessage::Log, "Creating login window");
 
-		m_pHandleWindow = new Login();
-
-		SetConnections();
+		m_pHandleWindow = new Login(m_pParams);
 
 		m_pHandleWindow->Initialize();
 
-		m_params.m_pRootContext->setContextProperty("wlRoot", m_pHandleWindow);
-		m_params.m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Login/main.qml")));
-		m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_params.m_pEngine->rootObjects().first()));
-		
+		//m_pParams->m_pRootContext->setContextProperty("wlRoot", m_pHandleWindow);
+		//m_pParams->m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Login/main.qml")));
+		//m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_pParams->m_pEngine->rootObjects().first()));
 		break;
 	}
 	case ETypeWindow::Player:
 	{
 		MSG(ETypeMessage::Log, "Creating palyer window");
 
-		m_pHandleWindow = new Player(m_params.m_pRootContext, m_params.m_pRootImageProvider);
-
-		SetConnections();
+		m_pHandleWindow = new Player(m_pParams);
 
 		m_pHandleWindow->Initialize();
 
-		m_params.m_pRootContext->setContextProperty("wpRoot", m_pHandleWindow);
-		m_params.m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Player/main.qml")));
-		m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_params.m_pEngine->rootObjects().first()));
+		m_pParams->m_pRootContext->setContextProperty("wpRoot", m_pHandleWindow);
+		m_pParams->m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Player/main.qml")));
+		m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_pParams->m_pEngine->rootObjects().first()));
 		break;
 	}
 	}
-}
 
-void WinManager::Continue(QByteArray d)
-{
-	if (t)
+	if (m_pHandleWindow)
 	{
-		disconnect(m_params.m_pSocket, &Socket::onGetFromServer, this, &WinManager::Continue);
-		
-		MSG(ETypeMessage::Log, "Default window initialisation");
-		InitializeWindow(ETypeWindow::Player);
-
-		MSG(ETypeMessage::Log, "Opening a window");
-		OpenWindow();
+		connect(m_pHandleWindow, &IWindow::onClosing, this, &WinManager::WindowIsClosed);
 	}
-	else
-	{
-		t = true;
-	}
-	
 }
 
 void WinManager::OpenWindow()
@@ -96,14 +69,33 @@ void WinManager::OpenWindow()
 	m_pHandleWindow->Window()->show();
 }
 
-void WinManager::SetConnections()
-{
-	connect(m_pHandleWindow, &IWindow::onSendToSocket, m_params.m_pSocket, &Socket::SendToServer);
-	connect(m_params.m_pSocket, &Socket::onGetFromServer, m_pHandleWindow, &IWindow::GetFromSocket);
-	connect(m_pHandleWindow, &IWindow::onClosing, this, &WinManager::WindowIsClosed);
-}
-
 void WinManager::WindowIsClosed()
 {
+	bool openWindow = false;
 
+	switch (m_typeWindow)
+	{
+	case ETypeWindow::Login:
+	{
+		m_typeWindow = ETypeWindow::Player;
+		openWindow = true;
+		break;
+	}
+	case ETypeWindow::Player:
+	{
+		m_typeWindow = ETypeWindow::Unknown;
+		break;
+	}
+	default:
+		SAFE_DELETE(m_pHandleWindow);
+	}
+
+	if (openWindow)
+	{
+		MSG(ETypeMessage::Log, "Default window initialisation");
+		InitializeWindow(m_typeWindow);
+
+		MSG(ETypeMessage::Log, "Opening a window");
+		OpenWindow();
+	}
 }

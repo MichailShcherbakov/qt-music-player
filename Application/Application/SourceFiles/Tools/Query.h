@@ -1,7 +1,7 @@
 #ifndef _QUERY_H_
 #define _QUERY_H_
 
-#include "Tools/StdAfx.h"
+#include "StdAfx.h"
 
 #include <QJsonObject>
 #include <QJsonDocument>

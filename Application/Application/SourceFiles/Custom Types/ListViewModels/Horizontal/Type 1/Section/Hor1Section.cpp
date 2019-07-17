@@ -1,4 +1,4 @@
-#include "Section.h"
+#include "Hor1Section.h"
 
 using namespace HorizontalModel1;
 
@@ -137,7 +137,7 @@ void HorizontalModel1::Section::InitializeList()
 	for (int i = 0; i < m_pAlbumsTable->Rows(); ++i)
 	{
 		HorizontalModel1::Item item;
-		item.id = i;
+		item.id = m_pAlbumsTable->ValueAt("id_album", i).toInt();
 		item.coverKey = "default";
 		item.textLineFirst = m_pAlbumsTable->ValueAt("title", i).toString();
 

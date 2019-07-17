@@ -1,6 +1,6 @@
-#include "ListViewModels/Horizontal/Type 1/Model/Model.h"
+#include "Ver1Model.h"
 
-using namespace HorizontalModel1;
+using namespace VerticalModel1;
 
 Model::Model(QObject *parent)
     : QAbstractListModel(parent)
@@ -25,14 +25,20 @@ QVariant Model::data(const QModelIndex &index, int role) const
 
     switch (role)
     {
-    case ID:
+	case List::ID:
         return QVariant(item.id); 
-	case COVER_KEY:
+	case List::COVER_KEY:
         return QVariant(item.coverKey);
-    case TEXT_LINE_FIRST:
+    case List::TEXT_LINE_FIRST:
         return QVariant(item.textLineFirst);
-    case TEXT_LINE_SECOND:
+    case List::TEXT_LINE_SECOND:
         return QVariant(item.textLineSecond);
+	case List::TEXT_LINE_THIRD:
+        return QVariant(item.textLineThird);
+	case List::TEXT_LINE_FOUTH:
+		return QVariant(item.textLineFourth);
+	case List::EXPRESSION:
+		return QVariant(item.expression);
     }
 
     return QVariant();
@@ -47,17 +53,26 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 
     switch (role)
     {
-	case ID:
+	case List::ID:
 		item.id = value.toInt();
 		break;
-    case COVER_KEY:
+    case List::COVER_KEY:
         item.coverKey = value.toString();
         break;
-    case TEXT_LINE_FIRST:
+    case List::TEXT_LINE_FIRST:
         item.textLineFirst = value.toString();
         break;
-    case TEXT_LINE_SECOND:
+    case List::TEXT_LINE_SECOND:
         item.textLineSecond = value.toString();
+		break;
+	case List::TEXT_LINE_THIRD:
+        item.textLineThird = value.toString();
+		break;
+	case List::TEXT_LINE_FOUTH:
+        item.textLineThird = value.toString();
+		break;
+	case List::EXPRESSION:
+        item.expression = value.toBool();
         break;
     }
 
@@ -72,10 +87,13 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 QHash<int, QByteArray> Model::roleNames() const
 {
     QHash<int, QByteArray> names;
-    names[ID] = "id";
-    names[COVER_KEY] = "cover_key";
-    names[TEXT_LINE_FIRST] = "text_line_first";
-    names[TEXT_LINE_SECOND] = "text_line_second";
+    names[List::ID] = "id";
+    names[List::COVER_KEY] = "cover_key";
+    names[List::TEXT_LINE_FIRST] = "text_line_first";
+    names[List::TEXT_LINE_SECOND] = "text_line_second";
+    names[List::TEXT_LINE_THIRD] = "text_line_third";
+    names[List::TEXT_LINE_FOUTH] = "text_line_fourth";
+    names[List::EXPRESSION] = "expression";
     return names;
 }
 
@@ -100,26 +118,24 @@ void Model::SetList(List *list)
             const int index = m_list->GetItems().size();
             beginInsertRows(QModelIndex(), index, index);
         });
-
         connect(m_list, &List::postItemAppended, this, [=]() {
             endInsertRows();
         });
-
         connect(m_list, &List::preItemRemoved, this, [=](int index) {
             beginRemoveRows(QModelIndex(), index, index);
         });
-
         connect(m_list, &List::postItemRemoved, this, [=]() {
             endRemoveRows();
         });
-
 		connect(m_list, &List::preItemInserted, this, [=](int index) {
 			beginInsertRows(QModelIndex(), index, index);
-			});
-
+		});
 		connect(m_list, &List::postItemInserted, this, [=]() {
 			endInsertRows();
-			});
+		});
+		connect(m_list, &List::ItemChanged, this, [=](int id, QVariant value, int role) {
+			setData(index(id, 0, QModelIndex()), value, role);
+		});
     }
 
     endResetModel();

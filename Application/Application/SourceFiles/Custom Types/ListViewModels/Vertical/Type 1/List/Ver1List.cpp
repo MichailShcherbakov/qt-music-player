@@ -1,6 +1,6 @@
-#include "ListViewModels/Horizontal/Type 1/List/List.h"
+#include "Ver1List.h"
 
-using namespace HorizontalModel1;
+using namespace VerticalModel1;
 
 List::List(QObject* parent) :
 	QObject(parent)
@@ -32,7 +32,10 @@ bool List::SetItemAt(int index, const Item &item)
     if (item.id == oldItem.id &&
 		item.coverKey == oldItem.coverKey &&
 		item.textLineFirst == oldItem.textLineFirst &&
-		item.textLineSecond == oldItem.textLineSecond)
+		item.textLineSecond == oldItem.textLineSecond &&
+		item.textLineThird == oldItem.textLineThird &&
+		item.textLineFourth == oldItem.textLineFourth &&
+		item.expression == oldItem.expression)
         return false;
 
     m_list[index] = item;
@@ -49,6 +52,9 @@ void List::AppendItem(Item item)
 	newItem.coverKey = item.coverKey;
 	newItem.textLineFirst = item.textLineFirst;
 	newItem.textLineSecond = item.textLineSecond;
+	newItem.textLineThird = item.textLineThird;
+	newItem.textLineFourth = item.textLineFourth;
+	newItem.expression = item.expression;
 
     m_list.append(newItem);
 
@@ -86,7 +92,7 @@ int List::Size()
 	return m_list.size();
 }
 
-void HorizontalModel1::List::Clear()
+void List::Clear()
 {
 	for (int i = 0; i < m_list.size(); ++i)
 	{
@@ -96,4 +102,9 @@ void HorizontalModel1::List::Clear()
 
 		emit postItemRemoved();
 	}	
+}
+
+void VerticalModel1::List::SetValueItemAt(int index, const QVariant& value, int role)
+{
+	emit ItemChanged(index, value, role);
 }

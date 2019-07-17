@@ -5,7 +5,7 @@ import QtQuick.Controls 2.12
 
 import "../../Styles/TextInputs"
 
-import my.window 1.0
+import windows.fwindow 1.0
 
 FWindow
 {

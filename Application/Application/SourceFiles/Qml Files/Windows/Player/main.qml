@@ -3,38 +3,65 @@ import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtGraphicalEffects 1.12
 
+import "../../Styles/Screens"
+import "../../Styles/Buttons"
+
+// TEMP
 import "../../Styles/ListsView"
 
-import my.window 1.0
-
-import horizontalModel1 1.0
+import windows.fwindow 1.0
 
 FWindow
 {
-    id: window
-    /*width: 1200;
-    height: 720;;*/
+    id: window;
     m_width: 1200;
     m_height: 720;
     m_minWidth: 1200;
     m_minHeight: 720;
-    m_maxWidth: 1980;
+    m_maxWidth: 1920;
     m_maxHeight: 1080
 
-    visible: true;
+    visible: false;
 
     FontLoader { id: localFont; source: "qrc:/Resources/Fonts/Gilroy.ttf" }
 
     Connections
     {
         target: wpRoot;
+        onChangeTitleSong: { main_title_song.text = title; } 
+        onChangeArtistSong: { main_artist_song.text = artist; } 
+        onChangeCoverArtSong: { cover.path = image; } 
+        onPositionChanged: 
+        { 
+            console.log("position: " + position);
+            slider.value = position; 
+        }
+        onDurationChanged: 
+        { 
+            console.log("duration: " + duration);
+            slider.value = 0; 
+            slider.from = 0; 
+            slider.to = duration; 
+        }
+        onChangeTime: { all_time.text = time; }
+        onCurrentTimeChanged: { elapsed_time.text = time; }
+        onMediaState: 
+        { 
+            if (state)
+            {
+                img_play.source = "qrc:/Resources/Icons/pause.png";
+                play_background.state = true;
+            }
+            else
+            {
+                img_play.source = "qrc:/Resources/Icons/play.png";
+                play_background.state = false;
+            }
+        }
     }
 
     /* #4C5458 - gray */
-    /* #2ED297- green */
-
-    property string colorHoveredItems: "#2ED297";
-    property string colorItems: "#4C5458";
+    /* #2ED297 - green */
 
     Row
     {
@@ -52,116 +79,119 @@ FWindow
                 anchors.fill: parent;
                 color: "#1B1D23";
 
+                Item
+                {
+                    id: username
+                    width: parent.width;
+                    height: 120;
+
+                    MouseArea
+                    {
+                        anchors.fill: username_row;
+                        cursorShape: Qt.PointingHandCursor;
+
+                        onClicked:
+                        {
+                            console.log("clicked");
+                        }
+                    }
+
+                    Row
+                    {
+                        id: username_row;
+                        height: 42;
+                        spacing: 14;
+
+                        anchors.left: parent.left;
+                        anchors.leftMargin: 23;
+                        anchors.verticalCenter: parent.verticalCenter;
+
+                        Item
+                        {
+                            width: 42;
+                            height: 42;
+                            anchors.verticalCenter: parent.verticalCenter;
+
+                            Image
+                            {
+                                id: image_user;
+                                anchors.fill: parent;
+                                source: "qrc:/Resources/Icons/cover.jpg";
+                                smooth: true;
+                                visible: false;
+                            }
+
+                            Rectangle
+                            {
+                                id: mask_image_user
+                                anchors.fill: image_user;
+                                radius: 50;
+                                visible: false;
+                            }
+
+                            Rectangle
+                            {
+                                id: image_user_border;
+                                width: 44;
+                                height: 44;
+                                radius: 50;
+                                gradient: Gradient {
+                                    orientation: Gradient.Horizontal
+                                    GradientStop { position: 0.0; color: "#2DCB90" }
+                                    GradientStop { position: 1.0; color: "#06ACC7" }
+                                }
+
+                                anchors.left: image_user.left;
+                                anchors.leftMargin: -1;
+                                anchors.top: image_user.top;
+                                anchors.topMargin: -1;
+                            }
+
+                            /*OpacityMask
+                            {
+                                anchors.fill: image_user;
+                                source: image_user;
+                                maskSource: mask_image_user;
+                            }*/
+                            }
+
+                        Label
+                        {
+                            text: "Jeremiah Evans";
+                            color: "#fff";
+                            font.family: "Gilroy";
+                            font.pixelSize: 12;
+
+                            anchors.verticalCenter: parent.verticalCenter;
+                        }
+
+                        Image
+                        {
+                            id: user_button;
+                            width: 12;
+                            height: 12;
+                            source: "qrc:/Resources/Icons/user_button.png";
+                            smooth: true;
+
+                            anchors.verticalCenter: parent.verticalCenter;
+                        }
+                    }
+                }
+
                 ScrollView
                 {
                     width: parent.width;
-                    height: parent.height - 206;
+                    height: parent.height - username.height - 10 - cover.height;
                     clip: true;
 
                     ScrollBar.vertical.policy: ScrollBar.AlwaysOff;
+
+                    anchors.top: username.bottom;
 
                     Column
                     {
                         anchors.fill: parent;
                         spacing: 0;
-
-                        Item
-                        {
-                            id: username
-                            width: parent.width;
-                            height: 120;
-
-                            MouseArea
-                            {
-                                anchors.fill: row;
-                                cursorShape: Qt.PointingHandCursor;
-
-                                onClicked:
-                                {
-                                    console.log("clicked");
-                                }
-                            }
-
-                            Row
-                            {
-                                id: row
-                                spacing: 14;
-                                height: 42;
-                                anchors.left: parent.left;
-                                anchors.leftMargin: 23;
-                                anchors.verticalCenter: parent.verticalCenter;
-
-                                Item
-                                {
-                                    width: 42;
-                                    height: 42;
-                                    anchors.verticalCenter: parent.verticalCenter;
-
-                                    Image
-                                    {
-                                        id: image_user;
-                                        anchors.fill: parent;
-                                        source: "qrc:/Resources/Icons/cover.jpg";
-                                        smooth: true;
-                                        visible: false;
-                                    }
-
-                                    Rectangle
-                                    {
-                                        id: mask_image_user
-                                        anchors.fill: image_user;
-                                        radius: 50;
-                                        visible: false;
-                                    }
-
-                                    Rectangle
-                                    {
-                                        id: image_user_border;
-                                        width: 44;
-                                        height: 44;
-                                        radius: 50;
-                                        gradient: Gradient {
-                                            orientation: Gradient.Horizontal
-                                            GradientStop { position: 0.0; color: "#2DCB90" }
-                                            GradientStop { position: 1.0; color: "#06ACC7" }
-                                        }
-
-                                        anchors.left: image_user.left;
-                                        anchors.leftMargin: -1;
-                                        anchors.top: image_user.top;
-                                        anchors.topMargin: -1;
-                                    }
-
-                                    /*OpacityMask
-                                    {
-                                        anchors.fill: image_user;
-                                        source: image_user;
-                                        maskSource: mask_image_user;
-                                    }*/
-                                }
-
-                                Label
-                                {
-                                    text: "Jeremiah Evans";
-                                    color: "#fff";
-                                    font.family: "Gilroy";
-                                    font.pixelSize: 12;
-
-                                    anchors.verticalCenter: parent.verticalCenter;
-                                }
-
-                                Image
-                                {
-                                    id: user_button;
-                                    width: 12;
-                                    height: 12;
-                                    source: "qrc:/Resources/Icons/user_button.png";
-                                    smooth: true;
-
-                                    anchors.verticalCenter: parent.verticalCenter;
-                                }
-                            }
-                        }
 
                         Item
                         {
@@ -213,6 +243,14 @@ FWindow
                                         img: "qrc:/Resources/Icons/microphone.png";
                                         img_hovered: "qrc:/Resources/Icons/microphone_hovered.png";
                                         text: "Artists";
+                                    }
+                                }
+
+                                onCliked:
+                                {
+                                    if (title == "Songs")
+                                    {
+                                        content_loader.source = "qrc:/SourceFiles/Qml Files/Styles/Screens/Songs.qml";
                                     }
                                 }
                             }
@@ -318,52 +356,93 @@ FWindow
 
                 Rectangle
                 {
-                    id: cover
-                    width: 196
-                    height:  196
-                    visible: false
+                    id: cover;
+                    width: 196;
+                    height:  196;
+                    visible: false;
+
+                    property string path: "default";
 
                     Image
                     {
-                        id: cover_image
-                        anchors.fill: parent
-                        source: "qrc:/Resources/Icons/cover.jpg"
-                        smooth: true;                    
+                        id: cover_image;
+                        anchors.fill: parent;
+                        source: isUnknown(cover.path);
+                        smooth: true;
+
+                        function isUnknown(text)
+                        {
+                            if (text == "default")
+                            {
+                                mask.visible = true;
+                                unknown_cover.visible = true;
+                                coverMask.visible = false;
+                                shadow.source = mask;
+
+                                return "qrc:/Resources/Icons/cover.jpg";
+                            }
+                            else
+                            {
+                                mask.visible = false;
+                                unknown_cover.visible = false;
+                                coverMask.visible = true;
+                                shadow.source = coverMask;
+
+                                return "image://rootImageDirectory/x196/" + text;
+                            }
+                        }
                     }
 
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.bottomMargin: 10
-                    anchors.leftMargin: 10
+                    anchors.bottom: parent.bottom;
+                    anchors.left: parent.left;
+                    anchors.bottomMargin: 10;
+                    anchors.leftMargin: 10;
                 }
 
                 Rectangle
                 {
-                    id: mask
-                    width: cover.width
-                    height:  cover.height
-                    radius: 7
-                    visible: false
+                    id: mask;
+                    anchors.fill: cover;
+                    radius: 7;
+                    color: "#1B1D23";
+                    visible: false;
+                    z: 1;
+                }
+
+                Image
+                {
+                    id: unknown_cover;
+                    width: 64;
+                    height: 64;
+                    source: "qrc:/Resources/Icons/cover_note.png";
+                    smooth: true;
+                    z: 1;
+                    visible: false;
+
+                    anchors.verticalCenter: mask.verticalCenter;
+                    anchors.horizontalCenter: mask.horizontalCenter;
                 }
 
                 OpacityMask
                 {
-                    id: coverMask
-                    anchors.fill: cover
-                    source: cover
-                    maskSource: mask
+                    id: coverMask;
+                    anchors.fill: cover;
+                    source: cover;
+                    maskSource: mask;
+                    visible: false;
                 }
 
-                /*DropShadow
+                DropShadow
                 {
-                    anchors.fill: coverMask
-                    horizontalOffset: 0
-                    verticalOffset: 10
-                    radius: 14.0
-                    samples: 17
-                    color: "#20000000"
-                    source: coverMask
-                }*/
+                    id: shadow;
+                    anchors.fill: mask;
+                    horizontalOffset: 0;
+                    verticalOffset: 4;
+                    radius: 14.0;
+                    samples: 17;
+                    color: "#000";
+                    source: coverMask;
+                }
             }
 
         }
@@ -374,6 +453,14 @@ FWindow
             width: parent.width - left_field.width;
             height: parent.height;
 
+            Rectangle
+            {
+                id: background_right_field;
+                color: "#111";
+                
+                anchors.fill: parent;
+            }
+
             Column
             {
                 anchors.fill: parent;
@@ -381,699 +468,39 @@ FWindow
 
                 Item
                 {
-                    id: center_field;
+                    id: upper_field
                     width: parent.width;
-                    height: parent.height - under_field.height
+                    height: window.m_hTitleBar;
 
-                    Rectangle
+                    WinControlButtons
                     {
-                        anchors.fill: parent;
-                        color: "#111";
-                    }
+                        id: winControlButtons
 
-                    Row
-                    {
-                        id: searching
-                        spacing: 15;
-                        anchors.left: parent.left;
-                        anchors.leftMargin: 10;
-                        anchors.top: parent.top;
-                        anchors.topMargin: 10;
+                        m_width_cell: window.m_hTitleBar + 16;
+                        m_height_cell: window.m_hTitleBar;
 
-                        Row
-                        {
-                            spacing: 10;
-
-                            anchors.verticalCenter: parent.verticalCenter;
-
-                            Rectangle
-                            {
-                                width: 32;
-                                height: 32;
-                                radius: 50;
-                                color: "#1D1E24";
-
-                                Image
-                                {
-                                    id: arrowBack;
-                                    width: 18;
-                                    height: 18;
-                                    source:"qrc:/Resources/Icons/arrow_back.png"
-                                    smooth: true;
-
-                                    anchors.verticalCenter: parent.verticalCenter;
-                                    anchors.horizontalCenter: parent.horizontalCenter;
-                                }
-                            }
-
-                            Rectangle
-                            {
-                                width: 32;
-                                height: 32;
-                                radius: 50;
-                                color: "#1D1E24";
-
-                                Image
-                                {
-                                    id: arrowNext;
-                                    width: 18;
-                                    height: 18;
-                                    source:"qrc:/Resources/Icons/arrow_next.png"
-                                    smooth: true;
-
-                                    anchors.verticalCenter: parent.verticalCenter;
-                                    anchors.horizontalCenter: parent.horizontalCenter;
-                                }
-                            }
-
-                        }
-
-                        Rectangle
-                        {
-                            width: 300;
-                            height: 32;
-                            radius: 50;
-                            color: "#2E353A";
-                            opacity: .5;
-
-                            Image
-                            {
-                                id: magnifier;
-                                width: 16;
-                                height: 16;
-                                source:"qrc:/Resources/Icons/magnifier.png"
-                                smooth: true;
-
-                                anchors.left: parent.left;
-                                anchors.leftMargin: 10;
-                                anchors.verticalCenter: parent.verticalCenter;
-                            }
-
-                            TextField
-                            {
-                                width: parent.width - magnifier.width * 3;
-                                selectByMouse: true
-                                placeholderText: "Search"
-                                font.family: "Gilroy";
-                                color: "#fff";
-                                placeholderTextColor: "#656970";
-                                font.pixelSize: 14;
-
-                                anchors.left: magnifier.right;
-                                anchors.leftMargin: 10;
-                                anchors.verticalCenter: parent.verticalCenter;
-
-                                background: Rectangle
-                                {
-                                    visible: false;
-                                }
-                            }
-                        }
-                    }
-
-                    Row
-                    {
-                        id: controlsButtons
                         anchors.right: parent.right;
                         anchors.top: parent.top;
-
-                        Rectangle
-                        {
-                            width: 48;
-                            height: 32;
-                            color: "transparent";
-
-                            Image
-                            {
-                                id: substract
-                                sourceSize.width: 10;
-                                sourceSize.height: 10;
-                                source: "qrc:/Resources/Icons/substract.png"
-                                smooth: true;
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            MouseArea
-                            {
-                                anchors.fill: parent;
-                                hoverEnabled: true;
-                                property bool m_state: false;
-
-                                onHoveredChanged:
-                                {
-                                    m_state = m_state ? false : true;
-                                    parent.color = m_state ? "#2ED297" : "transparent";
-                                    substract.source = m_state ? "qrc:/Resources/Icons/substract_hovered.png" : "qrc:/Resources/Icons/substract.png";
-                                }
-
-                                onClicked:
-                                {
-                                    window.showMinimized();
-                                }
-                            }
-                        }
-
-                        Rectangle
-                        {
-                            width: 48;
-                            height: 32;
-                            color: "transparent";
-
-                            Image
-                            {
-                                id: checkbox
-                                sourceSize.width: 10;
-                                sourceSize.height: 10;
-                                source: "qrc:/Resources/Icons/checkbox.png"
-                                smooth: true;
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            MouseArea
-                            {
-                                anchors.fill: parent;
-                                hoverEnabled: true;
-                                property bool m_state: false;
-
-                                property int oldWidth: 0;
-                                property int oldHeight: 0;
-
-                                property bool typeShow: true;
-
-                                onHoveredChanged:
-                                {
-                                    m_state = m_state ? false : true;
-                                    parent.color = m_state ? "#2ED297" : "transparent";
-                                    checkbox.source = m_state ? "qrc:/Resources/Icons/checkbox_hovered.png" : "qrc:/Resources/Icons/checkbox.png";
-                                }
-
-                                onClicked:
-                                {
-                                   	if (typeShow)
-                                   	{
-                               			window.showFullScreen();
-                                   		typeShow = false;
-                                   	}
-                                   	else
-                                   	{
-                                   		window.showNormal();   
-                                   		typeShow = true;		
-                                   	}
-                                }
-                            }
-                        }
-
-                        Rectangle
-                        {
-                            width: 48;
-                            height: 32;
-                            color: "transparent";
-
-                            Image
-                            {
-                                id: cross
-                                sourceSize.width: 10;
-                                sourceSize.height: 10;
-                                source: "qrc:/Resources/Icons/cross.png"
-                                smooth: true;
-
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            MouseArea
-                            {
-                                anchors.fill: parent;
-                                hoverEnabled: true;
-                                property bool m_state: false;
-
-                                onHoveredChanged:
-                                {
-                                    m_state = m_state ? false : true;
-                                    parent.color = m_state ? "#E81123" : "transparent";
-                                    cross.source = m_state ? "qrc:/Resources/Icons/cross_hovered.png" : "qrc:/Resources/Icons/cross.png";
-                                }
-
-                                onClicked:
-                                {
-                                    window.close();
-                                }
-                            }
-                        }
                     }
+                }
 
-                    Item
+                Item
+                {
+                    width: parent.width; 
+                    height: parent.height - under_field.height - upper_field.height;
+
+                    Loader
                     {
-                        width: parent.width;
-                        height: parent.height - controlsButtons.height - 10;
-
-                        anchors.bottom: parent.bottom;
-
-                        Column
-                        {
-                        	id: contentsContaner
-                            spacing: 0;
-                            width: parent.width - 64;
-                            height: parent.height - 32;
-                            anchors.top: parent.top;
-                            anchors.topMargin: 32;
-                            anchors.left: parent.left;
-                            anchors.leftMargin: 32;
-                            anchors.right: parent.right;
-                            anchors.rightMargin: 32;
-
-                            Item
-                            {
-                                id: albumsList;
-                                width: parent.width;
-                                height: 300;
-
-                                Column
-                                {
-                                    spacing: 10;
-
-                                    Label
-                                    {
-                                        font.pixelSize: 13
-                                        font.family: "Gilroy"
-                                        text: "Featured"
-                                        color: "#676D7A"
-                                    }
-
-                                    Label
-                                    {
-                                        font.pixelSize: 22
-                                        font.family: "Gilroy"
-                                        text: "Albums"
-                                        color: "#2ED297"
-                                    }
-
-	                            	ListView
-	                                {
-	                                    width: contentsContaner.width;
-	                                    height: 200;
-	                                    clip: true;
-	                                   	spacing: 32;
-	                                    orientation: ListView.Horizontal;
-
-	                                    model: HorizontalModel1
-										{
-											list: albumsModelList
-										}
-
-	                                    delegate: Item
-	                                    {
-	                                        id: album
-	                                        width: 128;
-
-	                                        opacity: 1;
-
-	                                       	property int step: 1;
-
-	                                       	function isDefualt(title)
-											{
-											    if (title == "default")
-											    {
-											        opacityMaskAlbum.visible = false;
-											        mask_cover_album.visible = true;
-											        unknown_cover_album.visible = true;
-											    }
-											    else
-											    {
-													opacityMaskAlbum.visible = true;
-											        mask_cover_album.visible = false;
-											        unknown_cover_album.visible = false;
-											    }
-											    return title;
-											} 
-
-	                                        Column
-	                                        {
-	                                            spacing: 10;
-
-	                                            Item
-	                                            {
-	                                                width: album.width;
-	                                                height: 128;
-
-	                                                Image
-	                                                {
-	                                                    id: cover_album
-	                                                    anchors.fill: parent;
-	                                                    source: "image://rootImageDirectory/x128/" + isDefualt(model.cover_key);
-	                                                   	smooth: true;
-	                                                    visible: false;
-	                                               	}
-
-	                                                Rectangle
-	                                                {
-	                                                    id: mask_cover_album;
-	                                                    width: cover_album.width;
-	                                                    height:  cover_album.height;
-	                                                    radius: 4;
-	                                                    color: "#1B1D23";
-	                                                    visible: false;
-	                                                }
-
-	                                                OpacityMask
-	                                                {
-	                                                    id: opacityMaskAlbum
-	                                                    anchors.fill: cover_album
-	                                                    source: cover_album
-	                                                    maskSource: mask_cover_album
-													}
-
-													Image
-	                                                {
-	                                                    id: unknown_cover_album
-	                                                    width: 64;
-	                                                    height: 64;
-	                                                    source: "qrc:/Resources/Icons/cover_note.png";
-	                                                   	smooth: true;
-
-	                                                    anchors.verticalCenter: opacityMaskAlbum.verticalCenter;
-	                                                    anchors.horizontalCenter: opacityMaskAlbum.horizontalCenter;
-	                                               	}
-
-													
-	                                                    /*DropShadow
-	                                                    {
-	                                                        anchors.fill: opacityMaskAlbum
-	                                                        horizontalOffset: 0
-	                                                        verticalOffset: 10
-	                                                        radius: 12.0
-	                                                        samples: 17
-	                                                        color: "#9FF0D2"
-	                                                        source: opacityMaskAlbum
-	                                                    }*/
-	                                            }
-
-	                                            Column
-	                                            {
-	                                                spacing: 2;
-	                                                Label
-	                                                {
-	                                                    font.pixelSize: 15
-	                                                    font.family: "Gilroy"
-	                                        	        text: points(model.text_line_first, 14);
-	                                                   	color: "#fff"
-	                                                    leftPadding: 10;
-	                                                }
-
-	                                                Label
-	                                                {
-	                                                    font.pixelSize: 12
-	                                                    font.family: "Gilroy"
-	                                                    text:  points(model.text_line_second, 14);
-	                                                    color: "#676D7A"
-	                                                    leftPadding: 10;
-	                                                }
-	                                            }
-	                                        }
-
-	                                        PropertyAnimation
-									        {
-									            id: animation_opacity_album;
-									            targets: [ album, opacityMaskAlbum ];
-									            to: 1;
-									            property: "opacity";
-									            duration: 200;
-									            easing.type: Easing.InOutQuad;
-									        }
-
-
-	                                        Component.onCompleted:
-	                                        {
-	                                        	//album.opacity = 0;
-	                                        	opacityMaskAlbum.opacity = 0;
-	                                        	animation_opacity_album.start();
-	                                        }   
-	                                    }
-	                                }
-                                }
-                            }
-
-                            Item
-                            {
-                                id: playLists
-                                width: parent.width;
-                                height: parent.height - albumsList.height;
-
-                                Column
-                                {
-                                    spacing: 10;
-                                    anchors.fill: parent;
-
-                                    Label
-                                    {
-                                        font.pixelSize: 13
-                                        font.family: "Gilroy"
-                                        text: "Playlists"
-                                        color: "#676D7A"
-                                    }
-
-                                    Label
-                                    {
-                                        font.pixelSize: 22
-                                        font.family: "Gilroy"
-                                        text: "Recently Added"
-                                        color: "#2ED297"
-                                    }
-
-                                    ListView
-                                    {
-                                        width: contentsContaner.width - 32;
-                                        height: parent.height - 70;
-                                        clip: true;
-                                        spacing: 24;
-
-                                        model: ListModel
-                                        {
-                                            ListElement { img: "qrc:/1.jpg"}
-                                            ListElement { img: "qrc:/2.jpg"}
-                                            ListElement { img: "qrc:/3.jpg"}
-                                            ListElement { img: "qrc:/4.jpg"}
-                                            ListElement { img: "qrc:/5.jpg"}
-                                            ListElement { img: "qrc:/1.jpg"}
-                                            ListElement { img: "qrc:/2.jpg"}
-                                            ListElement { img: "qrc:/3.jpg"}
-                                            ListElement { img: "qrc:/5.jpg"}
-                                            ListElement { img: "qrc:/4.jpg"}
-                                        }
-
-                                        delegate: Item
-                                        {
-                                            id: itemList;
-                                            width: parent.width;
-                                            height: 40;
-
-                                            MouseArea
-                                            {
-                                                anchors.fill: itemList;
-                                                hoverEnabled: true;
-                                                property bool state: false
-
-                                                onHoveredChanged:
-                                                {
-                                                    if (!state)
-                                                    {
-                                                        play_list.visible = true;
-                                                        id.visible = false;
-                                                        state = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        play_list.visible = false;
-                                                        id.visible = true;
-                                                        state = false;
-                                                    }
-                                                }
-
-                                                onClicked:
-                                                {
-                                                    console.log("clicked")
-                                                }
-                                            }
-
-                                            Label
-                                            {
-                                                id: id
-                                                text: "01";
-                                                font.pixelSize: 12;
-                                                font.family: "Gilroy"
-                                                color: "#4C5458"
-
-                                                anchors.left: itemList.left;
-                                                anchors.leftMargin: 15;
-
-                                                anchors.verticalCenter: parent.verticalCenter;
-                                            }
-
-                                            Image
-                                            {
-                                                id: play_list
-                                                width: 14;
-                                                height: 14;
-                                                source: "qrc:/Resources/Icons/play_list.png"
-                                                visible: false;
-
-                                                anchors.left: itemList.left;
-                                                anchors.leftMargin: 15;
-
-                                                anchors.verticalCenter: parent.verticalCenter;
-                                            }
-
-                                            Image
-                                            {
-                                                id: plus
-                                                width: 13;
-                                                height: 13;
-                                                source: "qrc:/Resources/Icons/plus.png"
-                                                smooth: true;
-
-                                                anchors.left: id.right;
-                                                anchors.leftMargin: 20;
-
-                                                anchors.verticalCenter: parent.verticalCenter;
-
-                                                MouseArea
-                                                {
-                                                    anchors.fill: parent;
-                                                    cursorShape: Qt.PointingHandCursor;
-                                                    hoverEnabled: true;
-
-                                                    onHoveredChanged:
-                                                    {
-                                                        play_list.visible = false;
-                                                        id.visible = true;
-                                                    }
-
-                                                    onClicked:
-                                                    {
-                                                        console.log("clicked")
-                                                    }
-                                                }
-                                            }
-
-                                            Item
-                                            {
-                                                id: coverImageList
-                                                width: 40;
-                                                height: 40;
-
-                                                anchors.left: plus.right;
-                                                anchors.leftMargin: 20;
-
-                                                Image
-                                                {
-                                                    id: cover_list
-                                                    width: 40;
-                                                    height: 40;
-                                                    source: model.img;
-                                                    smooth: true;
-                                                    cache: false
-                                                    visible: false
-                                                }
-
-                                                Rectangle
-                                                {
-                                                    id: mask_cover_list
-                                                    anchors.fill: cover_list
-                                                    radius: 2
-                                                    visible: false
-                                                }
-
-                                                /*OpacityMask
-                                                {
-                                                    anchors.fill: cover_list
-                                                    source: cover_list
-                                                    maskSource: mask_cover_list
-                                                }*/
-                                            }
-
-                                            Column
-                                            {
-                                                id: titleAndArtist
-                                                spacing: 5;
-                                                width: 300;
-
-                                                anchors.left: coverImageList.right;
-                                                anchors.leftMargin: 15;
-
-                                                anchors.verticalCenter: parent.verticalCenter;
-
-                                                Label
-                                                {
-                                                    text: "Take a Chance (feat. Little Dragon)";
-                                                    font.pixelSize: 13;
-                                                    font.family: "Gilroy"
-                                                    color: "#fff"
-                                                }
-
-                                                Label
-                                                {
-                                                    text: "Else";
-                                                    font.pixelSize: 11;
-                                                    font.family: "Gilroy"
-                                                    color: "#5C5F67"
-                                                }
-                                            }
-
-                                            Label
-                                            {
-                                                id: time
-                                                text: "06:21";
-                                                font.pixelSize: 11;
-                                                font.family: "Gilroy"
-                                                color: "#5C5F67"
-
-                                                anchors.left: titleAndArtist.right;
-                                                anchors.leftMargin: 15;
-
-                                                anchors.verticalCenter: parent.verticalCenter;
-                                            }
-
-                                            Image
-                                            {
-                                                id: dottedButton
-                                                width: 14;
-                                                height: 14;
-                                                source: "qrc:/Resources/Icons/dotted_button.png"
-                                                smooth: true;
-
-                                                anchors.left: time.right;
-                                                anchors.leftMargin: 25;
-
-                                                anchors.verticalCenter: parent.verticalCenter;
-
-                                                MouseArea
-                                                {
-                                                    anchors.fill: parent;
-                                                    cursorShape: Qt.PointingHandCursor;
-                                                    hoverEnabled: true;
-
-                                                    onHoveredChanged:
-                                                    {
-                                                        play_list.visible = false;
-                                                        id.visible = true;
-                                                    }
-
-                                                    onClicked:
-                                                    {
-                                                        console.log("clicked")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        id: content_loader;
+                        anchors.fill: parent;
+                        source: "qrc:/SourceFiles/Qml Files/Styles/Screens/Songs.qml";
+
+                        anchors.left: parent.left
+                        anchors.leftMargin: 15;
+
+                        anchors.top: parent.top
+                        anchors.topMargin: 10;
+                    }       
                 }
 
                 Item
@@ -1106,6 +533,7 @@ FWindow
 
                         Label
                         {
+                            id: main_title_song
                             text: "Rainin' With You"
                             color: "#fff";
                             font.family: "Gilroy";
@@ -1115,6 +543,7 @@ FWindow
 
                         Label
                         {
+                            id: main_artist_song
                             text: "Heize"
                             color: "#61646B";
                             font.family: "Gilroy";
@@ -1140,25 +569,25 @@ FWindow
 
                                 Image
                                 {
-                                     width: 16;
-                                     height: 16;
-                                     smooth: true;
-                                     source: "qrc:/Resources/Icons/back.png"
+                                    width: 16;
+                                    height: 16;
+                                    smooth: true;
+                                    source: "qrc:/Resources/Icons/back.png"
 
-                                     anchors.right: play_background.left;
-                                     anchors.rightMargin: 15
-                                     anchors.verticalCenter: parent.verticalCenter;
+                                    anchors.right: play_background.left;
+                                    anchors.rightMargin: 15
+                                    anchors.verticalCenter: parent.verticalCenter;
 
-                                     MouseArea
-                                     {
-                                         anchors.fill: parent;
-                                         cursorShape: Qt.PointingHandCursor;
+                                    MouseArea
+                                    {
+                                        anchors.fill: parent;
+                                        cursorShape: Qt.PointingHandCursor;
 
-                                         onClicked:
-                                         {
-                                             console.log("clicked");
-                                         }
-                                     }
+                                        onClicked:
+                                        {
+                                            wpRoot.previous();
+                                        }
+                                    }
                                 }
 
                                 Rectangle
@@ -1170,6 +599,8 @@ FWindow
 
                                     anchors.horizontalCenter: parent.horizontalCenter;
 
+                                    property bool state: false;
+
                                     gradient: Gradient {
                                         orientation: Gradient.Horizontal
                                         GradientStop { position: 0.0; color: "#2DCB90" }
@@ -1178,6 +609,7 @@ FWindow
 
                                     Image
                                     {
+                                        id: img_play;
                                          width: 16;
                                          height: 16;
                                          smooth: true;
@@ -1192,10 +624,10 @@ FWindow
                                     {
                                         anchors.fill: parent;
                                         cursorShape: Qt.PointingHandCursor;
-
+                                        
                                         onClicked:
                                         {
-                                            console.log("clicked");
+                                            wpRoot.play();
                                         }
                                     }
                                 }
@@ -1218,7 +650,7 @@ FWindow
 
                                          onClicked:
                                          {
-                                             console.log("clicked");
+                                            wpRoot.next();
                                          }
                                      }
 
@@ -1233,6 +665,7 @@ FWindow
                             Label
                             {
                                 id: elapsed_time
+                                width: 32
                                 font.pixelSize: 12
                                 font.family: "Gilroy"
                                 text: "1:23"
@@ -1243,12 +676,13 @@ FWindow
 
                             Slider
                             {
-                                id: slider
-                                value: 0
-                                to: 99
-                                from: 0
-                                width: 420
-                                height: 6
+                                id: slider;
+                                value: 0;
+                                to: 99;
+                                from: 0;
+                                stepSize: 1.0;
+                                width: 420;
+                                height: 6;
 
                                 anchors.verticalCenter: parent.verticalCenter
 
@@ -1274,17 +708,19 @@ FWindow
                                 }
                                 handle: Rectangle
                                 {
-                                    visible: false
+                                    visible: false;
                                 }
+
                                 onMoved:
                                 {
-
+                                    wpRoot.sliderPositionChanged(slider.value);
                                 }
                             }
 
                             Label
                             {
                                 id: all_time
+                                width: 32
                                 font.pixelSize: 12
                                 font.family: "Gilroy"
                                 text: "4:31"
@@ -1376,28 +812,29 @@ FWindow
                             {
                                 anchors.fill: parent;
                                 cursorShape: Qt.PointingHandCursor;
-                                property int state: 0;
+                                property int state: 1;
 
                                 onClicked:
                                 {
-                                    if (state == 0)
+                                    if (state == 1)
                                     {
                                         once.visible = false;
                                         parent.source = "qrc:/Resources/Icons/repeat_hovered.png"
-                                        state = 1;
+                                        state = 2;
                                     }
-                                    else if (state == 1)
+                                    else if (state == 2)
                                     {
                                         once.visible = true;
-                                        state = 2;
+                                        state = 3;
                                     }
                                     else
                                     {
                                         parent.source = "qrc:/Resources/Icons/repeat.png"
                                         once.visible = false;
-                                        state = 0;
+                                        state = 1;
                                     }
 
+                                    wpRoot.playModeChanged(state);
                                 }
                             }
                         }
@@ -1428,26 +865,6 @@ FWindow
             }
         }
     }                                             	
-
-    function points(str, size)
-	{
-		if (str.length > size)
-		{
-			var newStr = new String("");
-
-			for (var i = 0; i < size; ++i)
-			{
-				newStr += str[i];
-			}
-
-			newStr += "...";
-			return newStr;
-		}
-		else
-		{
-			return str;
-		}
-	}
 }
 
 
