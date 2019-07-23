@@ -1,10 +1,11 @@
 #include "ListSongsSection.h"
 
-ListSongsSection::ListSongsSection(const EParams* const params)
-	: ISectionListView(params, Q_NULLPTR, Q_NULLPTR, Q_NULLPTR, Q_NULLPTR)
+ListSongsSection::ListSongsSection(const EParams* const params) : 
+	ISectionListView(params->m_pSocket, params->m_pRootImageProvider, Q_NULLPTR, Q_NULLPTR, Q_NULLPTR, Q_NULLPTR),
+	m_pParams(params)
 {
-	m_model = new VerticalModel1::List;
-	params->m_pRootContext->setContextProperty(QStringLiteral("songsModelList"), m_model);
+	m_pModel = new VerticalModel1::List;
+	params->m_pRootContext->setContextProperty(QStringLiteral("songsModelList"), m_pModel);
 	params->m_pRootContext->setContextProperty(QStringLiteral("listSongsSection"), this);
 }
 
@@ -14,18 +15,17 @@ ListSongsSection::~ListSongsSection()
 
 void ListSongsSection::Initialize()
 {
-	connect(this, &ListSongsSection::onInitializeList, this, &ListSongsSection::InitializeList);
-	connect(this, &ListSongsSection::onDeleteImageItem, this, &ListSongsSection::DeleteImageItem);
-	connect(this, &ListSongsSection::onLoadImageItem, this, &ListSongsSection::LoadImageItem);
+	connect(this, &ListSongsSection::initializeList, this, &ListSongsSection::InitializeList);
+	connect(this, &ListSongsSection::clickedItem, this, &ListSongsSection::ClickedItem);
 
-	Load(ETypeLoad::GetTableMedia, Query());
-	m_requests.append(ETypeLoad::GetTableMedia);
+	m_pImageManager = new ImageManager(m_pParams, m_pModel, &m_listIndex);
+	m_pImageManager->Initialize();
 
-	Load(ETypeLoad::GetTableArtists, Query());
-	m_requests.append(ETypeLoad::GetTableArtists);
+	m_pThread = new QThread;
+	m_pImageManager->moveToThread(m_pThread);
+	m_pThread->start();
 
-	Load(ETypeLoad::GetTableAlbums, Query());
-	m_requests.append(ETypeLoad::GetTableAlbums);
+	LoadData();
 }
 
 void ListSongsSection::ReadyRead(QByteArray package)
@@ -34,25 +34,21 @@ void ListSongsSection::ReadyRead(QByteArray package)
 
 void ListSongsSection::InitializeList()
 {
-	m_current_item = 0;
-	m_model->Clear();
+	m_pImageManager->Clear();
+	m_pImageManager->SetAvailable(false);
 
+	m_pModel->ClearList();
+	
 	for (int i = 0; i < m_pMediaTable->Rows(); ++i)
 	{
 		VerticalModel1::Item item;
 		item.id = m_pMediaTable->ValueAt("id_media", i).toInt();
 		item.coverKey = "default";
 		item.textLineFirst = m_pMediaTable->ValueAt("title", i).toString();
+		item.textLineSecond = m_pMediaTable->ValueAt("artist", i).toString();
+		item.textLineThird = m_pAlbumsTable->ValueAt("album", i).toString();
 		item.expression = false;
-
-		int idArtist = m_pMediaTable->ValueAt("id_artist", i).toInt();
-		int idAlbum = m_pMediaTable->ValueAt("id_album", i).toInt();
-
-		int localIdArtit = m_pArtistsTable->IndexAt("id_artist", idArtist);
-		item.textLineSecond = m_pArtistsTable->ValueAt("name", localIdArtit).toString();
-
-		int localIdAlbum = m_pAlbumsTable->IndexAt("id_album", idAlbum);
-		item.textLineThird = m_pAlbumsTable->ValueAt("title", localIdAlbum).toString();
+		item.expression2 = false;
 
 		int duration = m_pMediaTable->ValueAt("duration", i).toInt();
 
@@ -77,8 +73,9 @@ void ListSongsSection::InitializeList()
 
 		m_listIndex.insert(item.id, i);
 
-		m_model->AppendItem(item);
+		m_pModel->AppendItem(item);
 	}
+	m_pImageManager->SetAvailable(true);
 }
 
 void ListSongsSection::GottenData(QByteArray data)
@@ -90,24 +87,18 @@ void ListSongsSection::GottenData(QByteArray data)
 	{
 	case ETypeLoad::GetTableMedia:
 	{
-		GetMediaTable(q);
+		GetMediaMergedTable(q);
 		break;
 	}
 	case ETypeLoad::GetTableAlbums:
 	{
 		GetAlbumsTable(q);
-		emit onInitializeList();
+		emit initializeList();
 		break;
 	}
 	case ETypeLoad::GetTableArtists:
 	{
 		GetArtistsTable(q);
-		break;
-	}
-	case ETypeLoad::GetArtCover:
-	{
-		QByteArray& t = q.GetFromBody("cover-art").toVariant().toString().toLatin1();
-		UpdateImageItem(t);
 		break;
 	}
 	default:
@@ -121,34 +112,14 @@ void ListSongsSection::GottenData(QByteArray data)
 
 void ListSongsSection::ClickedItem(int id)
 {
-	for (int i = 0; i < m_model->Size(); ++i)
+	if (m_pParams->m_pMediaPlayer->GetSection() != this)
 	{
-		VerticalModel1::Item* t = &m_model->At(i);
-
-		if (t->id == id)
-		{
-			VerticalModel1::Item item = m_model->At(i);
-			item.expression = !item.expression;
-
-			if (item.expression)
-			{
-				emit onChangeTitleSong(item.textLineFirst);
-				emit onChangeArtistSong(item.textLineSecond);
-				emit onChangeCoverArtSong(item.coverKey);
-				emit onChangeTime(item.textLineFourth);
-			}
-
-			m_model->RemoveItem(i);
-			m_model->InsertItem(i, item);
-		}
-		else if (t->expression)
-		{
-			VerticalModel1::Item item = m_model->At(i);
-			item.expression = false;
-			m_model->RemoveItem(i);
-			m_model->InsertItem(i, item);
-		}
+		m_pParams->m_pMediaPlayer->SetConnnectWithSection(this);
 	}
+
+	SetCurrentItem(id);
+
+	emit hasClicked();
 }
 
 void ListSongsSection::FirstIndex()
@@ -191,93 +162,57 @@ void ListSongsSection::PreviousIndex(int id)
 	}
 }
 
-void ListSongsSection::UpdateImageItem(QByteArray image)
+void ListSongsSection::SetCurrentItem(int index)
 {
-	QImage p;
-	p.loadFromData(image, "JPG");
-
-	QString id;
-
-	if (p == QImage())
+	for (int i = 0; i < m_pModel->Size(); ++i)
 	{
-		id = "default";
-	}
-	else if (m_pRootImageProvider->Contains(p))
-	{
-		id = m_pRootImageProvider->Find(p);
-	}
-	else
-	{
-		id = QString::number(m_pRootImageProvider->SafeId());
-		m_pRootImageProvider->AppendImage(p, id);
-	}
+		VerticalModel1::Item* t = &m_pModel->At(i);
 
-	VerticalModel1::Item newItem;
-	int idImageModel = m_listIndex.value(m_idLoadImage.first());
-
-	m_model->SetValueItemAt(idImageModel, id, VerticalModel1::List::COVER_KEY);
-
-	m_idLoadImage.removeFirst();
-
-	m_isQueueFree = true;
-
-	if (!m_idLoadImage.isEmpty())
-	{
-		m_isQueueFree = false;
-
-		Query q;
-		int idImageModel = m_listIndex.value(m_idLoadImage.first());
-		int id_album = m_pMediaTable->ValueAt("id_album", idImageModel).toInt();
-		q.InsertIntoBody("id-album", id_album);
-
-		Load(ETypeLoad::GetArtCover, q);
-		m_requests.append(ETypeLoad::GetArtCover);
-	}
-}
-
-void ListSongsSection::LoadImageItem(int id)
-{
-	m_idLoadImage.append(id);
-
-	if (m_isQueueFree)
-	{
-		m_isQueueFree = false;
-
-		Query q;
-		int idImageModel = m_listIndex.value(m_idLoadImage.first());
-		int id_album = m_pMediaTable->ValueAt("id_album", idImageModel).toInt();
-		q.InsertIntoBody("id-album", id_album);
-
-		Load(ETypeLoad::GetArtCover, q);
-		m_requests.append(ETypeLoad::GetArtCover);
-	}
-}
-
-void ListSongsSection::DeleteImageItem(int id)
-{
-	for (int i = 0; i < m_model->Size(); ++i)
-	{
-		VerticalModel1::Item* t = &m_model->At(i);
-
-		if (t->id == id)
+		if (t->id == index)
 		{
-			m_pRootImageProvider->Remove(t->coverKey);
+			if (!t->expression) // has clicked
+			{
+				m_pModel->SetValueItemAt(i, true, VerticalModel1::List::EXPRESSION); // clicked
+				m_pModel->SetValueItemAt(i, false, VerticalModel1::List::EXPRESSION2);
 
-			VerticalModel1::Item newItem;
-			VerticalModel1::Item oldItem = m_model->At(i);
-
-			newItem.id = oldItem.id;
-			newItem.coverKey = "default";
-			newItem.textLineFirst = oldItem.textLineFirst;
-			newItem.textLineSecond = oldItem.textLineSecond;
-			newItem.textLineThird = oldItem.textLineThird;
-			newItem.textLineFourth = oldItem.textLineFourth;
-			newItem.expression = oldItem.expression;
-
-			m_model->RemoveItem(i);
-			m_model->InsertItem(i, newItem);
-
-			break;
+				m_pParams->m_pSettings->setValue("MediaPlayer/id", t->id);
+				m_pParams->m_pSettings->setValue("MediaPlayer/title", t->textLineFirst);
+				m_pParams->m_pSettings->setValue("MediaPlayer/artist", t->textLineSecond);
+				m_pParams->m_pSettings->setValue("MediaPlayer/time", t->textLineFourth);
+			}
+			else
+			{
+				m_pModel->SetValueItemAt(i, false, VerticalModel1::List::EXPRESSION);
+				m_pModel->SetValueItemAt(i, true, VerticalModel1::List::EXPRESSION2);
+			}
+		}
+		else if (t->expression)
+		{
+			m_pModel->SetValueItemAt(i, false, VerticalModel1::List::EXPRESSION); // not clicked
+		}
+		else if (t->expression2)
+		{
+			m_pModel->SetValueItemAt(i, false, VerticalModel1::List::EXPRESSION2); // after clicked
 		}
 	}
+}
+
+void ListSongsSection::LoadData()
+{
+	Query q;
+	q.InsertIntoBody("limit", 0);
+	q.InsertIntoBody("offset", 0);
+	q.InsertIntoBody("merger", true);
+
+	q.InsertIntoBody("type-sort", m_pParams->m_pSettings->value("SortTables/sortType").toInt());
+	q.InsertIntoBody("state-sort", m_pParams->m_pSettings->value("SortTables/sortState").toInt());
+
+	Load(ETypeLoad::GetTableMedia, q);
+	m_requests.append(ETypeLoad::GetTableMedia);
+
+	Load(ETypeLoad::GetTableArtists, Query());
+	m_requests.append(ETypeLoad::GetTableArtists);
+
+	Load(ETypeLoad::GetTableAlbums, Query());
+	m_requests.append(ETypeLoad::GetTableAlbums);
 }

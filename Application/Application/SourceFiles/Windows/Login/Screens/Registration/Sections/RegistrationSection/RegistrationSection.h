@@ -2,10 +2,13 @@
 #define _REGISTRATION_FIELD_H_
 
 #include "StdAfx.h"
+#include "EParams.h"
 
-#include "Interfaces/ISection.h"
+#include <QCryptographicHash>
 
-class RegistrationSection : public ISection
+#include "Interfaces/ISectionObject.h"
+
+class RegistrationSection : public ISectionObject
 {
 	Q_OBJECT
 
@@ -24,6 +27,9 @@ signals:
 	void onSuccess();
 	void onDuplicateUsername();
 	void onUserIsNotFound();
+
+private:
+	const EParams* const m_pParams;
 };
 
 

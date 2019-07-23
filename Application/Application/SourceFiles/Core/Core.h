@@ -6,8 +6,6 @@
 #include <QObject>
 #include <QThread>
 
-#include <QGraphicseffect>
-
 // Parameters
 #include "EParams.h"
 

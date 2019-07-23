@@ -39,6 +39,8 @@ QVariant Model::data(const QModelIndex &index, int role) const
 		return QVariant(item.textLineFourth);
 	case List::EXPRESSION:
 		return QVariant(item.expression);
+	case List::EXPRESSION2:
+		return QVariant(item.expression2);
     }
 
     return QVariant();
@@ -74,6 +76,9 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
 	case List::EXPRESSION:
         item.expression = value.toBool();
         break;
+	case List::EXPRESSION2:
+        item.expression2 = value.toBool();
+        break;
     }
 
     if (m_list->SetItemAt(index.row(), item))
@@ -94,6 +99,7 @@ QHash<int, QByteArray> Model::roleNames() const
     names[List::TEXT_LINE_THIRD] = "text_line_third";
     names[List::TEXT_LINE_FOUTH] = "text_line_fourth";
     names[List::EXPRESSION] = "expression";
+    names[List::EXPRESSION2] = "expression2";
     return names;
 }
 

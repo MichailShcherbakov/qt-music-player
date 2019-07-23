@@ -5,31 +5,41 @@ import QtGraphicalEffects 1.12
 ListView
 {
 	property var m_model: ListModel{}
+	property int m_width: 100;
+	property int m_height: 100;
 
-    anchors.fill: parent;
+    width: m_width;
+    height: m_height;
+    cacheBuffer: delegate_list.height * 2;
     spacing: 10;
     clip: true;
 
 	model: m_model;
 
-	Connections
-	{
-		target: listSongsSection;
-	}
-
     delegate: Item
 	{
+		id: delegate_list;
 		width: parent.width;
 		height: 10 + cover.height + 10;
 
+		Connections
+		{
+			target: imageManager;
+		}
+
+		Connections
+		{
+			target: listSongsSection;
+		}
+
 		Component.onDestruction:
         {
-            listSongsSection.DeleteImageItem(model.id);
+            imageManager.DeleteImageItem(model.id);
         }
 
         Component.onCompleted:
         {
-            listSongsSection.LoadImageItem(model.id);
+            imageManager.LoadImageItem(model.id);
         }
 
 		Rectangle
@@ -78,13 +88,13 @@ ListView
                 	hover_animation.stop();
                 	hover_animation_background_cover_play.stop();
 
-                	if (!play_sign.visible)
+                	if (model.expression || model.expression2) // item has clicked 
                 	{
-                		hover_animation.targets = [ item_background, cover_play ];
+                		hover_animation.targets = [ item_background ];
                 	}
                 	else
                 	{
-                		hover_animation.targets = [ item_background ];
+                		hover_animation.targets = [ item_background, cover_play];
                 	}
 
                 	hover_animation.to = 1;
@@ -99,18 +109,18 @@ ListView
                 	hover_animation.stop();
                 	hover_animation_background_cover_play.stop();
 
-                	if (!play_sign.visible)
+                	if (model.expression || model.expression2)
                 	{
-                		hover_animation.targets = [ item_background, cover_play ];
+                		hover_animation.targets = [ item_background ];
                 	}
                 	else
                 	{
-                		hover_animation.targets = [ item_background ];
+                		hover_animation.targets = [ item_background, cover_play ];
                 	}
 
                 	hover_animation.to = 0;
 
-                	if (!play_sign.visible)
+                	if (!model.expression && !model.expression2)
                 	{
                 		hover_animation_background_cover_play.to = 0;
                 	}
@@ -176,7 +186,7 @@ ListView
 				anchors.fill: opacity_mask;
 				color: "#000";
 				z: 1;
-				opacity: model.expression ? 0.5 : 0;
+				opacity: (model.expression || model.expression2) ? 0.5 : 0;
 			}
 
 			Image
@@ -192,6 +202,16 @@ ListView
 				anchors.verticalCenter: opacity_mask.verticalCenter;
 			    anchors.horizontalCenter: opacity_mask.horizontalCenter;
 
+			    Connections
+			    {
+			    	target: mediaPlayer;
+			    }
+
+				Connections
+				{
+					target: FooterPanel;
+				}
+
 			    MouseArea
 			    {
 			    	anchors.fill: parent;
@@ -199,8 +219,19 @@ ListView
 
 			    	onClicked:
 			    	{
-			    		wpRoot.clickedItem(1, model.id); // 1 - ListSongsScreen::ETypeSection::ListSongsSection
-			    		background.visible = true;
+			    		cover_play.opacity = 0;
+						all_time.text = model.text_line_fourth;
+						main_title_song.text = model.text_line_first;
+						main_artist_song.text = model.text_line_second;
+						background.visible = true;
+
+						FooterPanel.id = model.id;
+						FooterPanel.title = model.text_line_first;
+						FooterPanel.artist = model.text_line_second;
+						FooterPanel.time = model.text_line_fourth;
+
+			    		listSongsSection.ClickedItem(model.id);
+			    		mediaPlayer.PlayTheSong(model.id);
 			    	}
 			    }
 	        }
@@ -233,6 +264,67 @@ ListView
 		        anchors.fill: cover;
 		        source: cover;
 		        maskSource: background;
+			}
+
+			Item
+			{
+				id: play_sign_stoped;
+				width: 15;
+				height: 20;
+				z: 1;
+
+				anchors.verticalCenter: background.verticalCenter;
+		        anchors.horizontalCenter: background.horizontalCenter;
+
+				property int m_spacing: 1;
+				visible: model.expression2;
+
+				Rectangle
+				{
+					id: first_stoped;
+					width: (play_sign.width - 3*parent.m_spacing) / 4;
+					height: 4;
+					color: "#fff"
+
+					anchors.left: parent.left;
+					anchors.bottom: parent.bottom;
+				}
+
+				Rectangle
+				{
+					id: second_stoped;
+					width: (play_sign.width - 3*parent.m_spacing) / 4;
+					height: 4;
+					color: "#fff"
+
+					anchors.left: first_stoped.right;
+					anchors.leftMargin: parent.m_spacing;
+					anchors.bottom: parent.bottom;
+				}
+
+				Rectangle
+				{
+					id: third_stoped;
+					width: (play_sign.width - 3*parent.m_spacing) / 4;
+					height: 4;
+					color: "#fff"
+
+					anchors.left: second_stoped.right;
+					anchors.leftMargin: parent.m_spacing;
+					anchors.bottom: parent.bottom;
+				}
+
+				Rectangle
+				{
+					id: fourth_stoped;
+					width: (play_sign.width - 3*parent.m_spacing) / 4;
+					height: 4;
+					color: "#fff"
+
+					anchors.left: third_stoped.right;
+					anchors.leftMargin: parent.m_spacing;
+					anchors.bottom: parent.bottom;
+				}
 			}
 
 			Item
@@ -380,7 +472,6 @@ ListView
 						to: 21;
 						duration: 150;
 						property: "height";
-						//loops: Animation.Infinite;
 						running: play_sign.isRunning;
 
 						property string state: "up"
@@ -482,7 +573,7 @@ ListView
 				id: first_title;
 		        font.pixelSize: 13;
 		        font.family: "Gilroy";
-		        text: model.text_line_first;
+		        text: list_item.points(model.text_line_first, (parent.width/4 + 24)/second_title.font.pixelSize);
 		        color: "#fff";
 
 		        anchors.left: cover.right;
@@ -496,7 +587,7 @@ ListView
 				id: second_title;
 		        font.pixelSize: 13;
 		        font.family: "Gilroy";
-		        text: model.text_line_second;
+		        text: list_item.points(model.text_line_second, (parent.width/4 + 24)/second_title.font.pixelSize);
 		        color: "#4C5458";
 
 		        anchors.left: first_title.left;
@@ -510,7 +601,7 @@ ListView
 				id: third_title;
 		        font.pixelSize: 13;
 		        font.family: "Gilroy";
-		        text: model.text_line_third;
+		        text: list_item.points(model.text_line_third, (parent.width/4 + 24)/second_title.font.pixelSize);
 		        color: "#4C5458";
 
 		        anchors.left: second_title.left;
@@ -524,11 +615,11 @@ ListView
 				id: fourth_title;
 		        font.pixelSize: 13;
 		        font.family: "Gilroy";
-		        text: model.text_line_fourth;
+		        text: list_item.points(model.text_line_fourth, 16);
 		        color: "#4C5458";
 
 		        anchors.left: third_title.left;
-		        anchors.leftMargin: parent.width/4 + 24;
+		        anchors.leftMargin: parent.width/4;
 
 		        anchors.verticalCenter: parent.verticalCenter;
 			}
@@ -541,8 +632,8 @@ ListView
 				source: "qrc:/Resources/Icons/dotted_button_item.png";
 				smooth: true;
 
-				anchors.left: fourth_title.left;
-		        anchors.leftMargin: 64;
+				anchors.right: parent.right;
+		        anchors.rightMargin: 24;
 
 				anchors.verticalCenter: parent.verticalCenter;
 

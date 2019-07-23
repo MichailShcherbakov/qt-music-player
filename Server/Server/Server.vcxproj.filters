@@ -35,25 +35,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CServer.cpp">
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Database\Database.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Server\Server.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="CTagEditer.cpp">
+    <ClCompile Include="TagEditor\TagEditer.cpp">
       <Filter>TagEditer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ServerTools.h">
+    <ClInclude Include="Tools\LogSystem.h">
       <Filter>Tools</Filter>
     </ClInclude>
-    <ClInclude Include="CTagEditer.h">
+    <ClInclude Include="TagEditor\TagEditer.h">
       <Filter>TagEditer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="CServer.h">
+    <QtMoc Include="Database\Database.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Server\Server.h">
       <Filter>Server</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Server.pro" />
   </ItemGroup>
 </Project>

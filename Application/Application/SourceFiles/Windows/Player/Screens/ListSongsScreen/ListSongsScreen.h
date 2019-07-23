@@ -5,6 +5,8 @@
 
 #include "Interfaces/IScreen.h"
 #include "Sections/ListSongsSection/ListSongsSection.h"
+#include "Sections/SortListSection/SortListSection.h"
+#include "Sections/FooterPanel/FooterPanel.h"
 
 class ListSongsScreen : public IScreen
 {
@@ -15,6 +17,8 @@ public:
 	{
 		Unknown = 0,
 		ListSongsSection,
+		SortListSection,
+		FooterPanel,
 	};
 
 public:
@@ -27,14 +31,16 @@ public slots:
 	// ~IScreen
 
 public:
-	ISectionListView* Section(ETypeSection type);
+	ISection* Section(ETypeSection type);
 
 private:
 	// Sections
-	ListSongsSection* m_pRegistrationSection;
+	ListSongsSection* m_pListSongsSection;
+	SortListSection* m_pSortListSection;
+	FooterPanel* m_pFooterPanel;
 
 private:
 	// List sections
-	QMap<ETypeSection, ISectionListView*> m_listSections;
+	QMap<ETypeSection, ISection*> m_listSections;
 };
 #endif

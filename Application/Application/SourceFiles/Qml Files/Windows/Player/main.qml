@@ -28,36 +28,6 @@ FWindow
     Connections
     {
         target: wpRoot;
-        onChangeTitleSong: { main_title_song.text = title; } 
-        onChangeArtistSong: { main_artist_song.text = artist; } 
-        onChangeCoverArtSong: { cover.path = image; } 
-        onPositionChanged: 
-        { 
-            console.log("position: " + position);
-            slider.value = position; 
-        }
-        onDurationChanged: 
-        { 
-            console.log("duration: " + duration);
-            slider.value = 0; 
-            slider.from = 0; 
-            slider.to = duration; 
-        }
-        onChangeTime: { all_time.text = time; }
-        onCurrentTimeChanged: { elapsed_time.text = time; }
-        onMediaState: 
-        { 
-            if (state)
-            {
-                img_play.source = "qrc:/Resources/Icons/pause.png";
-                play_background.state = true;
-            }
-            else
-            {
-                img_play.source = "qrc:/Resources/Icons/play.png";
-                play_background.state = false;
-            }
-        }
     }
 
     /* #4C5458 - gray */
@@ -181,7 +151,7 @@ FWindow
                 ScrollView
                 {
                     width: parent.width;
-                    height: parent.height - username.height - 10 - cover.height;
+                    height: parent.height - username.height - 10 - main_cover.height;
                     clip: true;
 
                     ScrollBar.vertical.policy: ScrollBar.AlwaysOff;
@@ -356,18 +326,23 @@ FWindow
 
                 Rectangle
                 {
-                    id: cover;
+                    id: main_cover;
                     width: 196;
                     height:  196;
                     visible: false;
 
-                    property string path: "default";
+					Connections
+                    {
+						target: FooterPanel;
+					}
+
+                    property string path: FooterPanel.coverID == "" ? "default" : FooterPanel.coverID;
 
                     Image
                     {
                         id: cover_image;
                         anchors.fill: parent;
-                        source: isUnknown(cover.path);
+                        source: isUnknown(main_cover.path);
                         smooth: true;
 
                         function isUnknown(text)
@@ -402,7 +377,7 @@ FWindow
                 Rectangle
                 {
                     id: mask;
-                    anchors.fill: cover;
+                    anchors.fill: main_cover;
                     radius: 7;
                     color: "#1B1D23";
                     visible: false;
@@ -426,8 +401,8 @@ FWindow
                 OpacityMask
                 {
                     id: coverMask;
-                    anchors.fill: cover;
-                    source: cover;
+                    anchors.fill: main_cover;
+                    source: main_cover;
                     maskSource: mask;
                     visible: false;
                 }
@@ -533,8 +508,13 @@ FWindow
 
                         Label
                         {
+							Connections
+                            {
+								target: FooterPanel;
+                            }
+
                             id: main_title_song
-                            text: "Rainin' With You"
+                            text: FooterPanel.title;
                             color: "#fff";
                             font.family: "Gilroy";
                             font.pixelSize: 16
@@ -543,8 +523,12 @@ FWindow
 
                         Label
                         {
+							Connections
+                            {
+								target: FooterPanel;
+                            }
                             id: main_artist_song
-                            text: "Heize"
+                            text: FooterPanel.artist;
                             color: "#61646B";
                             font.family: "Gilroy";
                             font.pixelSize: 16
@@ -567,6 +551,21 @@ FWindow
                                 anchors.horizontalCenter: parent.horizontalCenter;
                                 height: 40;
 
+                                Connections
+                                {
+                                    target: mediaPlayer;
+
+                                    onStarted:
+                                    {
+                                        img_play.source = "qrc:/Resources/Icons/pause.png"
+                                    }
+
+                                    onPaused:
+                                    {
+                                        img_play.source = "qrc:/Resources/Icons/play.png"
+                                    }
+                                }
+
                                 Image
                                 {
                                     width: 16;
@@ -585,7 +584,7 @@ FWindow
 
                                         onClicked:
                                         {
-                                            wpRoot.previous();
+                                            mediaPlayer.onPrevious();
                                         }
                                     }
                                 }
@@ -627,7 +626,7 @@ FWindow
                                         
                                         onClicked:
                                         {
-                                            wpRoot.play();
+                                            mediaPlayer.onPlay();
                                         }
                                     }
                                 }
@@ -650,7 +649,7 @@ FWindow
 
                                          onClicked:
                                          {
-                                            wpRoot.next();
+                                            mediaPlayer.onNext();
                                          }
                                      }
 
@@ -664,11 +663,16 @@ FWindow
 
                             Label
                             {
+                                Connections
+                                {
+                                    target: FooterPanel;
+                                }
+
                                 id: elapsed_time
                                 width: 32
                                 font.pixelSize: 12
                                 font.family: "Gilroy"
-                                text: "1:23"
+                                text: FooterPanel.currentTime == "" ? "0:00" : FooterPanel.currentTime;
                                 color: "#676D7A"
 
                                 anchors.verticalCenter: parent.verticalCenter
@@ -680,9 +684,23 @@ FWindow
                                 value: 0;
                                 to: 99;
                                 from: 0;
-                                stepSize: 1.0;
                                 width: 420;
                                 height: 6;
+
+                                Connections
+                                {
+                                    target: mediaPlayer;
+
+                                    onPositionChanged:
+                                    {
+                                        slider.value = position;
+                                    }
+
+                                    onDurationChanged: 
+                                    {
+                                        slider.to = duration; 
+                                    }
+                                }
 
                                 anchors.verticalCenter: parent.verticalCenter
 
@@ -708,22 +726,29 @@ FWindow
                                 }
                                 handle: Rectangle
                                 {
+                                    height: 0;
+                                    width: 0;
                                     visible: false;
                                 }
 
                                 onMoved:
                                 {
-                                    wpRoot.sliderPositionChanged(slider.value);
+                                    mediaPlayer.onSetPosition(slider.value);
                                 }
                             }
 
                             Label
                             {
+								Connections
+                                {
+                                    target: FooterPanel;
+                                }
+
                                 id: all_time
                                 width: 32
                                 font.pixelSize: 12
                                 font.family: "Gilroy"
-                                text: "4:31"
+                                text: FooterPanel.time == "" ? "0:00" : FooterPanel.time;
                                 color: "#676D7A"
 
                                 anchors.verticalCenter: parent.verticalCenter
@@ -773,7 +798,7 @@ FWindow
 
                         Image
                         {
-                            id: reapet
+                            id: repeat
                             width: 16;
                             height: 16;
                             source: "qrc:/Resources/Icons/repeat.png"

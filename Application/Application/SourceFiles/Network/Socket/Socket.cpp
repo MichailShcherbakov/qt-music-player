@@ -37,6 +37,22 @@ void Socket::CheckConnect()
 	}
 	else
 	{
+		if (!m_requestsList.isEmpty())
+		{
+			m_isQueueFree = false;
+
+			QByteArray& query = m_requestsList.first().second;
+			INetwork* key = m_requestsList.first().first;
+
+			QByteArray msg;
+			QDataStream out(&msg, QIODevice::WriteOnly);
+			out.setVersion(QDataStream::Qt_5_12);
+			out << query.size();
+			msg.append(query);
+
+			this->write(msg);
+		}
+
 		MSG(ETypeMessage::Log, "Connected to the server");
 	}
 }
@@ -75,6 +91,10 @@ void Socket::ReadyRead()
 		out >> m_size_msg;
 
 		MSG(ETypeMessage::Log, "Size of msg: " + QString::number(m_size_msg) + " bits");
+
+		connect(this, &Socket::onSizeData, m_requestsList.first().first, &INetwork::GetSizeData);
+		emit onSizeData(m_size_msg);
+		disconnect(this, &Socket::onSizeData, m_requestsList.first().first, &INetwork::GetSizeData);
 
 		buffer.remove(0, sizeof(int));
 		m_size_packages -= sizeof(int);

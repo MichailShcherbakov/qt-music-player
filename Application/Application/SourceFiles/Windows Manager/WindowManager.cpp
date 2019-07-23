@@ -38,9 +38,9 @@ void WinManager::InitializeWindow(ETypeWindow type)
 
 		m_pHandleWindow->Initialize();
 
-		//m_pParams->m_pRootContext->setContextProperty("wlRoot", m_pHandleWindow);
-		//m_pParams->m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Login/main.qml")));
-		//m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_pParams->m_pEngine->rootObjects().first()));
+		/*m_pParams->m_pRootContext->setContextProperty("wlRoot", m_pHandleWindow);
+		m_pParams->m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Login/main.qml")));
+		m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_pParams->m_pEngine->rootObjects().first()));*/
 		break;
 	}
 	case ETypeWindow::Player:

@@ -35,7 +35,8 @@ bool List::SetItemAt(int index, const Item &item)
 		item.textLineSecond == oldItem.textLineSecond &&
 		item.textLineThird == oldItem.textLineThird &&
 		item.textLineFourth == oldItem.textLineFourth &&
-		item.expression == oldItem.expression)
+		item.expression == oldItem.expression &&
+		item.expression2 == oldItem.expression2)
         return false;
 
     m_list[index] = item;
@@ -55,6 +56,7 @@ void List::AppendItem(Item item)
 	newItem.textLineThird = item.textLineThird;
 	newItem.textLineFourth = item.textLineFourth;
 	newItem.expression = item.expression;
+	newItem.expression2 = item.expression2;
 
     m_list.append(newItem);
 
@@ -92,19 +94,24 @@ int List::Size()
 	return m_list.size();
 }
 
-void List::Clear()
-{
-	for (int i = 0; i < m_list.size(); ++i)
-	{
-		emit preItemRemoved(i);
-
-		m_list.removeAt(i);
-
-		emit postItemRemoved();
-	}	
-}
-
 void VerticalModel1::List::SetValueItemAt(int index, const QVariant& value, int role)
 {
 	emit ItemChanged(index, value, role);
+}
+
+bool VerticalModel1::List::isEmpty()
+{
+	return m_list.isEmpty();
+}
+
+void VerticalModel1::List::ClearList()
+{
+	for (auto it : m_list)
+	{
+		emit preItemRemoved(0);
+
+		m_list.removeFirst();
+
+		emit postItemRemoved();
+	}
 }

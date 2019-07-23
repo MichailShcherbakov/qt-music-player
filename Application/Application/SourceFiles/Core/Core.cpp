@@ -12,8 +12,8 @@ Core::~Core()
 	m_pThread->terminate();
 	SAFE_DELETE(m_pWinManager);
 	SAFE_DELETE(m_pThread);
-	SAFE_DELETE(m_pParams->m_pRootImageProvider);
 	SAFE_DELETE(m_pParams->m_pSocket);
+	SAFE_DELETE(m_pParams->m_pSettings);
 	SAFE_DELETE(m_pParams->m_pEngine);
 }
 
@@ -35,6 +35,8 @@ void Core::Run()
 
 	qmlRegisterType<VerticalModel1::Model>("models.verticalModel1", 1, 0, "VerticalModel1");
 	qmlRegisterUncreatableType<VerticalModel1::List>("models.verticalModel1", 1, 0, "ListVerModel1", QStringLiteral("Upps.. :)"));
+
+	m_pParams->m_pSettings = new QSettings("settings.ini", QSettings::IniFormat);
 
 	MSG(ETypeMessage::Log, "Qml engine initialization");
 
@@ -68,6 +70,9 @@ void Core::Run()
 	m_pThread = new QThread;
 	m_pParams->m_pSocket->moveToThread(m_pThread);
 	m_pThread->start();
+
+	m_pParams->m_pMediaPlayer = new MediaPlayer(m_pParams->m_pSocket, m_pParams->m_pRootContext, m_pParams->m_pSettings);
+	m_pParams->m_pMediaPlayer->Initialize();
 
 	connect(m_pThread, &QThread::finished, m_pParams->m_pSocket, &QObject::deleteLater);
 

@@ -33,6 +33,7 @@ signals:
 	void onGetFromServer(QByteArray data);
 	void onNextLoad(INetwork* sender, const QByteArray query);
 	void onCheckConnect();
+	void onSizeData(int size);
 
 private:
 	int			m_port = 6150;

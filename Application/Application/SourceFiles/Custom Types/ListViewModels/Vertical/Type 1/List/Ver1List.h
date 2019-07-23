@@ -16,6 +16,7 @@ namespace VerticalModel1
 		QString textLineThird;
 		QString textLineFourth;
 		bool expression;
+		bool expression2;
 	};
 
 	class List : public QObject
@@ -36,6 +37,7 @@ namespace VerticalModel1
 			TEXT_LINE_THIRD,
 			TEXT_LINE_FOUTH,
 			EXPRESSION,
+			EXPRESSION2,
 		};
 
 		QVector<Item> GetItems() const;
@@ -52,6 +54,7 @@ namespace VerticalModel1
 		void preItemRemoved(int index);
 		void postItemRemoved();
 
+		void Clear(int index, int count);
 		void ItemChanged(int id, QVariant value, int role);
 
 	public slots:
@@ -62,7 +65,8 @@ namespace VerticalModel1
 
 	public:
 		int Size();
-		void Clear();
+		bool isEmpty();
+		void ClearList();
 
 	private:
 		QVector <Item> m_list;

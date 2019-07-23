@@ -4,17 +4,19 @@
 #include "StdAfx.h"
 
 #include <QMediaPlayer>
+#include <QSettings>
 #include <QBuffer>
 
 #include "Interfaces/ISection.h"
+#include "Interfaces/ISectionObject.h"
 #include "Interfaces/ISectionListView.h"
 
-class MediaPlayer : public ISection
+class MediaPlayer : public ISectionObject
 {
 	Q_OBJECT
 
 public:
-	MediaPlayer(const EParams* const paramas);
+	MediaPlayer(Socket* const socket, QQmlContext* const context, QSettings* const settings);
 	~MediaPlayer();
 
 public:
@@ -44,34 +46,44 @@ public slots:
 	void PlayTheSong(int id);
 	void Next();
 	void Previous();
-	inline void SetPosition(qint64 position) { m_pPlayer.setPosition(position); }
 	inline void SetPlayMode(int mode) { m_playMode = static_cast<EPlayMode>(mode); }
 	inline int CurrentID() { return m_currentID; }
 	void SetConnnectWithSection(ISectionListView* section);
 	void GetID(int id);
+	inline ISectionListView* GetSection() { return m_pHandleSection; }
 
 signals:
-	void onPositionChanged(qint64 position);
-	void onDurationChanged(qint64 duration);
-	void onCurrentTimeChanged(QString time);
-	void onStarted(int id);
-	void onPaused(int id);
-	void onGetNextIndex(int id);
-	void onGetEndIndex(int id);
-	void onGetFirstIndex(int id);
-	void onGetPreviousIndex(int id);
+	void positionChanged(int position);
+	void durationChanged(int duration);
+	void setPosition(int position);
+	void currentTimeChanged(QString time);
+	void next();
+	void previous();
+	void play();
+	void pause();
+	void started(int id);
+	void paused(int id);
+	void getNextIndex(int id);
+	void getEndIndex(int id);
+	void getFirstIndex(int id);
+	void getPreviousIndex(int id);
 
 private:
 	void MediaStatusChanged(QMediaPlayer::MediaStatus status);
 	void ChangeCurrentTime(qint64 position);
+	void ChangeTime(qint64 position);
 
 private:
+	int oldSize = 0;
 	int m_currentID = 0;
 	QBuffer* m_pBuffer;
-	QMediaPlayer m_pPlayer;
+	QMediaPlayer* m_pPlayer;
 	EPlayMode m_playMode;
 	EPlayerState m_playState;
 	ISectionListView* m_pHandleSection;
+	Socket* const m_pSocket;
+	QQmlContext* const m_pRootContext;
+	QSettings* const m_pSettings;
 };
 
 #endif

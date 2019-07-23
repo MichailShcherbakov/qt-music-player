@@ -4,7 +4,6 @@
 #include "StdAfx.h"
 
 #include <QObject>
-#include "Query.h"
 
 class INetwork : public QObject
 {
@@ -20,9 +19,11 @@ public:
 
 public slots:
 	inline void GetFromSocket(const QByteArray data) { emit onGetFromSocket(data); }
+	inline void GetSizeData(const unsigned int size) { emit onGetSizeData(size); }
 
 signals:
 	void onGetFromSocket(const QByteArray data);
+	void onGetSizeData(const unsigned int size);
 	void onSendToSocket(INetwork* sender, const QByteArray query);
 	void onLoaded();
 

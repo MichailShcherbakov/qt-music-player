@@ -152,6 +152,15 @@
     <ClCompile Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\Model\Hor1Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Tools\TagEditer\TagEditer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\FooterPanel\FooterPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SourceFiles\Core\Core.h">
@@ -165,9 +174,6 @@
     </QtMoc>
     <QtMoc Include="SourceFiles\Custom Types\FWindow\FWindow.h">
       <Filter>Custom Types\FWindow</Filter>
-    </QtMoc>
-    <QtMoc Include="SourceFiles\Interfaces\ISection.h">
-      <Filter>Interfaces</Filter>
     </QtMoc>
     <QtMoc Include="SourceFiles\Custom Types\Items\UnblockedMouseArea\UnblockedMouseArea.h">
       <Filter>Header Files</Filter>
@@ -220,6 +226,18 @@
     <QtMoc Include="SourceFiles\Custom Types\ListViewModels\Horizontal\Type 1\Model\Hor1Model.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\ISectionObject.h">
+      <Filter>Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\ISection.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\FooterPanel\FooterPanel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceFiles\Tools\StdAfx.h">
@@ -240,5 +258,11 @@
     <ClInclude Include="SourceFiles\Tools\EParams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SourceFiles\Tools\TagEditer\TagEditer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="settings.ini" />
   </ItemGroup>
 </Project>

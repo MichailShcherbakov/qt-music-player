@@ -27,28 +27,36 @@ void Login::Initialize()
 		emit userIsNotFound();
 		});
 
-	ToLogin("1", "1"); // TEMP
+	ToLogin("1", "1");
 }
 
 void Login::ToLogin(QString username, QString password)
 {
+	QCryptographicHash hash(QCryptographicHash::Keccak_512);
+	int length = hash.hashLength(QCryptographicHash::Keccak_512);
+
+	hash.addData(QString(username + password).toLatin1());
+
 	Query query;
-	query.InsertIntoHeader("username", username);
-	query.InsertIntoHeader("password", password);
+	query.InsertIntoHeader("hashCode", QString::fromLatin1(hash.result(), length));
 	query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
 
-	ISection* section = m_pRegistrationScreen->Section(RegistrationScreen::ETypeSection::RegistrationField);
+	ISection* section = qobject_cast<ISection*>(m_pRegistrationScreen->Section(RegistrationScreen::ETypeSection::RegistrationField));
 	emit section->onSendToSocket(section, query.toByteArray());
 }
 
 void Login::ToRegistration(QString username, QString password)
 {
+	QCryptographicHash hash(QCryptographicHash::Keccak_512);
+	int length = hash.hashLength(QCryptographicHash::Keccak_512);
+
+	hash.addData(QString(username + password).toLatin1());
+
 	Query query;
-	query.InsertIntoHeader("username", username);
-	query.InsertIntoHeader("password", password);
+	query.InsertIntoHeader("hashCode", QString::fromLatin1(hash.result(), length));
 	query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Create_New_User));
 
-	ISection* section = m_pRegistrationScreen->Section(RegistrationScreen::ETypeSection::RegistrationField);
+	ISection* section = qobject_cast<ISection*>(m_pRegistrationScreen->Section(RegistrationScreen::ETypeSection::RegistrationField));
 	emit section->onSendToSocket(section, query.toByteArray());
 }
 

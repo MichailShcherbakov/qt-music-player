@@ -1,5 +1,5 @@
-#ifndef _ISECTION__LISTVIEW_H_
-#define _ISECTION__LISTVIEW_H_
+#ifndef _ISECTION_LISTVIEW_H_
+#define _ISECTION_LISTVIEW_H_
 
 #include "StdAfx.h"
 
@@ -7,8 +7,7 @@
 
 #include "Table/Table.h"
 #include "Tools/Query.h"
-#include "EParams.h"
-#include "Interfaces/INetworkManager.h"
+#include "ISection.h"
 #include "ImageProvider/ImageProvider.h"
 
 enum class ETypeLoad : int
@@ -22,20 +21,21 @@ enum class ETypeLoad : int
 	GetMedia
 };
 
-class ISectionListView : public INetworkManager
+class ISectionListView : public ISection
 {
 	Q_OBJECT
 
 public:
 	ISectionListView(
-		const EParams* const pParams,
+		Socket* const socket,
+		ImageProvider* const rootImageProvider,
 		Table* pMediaTable,
 		Table* pArtistsTable,
 		Table* pGenresTable,
 		Table* pAlbumsTable
 	) :
-		INetworkManager(pParams->m_pSocket),
-		m_pRootImageProvider(pParams->m_pRootImageProvider),
+		ISection(socket),
+		m_pRootImageProvider(rootImageProvider),
 		m_pMediaTable(pMediaTable),
 		m_pArtistsTable(pArtistsTable),
 		m_pGenresTable(pGenresTable),
@@ -43,17 +43,11 @@ public:
 	{
 		connect(this, &INetwork::onGetFromSocket, this, &ISectionListView::ReadyRead);
 		connect(this, &ISectionListView::onGottenData, this, &ISectionListView::GottenData);
-		connect(this, &INetwork::onLoaded, this, [=]() {
-			QByteArray t = m_pBuffer;
-			m_pBuffer.clear();
-			emit onGottenData(t);
-			});
 	}
 
 	virtual ~ISectionListView() {}
 
 signals:
-	void onGottenData(const QByteArray data);
 	void onFirstIndex(int id);
 	void onEndIndex(int id);
 	void onNextIndex(int id);
@@ -68,6 +62,7 @@ public slots:
 	virtual void EndIndex() = 0;
 	virtual void NextIndex(int id) = 0;
 	virtual void PreviousIndex(int id) = 0;
+	virtual void SetCurrentItem(int index) = 0;
 
 public:
 	void Load(const ETypeLoad type, Query query)
@@ -143,11 +138,57 @@ public:
 		m_pMediaTable->AddColumn("title");
 		m_pMediaTable->AddColumn("id_artist");
 		m_pMediaTable->AddColumn("id_album");
-		m_pMediaTable->AddColumn("year");
 		m_pMediaTable->AddColumn("id_genre");
+		m_pMediaTable->AddColumn("year");
 		m_pMediaTable->AddColumn("duration");
 		m_pMediaTable->AddColumn("bitrate");
 		m_pMediaTable->AddColumn("add_time");
+		m_pMediaTable->AddColumn("last_listened");
+		m_pMediaTable->AddColumn("number_times_listened");
+		m_pMediaTable->AddColumn("lyric");
+		m_pMediaTable->AddColumn("lyrics_translation");
+
+		if (!table.isEmpty())
+		{
+			for (auto row : table)
+			{
+				Row rowMedia;
+				QJsonArray jsonRow = row.toArray();
+
+				for (auto column : jsonRow)
+				{
+					QJsonObject obj = column.toObject();
+					auto value = obj.constBegin();
+					rowMedia.Append(*value);
+				}
+				m_pMediaTable->AddRow(rowMedia);
+			}
+		}
+	}
+	void GetMediaMergedTable(Query data)
+	{
+		QJsonArray table = data.GetFromBody("table").toArray();
+
+		if (m_pMediaTable)
+		{
+			SAFE_DELETE(m_pMediaTable);
+		}
+
+		m_pMediaTable = new Table;
+
+		m_pMediaTable->AddColumn("id_media");
+		m_pMediaTable->AddColumn("title");
+		m_pMediaTable->AddColumn("artist");
+		m_pMediaTable->AddColumn("album");
+		m_pMediaTable->AddColumn("genre");
+		m_pMediaTable->AddColumn("year");
+		m_pMediaTable->AddColumn("duration");
+		m_pMediaTable->AddColumn("bitrate");
+		m_pMediaTable->AddColumn("add_time");
+		m_pMediaTable->AddColumn("last_listened");
+		m_pMediaTable->AddColumn("number_times_listened");
+		m_pMediaTable->AddColumn("lyric");
+		m_pMediaTable->AddColumn("lyrics_translation");
 
 		if (!table.isEmpty())
 		{
@@ -210,6 +251,9 @@ public:
 
 		m_pAlbumsTable->AddColumn("id_album");
 		m_pAlbumsTable->AddColumn("title");
+		m_pAlbumsTable->AddColumn("add_time");
+		m_pAlbumsTable->AddColumn("last_listened");
+		m_pAlbumsTable->AddColumn("number_times_listened");
 
 		if (!table.isEmpty())
 		{
@@ -266,7 +310,6 @@ protected:
 	Table* m_pGenresTable = Q_NULLPTR;
 	Table* m_pAlbumsTable = Q_NULLPTR;
 	ImageProvider* m_pRootImageProvider;
-	EParams* m_pParams;
 };
 
 #endif

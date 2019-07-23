@@ -1,12 +1,12 @@
-#ifndef _C_TagEditer_H_
-#define _C_TagEditer_H_
+#ifndef _TagEditer_H_
+#define _TagEditer_H_
 
 #include <QString>
 #include <QFile>
 #include <QTextStream>
 
 /*taglib specific includes*/
-#include <taglib/tag.h>
+#include <taglib.h>
 #include <fileref.h>
 #include <tbytevector.h>			//ByteVector
 #include <mpegfile.h>				//mp3 file
@@ -24,7 +24,9 @@ struct Tags
 	QString Genre;
 	QString Year;
 	QString Bitrate;
-	QString Duraction;
+	QString Duration;
+	QString Lyric;
+	QString LyricsTranslation;
 	QByteArray Image;
 };
 
@@ -36,6 +38,7 @@ public:
 
 public:
 	Tags GetTags(QString path);
+	QByteArray GetCoverArt(QString path);
 };
 
 #endif
