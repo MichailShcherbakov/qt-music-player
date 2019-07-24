@@ -1,8 +1,6 @@
 #ifndef _IBUFSECTION_H_
 #define _IBUFSECTION_H_
 
-#include "StdAfx.h"
-
 #include <QObject>
 
 #include "INetworkManager.h"
@@ -15,16 +13,16 @@ public:
 	ISection(Socket* const socket)
 		: INetworkManager(socket) 
 	{
-		connect(this, &INetwork::onLoaded, this, [=]() {
+		connect(this, &INetwork::loaded, this, [=]() {
 			QByteArray t = m_pBuffer;
 			m_pBuffer.clear();
-			emit onGottenData(t);
+			emit gottenData(t);
 			});
 	}
 	~ISection() {}
 
 signals:
-	void onGottenData(const QByteArray data);
+	void gottenData(const QByteArray data);
 };
 
 #endif

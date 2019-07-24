@@ -1,14 +1,10 @@
 #ifndef _ISECTION_LISTVIEW_H_
 #define _ISECTION_LISTVIEW_H_
 
-#include "StdAfx.h"
-
 #include <QObject>
 
-#include "Table/Table.h"
-#include "Tools/Query.h"
 #include "ISection.h"
-#include "ImageProvider/ImageProvider.h"
+
 
 enum class ETypeLoad : int
 {
@@ -26,104 +22,35 @@ class ISectionListView : public ISection
 	Q_OBJECT
 
 public:
-	ISectionListView(
-		Socket* const socket,
-		ImageProvider* const rootImageProvider,
-		Table* pMediaTable,
-		Table* pArtistsTable,
-		Table* pGenresTable,
-		Table* pAlbumsTable
-	) :
-		ISection(socket),
-		m_pRootImageProvider(rootImageProvider),
-		m_pMediaTable(pMediaTable),
-		m_pArtistsTable(pArtistsTable),
-		m_pGenresTable(pGenresTable),
-		m_pAlbumsTable(pAlbumsTable)
+	ISectionListView( Socket* const socket) :
+		ISection(socket)
 	{
-		connect(this, &INetwork::onGetFromSocket, this, &ISectionListView::ReadyRead);
-		connect(this, &ISectionListView::onGottenData, this, &ISectionListView::GottenData);
+		connect(this, &INetwork::getFromSocket, this, &ISectionListView::ReadyRead);
+		connect(this, &ISectionListView::gottenData, this, &ISectionListView::GottenData);
 	}
-
 	virtual ~ISectionListView() {}
-
-signals:
-	void onFirstIndex(int id);
-	void onEndIndex(int id);
-	void onNextIndex(int id);
-	void onPreviousIndex(int id);
 
 public slots:
 	virtual void Initialize() = 0;
 	virtual void ReadyRead(QByteArray package) = 0;
 	virtual void GottenData(QByteArray data) = 0;
 	virtual void ClickedItem(int id) = 0;
-	virtual void FirstIndex() = 0;
-	virtual void EndIndex() = 0;
-	virtual void NextIndex(int id) = 0;
-	virtual void PreviousIndex(int id) = 0;
 	virtual void SetCurrentItem(int index) = 0;
 
-public:
-	void Load(const ETypeLoad type, Query query)
-	{
-		switch (type)
-		{
-		case ETypeLoad::GetTableMedia:
-		{
-			MSG(ETypeMessage::Log, "The query for getting a table of media");
+public slots:
+	Query GetLoadQuery() { return m_rootLoadQuery; }
 
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Media));
-			break;
-		}
-		case ETypeLoad::GetTableAlbums:
-		{
-			MSG(ETypeMessage::Log, "The query for getting a table of albums");
+protected:
+	unsigned int m_localSize = 0;
+	unsigned int m_fullSize = 0;
+	const unsigned int m_sizeCacheBuffer = 16;
+	Query m_rootLoadQuery;
+};
 
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Albums));
-			break;
-		}
-		case ETypeLoad::GetTableArtists:
-		{
-			MSG(ETypeMessage::Log, "The query for getting a table of artists");
 
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Artists));
-			break;
-		}
-		case ETypeLoad::GetTableGenres:
-		{
-			MSG(ETypeMessage::Log, "The query for getting a table of genres");
-
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
-			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Genres));
-			break;
-		}
-		case ETypeLoad::GetArtCover:
-		{
-			MSG(ETypeMessage::Log, "The query for getting a cover art");
-
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Cover_Art));
-			break;
-		}
-		case ETypeLoad::GetMedia:
-		{
-			MSG(ETypeMessage::Log, "The query for getting a media");
-
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
-			break;
-		}
-		default:
-		{
-			MSG(ETypeMessage::Error, "Unknown type load");
-			return;
-		}
-		}
-		emit onSendToSocket(this, query.toByteArray());
-	}
-	void GetMediaTable(Query data)
+/*
+static_cast<int>(m_localSize
+void GetMediaTable(Query data)
 	{
 		QJsonArray table = data.GetFromBody("table").toArray();
 
@@ -304,12 +231,64 @@ public:
 		}
 	}
 
-protected:
-	Table* m_pMediaTable = Q_NULLPTR;
-	Table* m_pArtistsTable = Q_NULLPTR;
-	Table* m_pGenresTable = Q_NULLPTR;
-	Table* m_pAlbumsTable = Q_NULLPTR;
-	ImageProvider* m_pRootImageProvider;
-};
+void Load(const ETypeLoad type, Query query)
+	{
+		switch (type)
+		{
+		case ETypeLoad::GetTableMedia:
+		{
+			MSG(ETypeMessage::Log, "The query for getting a table of media");
+
+			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
+			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Media));
+			break;
+		}
+		case ETypeLoad::GetTableAlbums:
+		{
+			MSG(ETypeMessage::Log, "The query for getting a table of albums");
+
+			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
+			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Albums));
+			break;
+		}
+		case ETypeLoad::GetTableArtists:
+		{
+			MSG(ETypeMessage::Log, "The query for getting a table of artists");
+
+			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
+			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Artists));
+			break;
+		}
+		case ETypeLoad::GetTableGenres:
+		{
+			MSG(ETypeMessage::Log, "The query for getting a table of genres");
+
+			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
+			query.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Genres));
+			break;
+		}
+		case ETypeLoad::GetArtCover:
+		{
+			MSG(ETypeMessage::Log, "The query for getting a cover art");
+
+			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Cover_Art));
+			break;
+		}
+		case ETypeLoad::GetMedia:
+		{
+			MSG(ETypeMessage::Log, "The query for getting a media");
+
+			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
+			break;
+		}
+		default:
+		{
+			MSG(ETypeMessage::Error, "Unknown type load");
+			return;
+		}
+		}
+		emit onSendToSocket(this, query.toByteArray());
+	}
+*/
 
 #endif

@@ -1,6 +1,5 @@
+#include "StdAfx.h"
 #include "Tools/Table/Table.h"
-
-
 
 Table::Table()
 {
@@ -199,17 +198,11 @@ bool Column::Contains(const int& index)
 
 QVariant Column::ValueAt(const int& index)
 {
-	try
+	if (index >= 0 && index < m_list.size())
 	{
-		if (index >= 0 && index < m_list.size())
-			return m_list.at(index);
-		else
-			throw "No such index";
+		return m_list.at(index);
 	}
-	catch (QString e)
-	{
-		qDebug() << "[" + QString(__FUNCTION__) + "] [Error] " + e;
-	}
+	return QVariant();
 }
 
 int Column::IndexAt(const QVariant& row)

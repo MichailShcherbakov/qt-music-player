@@ -1,8 +1,6 @@
 #ifndef _INETWORK_H_
 #define _INETWORK_H_
 
-#include "StdAfx.h"
-
 #include <QObject>
 
 class INetwork : public QObject
@@ -13,19 +11,19 @@ public:
 	INetwork()
 		: m_pBuffer(Q_NULLPTR)
 	{
-		connect(this, &INetwork::onGetFromSocket, this, [=](QByteArray data) { m_pBuffer.append(data); });
+		connect(this, &INetwork::getFromSocket, this, [=](QByteArray data) { m_pBuffer.append(data); });
 	}
 	~INetwork() {}
 
 public slots:
-	inline void GetFromSocket(const QByteArray data) { emit onGetFromSocket(data); }
-	inline void GetSizeData(const unsigned int size) { emit onGetSizeData(size); }
+	inline void GetFromSocket(const QByteArray data) { emit getFromSocket(data); }
+	inline void GetSizeData(const unsigned int size) { emit getSizeData(size); }
 
 signals:
-	void onGetFromSocket(const QByteArray data);
-	void onGetSizeData(const unsigned int size);
-	void onSendToSocket(INetwork* sender, const QByteArray query);
-	void onLoaded();
+	void getFromSocket(const QByteArray data);
+	void getSizeData(const unsigned int size);
+	void sendToSocket(INetwork* sender, const QByteArray query);
+	void loaded();
 
 protected:
 	QByteArray m_pBuffer;

@@ -1,4 +1,5 @@
-#include "Log System/LogSystem.h"
+#include "StdAfx.h"
+#include "LogSystem.h"
 
 void LogSystem::Msg(ETypeMessage type, QString log, QString file, QString func, int line)
 {

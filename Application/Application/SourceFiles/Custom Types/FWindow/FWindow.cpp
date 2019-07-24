@@ -1,3 +1,4 @@
+#include "StdAfx.h"
 #include "FWindow.h"
 
 FWindow::FWindow(QQuickWindow* parent) :

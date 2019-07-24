@@ -1,7 +1,8 @@
+#include "StdAfx.h"
 #include "RegistrationScreen.h"
 
-RegistrationScreen::RegistrationScreen(const EParams* const params)
-	: IScreen(params),
+RegistrationScreen::RegistrationScreen()
+	: IScreen(),
 	m_pRegistrationSection(Q_NULLPTR)
 {
 }
@@ -25,7 +26,7 @@ ISection* RegistrationScreen::Section(ETypeSection type)
 
 void RegistrationScreen::Initialize()
 {
-	m_pRegistrationSection = new RegistrationSection(m_pParams);
+	m_pRegistrationSection = new RegistrationSection();
 	m_pRegistrationSection->Initialize();
 	m_listSections.insert(ETypeSection::RegistrationField, m_pRegistrationSection);
 }

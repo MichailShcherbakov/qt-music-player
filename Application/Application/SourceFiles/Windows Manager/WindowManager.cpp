@@ -1,8 +1,8 @@
+#include "StdAfx.h"
 #include "WindowManager.h"
 
-WinManager::WinManager(const EParams* const params) :
-	m_pParams(params),
-	m_typeWindow(ETypeWindow::Login),
+WinManager::WinManager() :
+	m_typeWindow(ETypeWindow::WinLogin),
 	m_pHandleWindow(Q_NULLPTR)
 {
 }
@@ -15,10 +15,10 @@ WinManager::~WinManager()
 void WinManager::Initialize()
 {
 	MSG(ETypeMessage::Log, "Default window initialisation");
-	InitializeWindow(ETypeWindow::Login);
+	InitializeWindow(ETypeWindow::WinLogin);
 
 	MSG(ETypeMessage::Log, "Opening a window");
-	//OpenWindow();
+	OpenWindow();
 }
 
 void WinManager::InitializeWindow(ETypeWindow type)
@@ -30,37 +30,27 @@ void WinManager::InitializeWindow(ETypeWindow type)
 
 	switch (type)
 	{
-	case ETypeWindow::Login:
+	case ETypeWindow::WinLogin:
 	{
 		MSG(ETypeMessage::Log, "Creating login window");
 
-		m_pHandleWindow = new Login(m_pParams);
-
-		m_pHandleWindow->Initialize();
-
-		/*m_pParams->m_pRootContext->setContextProperty("wlRoot", m_pHandleWindow);
-		m_pParams->m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Login/main.qml")));
-		m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_pParams->m_pEngine->rootObjects().first()));*/
+		m_pHandleWindow = new Login();
 		break;
 	}
-	case ETypeWindow::Player:
+	case ETypeWindow::WinPlayer:
 	{
 		MSG(ETypeMessage::Log, "Creating palyer window");
 
-		m_pHandleWindow = new Player(m_pParams);
-
-		m_pHandleWindow->Initialize();
-
-		m_pParams->m_pRootContext->setContextProperty("wpRoot", m_pHandleWindow);
-		m_pParams->m_pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Player/main.qml")));
-		m_pHandleWindow->SetWindowHandle(qobject_cast<QQuickWindow*>(m_pParams->m_pEngine->rootObjects().first()));
+		m_pHandleWindow = new Player();
 		break;
 	}
 	}
 
 	if (m_pHandleWindow)
 	{
-		connect(m_pHandleWindow, &IWindow::onClosing, this, &WinManager::WindowIsClosed);
+		connect(m_pHandleWindow, &IWindow::closing, this, &WinManager::WindowIsClosed);
+
+		m_pHandleWindow->Initialize();
 	}
 }
 
@@ -75,13 +65,13 @@ void WinManager::WindowIsClosed()
 
 	switch (m_typeWindow)
 	{
-	case ETypeWindow::Login:
+	case ETypeWindow::WinLogin:
 	{
-		m_typeWindow = ETypeWindow::Player;
+		m_typeWindow = ETypeWindow::WinPlayer;
 		openWindow = true;
 		break;
 	}
-	case ETypeWindow::Player:
+	case ETypeWindow::WinPlayer:
 	{
 		m_typeWindow = ETypeWindow::Unknown;
 		break;

@@ -1,17 +1,16 @@
+#include "StdAfx.h"
 #include "MediaPlayer.h"
 
-MediaPlayer::MediaPlayer(Socket* const socket, QQmlContext* const context, QSettings* const settings) :
-	ISectionObject(socket),
-	m_pSocket(socket),
-	m_pRootContext(context),
-	m_pSettings(settings),
-	m_playMode(static_cast<EPlayMode>(settings->value("MediaPlayer/playMode").toInt())),
+MediaPlayer::MediaPlayer() 
+	: IMediaPlayer(gParams->pSocket),
 	m_playState(EPlayerState::Stop),
 	m_pPlayer(Q_NULLPTR),
-	m_pBuffer(Q_NULLPTR),
-	m_pHandleSection(Q_NULLPTR)
+	m_pPlaylist(Q_NULLPTR),
+	m_pBuffer(Q_NULLPTR)
 {
-	m_pRootContext->setContextProperty(QStringLiteral("mediaPlayer"), this);
+	gParams->pRootContext->setContextProperty(QStringLiteral("mediaPlayer"), this);
+
+	m_playMode = static_cast<EPlayMode>(gParams->pSettings->value("MediaPlayer/playMode").toInt());
 }
 
 MediaPlayer::~MediaPlayer()
@@ -24,7 +23,7 @@ void MediaPlayer::Initialize()
 	m_pBuffer = new QBuffer;
 	m_pBuffer->open(QIODevice::ReadWrite);
 
-	m_currentID = m_pSettings->value("MediaPlayer/id").toInt();
+	m_currentIndex = gParams->pSettings->value("MediaPlayer/id").toInt();
 
 	connect(m_pPlayer, &QMediaPlayer::mediaStatusChanged, this, &MediaPlayer::MediaStatusChanged);
 	connect(m_pPlayer, &QMediaPlayer::positionChanged, this, &MediaPlayer::ChangeCurrentTime);
@@ -38,13 +37,12 @@ void MediaPlayer::Initialize()
 		emit durationChanged(static_cast<int>(duration / 1000));
 		});
 	connect(this, &MediaPlayer::play, this, [=]() {
-		m_pHandleSection->SetCurrentItem(m_currentID);
-		PlayTheSong(m_currentID);
+		Play(m_currentIndex);
 		});
 	connect(this, &MediaPlayer::setPosition, this, [=](int position) {
 		m_pPlayer->setPosition(position * 1000);
 		});
-	connect(this, &MediaPlayer::onGetSizeData, this, [=](const unsigned int size) {
+	connect(this, &MediaPlayer::getSizeData, this, [=](const unsigned int size) {
 		m_pBuffer->buffer().clear();
 		m_pBuffer->buffer().resize(size);
 		oldSize = 0;
@@ -63,7 +61,7 @@ void MediaPlayer::ReadyRead(QByteArray package)
 		m_pPlayer->setVolume(5);
 		m_pPlayer->play();
 		m_playState = EPlayerState::Play;
-		emit started(m_currentID);
+		emit started(m_currentIndex);
 	}
 }
 
@@ -73,65 +71,40 @@ void MediaPlayer::GottenData(QByteArray data)
 
 void MediaPlayer::Next()
 {
-	m_pHandleSection->SetCurrentItem(m_currentID);
-	emit paused(m_currentID);
+	emit paused(m_currentIndex);
 	m_playState = EPlayerState::Stop;
-	emit getNextIndex(m_currentID);
 }
 
 void MediaPlayer::Previous()
 {
-	m_pHandleSection->SetCurrentItem(m_currentID);
-	emit paused(m_currentID);
+	emit paused(m_currentIndex);
 	m_playState = EPlayerState::Stop;
-	emit getPreviousIndex(m_currentID);
 }
 
-void MediaPlayer::SetConnnectWithSection(ISectionListView* section)
+void MediaPlayer::SetPlaylist(IPlaylist* const playlist)
 {
-	if (m_pHandleSection)
-	{
-		disconnect(m_pHandleSection, &ISectionListView::onNextIndex, this, &MediaPlayer::GetID);
-		disconnect(m_pHandleSection, &ISectionListView::onFirstIndex, this, &MediaPlayer::GetID);
-		disconnect(m_pHandleSection, &ISectionListView::onPreviousIndex, this, &MediaPlayer::GetID);
-		disconnect(m_pHandleSection, &ISectionListView::onEndIndex, this, &MediaPlayer::GetID);
-
-		disconnect(this, &MediaPlayer::getNextIndex, m_pHandleSection, &ISectionListView::NextIndex);
-		disconnect(this, &MediaPlayer::getFirstIndex, m_pHandleSection, &ISectionListView::FirstIndex);
-		disconnect(this, &MediaPlayer::getPreviousIndex, m_pHandleSection, &ISectionListView::PreviousIndex);
-		disconnect(this, &MediaPlayer::getEndIndex, m_pHandleSection, &ISectionListView::EndIndex);
-	}
-
-	m_pHandleSection = section;
-
-	connect(m_pHandleSection, &ISectionListView::onNextIndex, this, &MediaPlayer::GetID);
-	connect(m_pHandleSection, &ISectionListView::onFirstIndex, this, &MediaPlayer::GetID);
-	connect(m_pHandleSection, &ISectionListView::onPreviousIndex, this, &MediaPlayer::GetID);
-	connect(m_pHandleSection, &ISectionListView::onEndIndex, this, &MediaPlayer::GetID);
-
-	connect(this, &MediaPlayer::getNextIndex, m_pHandleSection, &ISectionListView::NextIndex);
-	connect(this, &MediaPlayer::getFirstIndex, m_pHandleSection, &ISectionListView::FirstIndex);
-	connect(this, &MediaPlayer::getPreviousIndex, m_pHandleSection, &ISectionListView::PreviousIndex);
-	connect(this, &MediaPlayer::getEndIndex, m_pHandleSection, &ISectionListView::EndIndex);
 }
 
-void MediaPlayer::PlayTheSong(int id)
+int MediaPlayer::CurrentIndex()
 {
-	if (m_pHandleSection)
-	{
-		if (m_currentID == id)
+	return m_currentIndex;
+}
+
+void MediaPlayer::Play(int id)
+{
+		if (m_currentIndex == id)
 		{
 			if (m_playState == EPlayerState::Play)
 			{
 				m_pPlayer->pause();
 				m_playState = EPlayerState::Stop;
-				emit paused(m_currentID);
+				emit paused(m_currentIndex);
 			}
 			else
 			{
 				m_pPlayer->play();
 				m_playState = EPlayerState::Play;
-				emit started(m_currentID);
+				emit started(m_currentIndex);
 			}
 		}
 		else
@@ -139,17 +112,16 @@ void MediaPlayer::PlayTheSong(int id)
 			if (m_playState == EPlayerState::Play)
 			{
 				m_playState = EPlayerState::Stop;
-				emit paused(m_currentID);
+				emit paused(m_currentIndex);
 			}
 
-			m_currentID = id;
+			m_currentIndex = id;
 
 			Query q;
 			q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
-			q.InsertIntoBody("id-media", m_currentID);
-			emit onSendToSocket(this, q.toByteArray());
+			q.InsertIntoBody("id-media", m_currentIndex);
+			emit sendToSocket(this, q.toByteArray());
 		}
-	}
 }
 
 void MediaPlayer::MediaStatusChanged(QMediaPlayer::MediaStatus status)
@@ -157,18 +129,16 @@ void MediaPlayer::MediaStatusChanged(QMediaPlayer::MediaStatus status)
 	if (status == QMediaPlayer::MediaStatus::EndOfMedia)
 	{
 		m_playState = EPlayerState::Stop;
-		emit paused(m_currentID);
+		emit paused(m_currentIndex);
 
 		switch (m_playMode)
 		{
 		case EPlayMode::Sequential:
 		{
-			emit getNextIndex(m_currentID);
 			break;
 		}
 		case EPlayMode::Loop:
 		{
-			emit getNextIndex(m_currentID);
 			break;
 		}
 		case EPlayMode::Current_item_in_loop:
@@ -207,7 +177,11 @@ void MediaPlayer::ChangeCurrentTime(qint64 position)
 	emit currentTimeChanged(currentTime);
 }
 
-void MediaPlayer::GetID(int newID)
+void MediaPlayer::ChangeTime(qint64 position)
+{
+}
+
+/*void MediaPlayer::GetID(int newID)
 {
 	Query q;
 	q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
@@ -252,4 +226,4 @@ void MediaPlayer::GetID(int newID)
 		break;
 	}
 	}
-}
+}*/

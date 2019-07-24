@@ -7,8 +7,6 @@
 #include <QString>
 #include <QDebug>
 
-#include <stdexcept>
-
 enum class ETypeMessage
 {
 	Unknown = 0,

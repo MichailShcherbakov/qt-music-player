@@ -1,6 +1,5 @@
+#include "StdAfx.h"
 #include "Socket.h"
-
-
 
 Socket::Socket()
 {
@@ -16,15 +15,15 @@ void Socket::Initialize()
 
 	connect(this, &QTcpSocket::readyRead, this, &Socket::ReadyRead);
 	connect(this, &QTcpSocket::disconnected, this, &Socket::Disconnected);
-	connect(this, &Socket::onNextLoad, this, &Socket::SendToServer);
-	connect(this, &Socket::onCheckConnect, this, &Socket::CheckConnect);
+	connect(this, &Socket::nextLoad, this, &Socket::SendToServer);
+	connect(this, &Socket::checkConnect, this, &Socket::CheckConnect);
 
-	//emit onCheckConnect();
+	emit checkConnect();
 }
 
 void Socket::Disconnected()
 {
-	//emit onCheckConnect();
+	emit checkConnect();
 }
 
 void Socket::CheckConnect()
@@ -92,17 +91,17 @@ void Socket::ReadyRead()
 
 		MSG(ETypeMessage::Log, "Size of msg: " + QString::number(m_size_msg) + " bits");
 
-		connect(this, &Socket::onSizeData, m_requestsList.first().first, &INetwork::GetSizeData);
-		emit onSizeData(m_size_msg);
-		disconnect(this, &Socket::onSizeData, m_requestsList.first().first, &INetwork::GetSizeData);
+		connect(this, &Socket::sizeData, m_requestsList.first().first, &INetwork::GetSizeData);
+		emit sizeData(m_size_msg);
+		disconnect(this, &Socket::sizeData, m_requestsList.first().first, &INetwork::GetSizeData);
 
 		buffer.remove(0, sizeof(int));
 		m_size_packages -= sizeof(int);
 	}
 
-	connect(this, &Socket::onGetFromServer, m_requestsList.first().first, &INetwork::GetFromSocket);
-	emit onGetFromServer(buffer);
-	disconnect(this, &Socket::onGetFromServer, m_requestsList.first().first, &INetwork::GetFromSocket);
+	connect(this, &Socket::getFromServer, m_requestsList.first().first, &INetwork::GetFromSocket);
+	emit getFromServer(buffer);
+	disconnect(this, &Socket::getFromServer, m_requestsList.first().first, &INetwork::GetFromSocket);
 
 	if (m_size_msg == m_size_packages)
 	{
@@ -113,7 +112,7 @@ void Socket::ReadyRead()
 		m_isQueueFree = true;
 
 		INetwork* key = m_requestsList.first().first;
-		emit key->onLoaded();
+		emit key->loaded();
 		m_requestsList.removeFirst();
 
 		if (!m_requestsList.isEmpty())

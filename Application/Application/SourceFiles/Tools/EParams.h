@@ -2,31 +2,26 @@
 #define _EPARAMS_H_
 
 #include <QQmlApplicationEngine>
+#include <QGuiApplication>
 #include <QQmlContext>
 #include <QSettings>
 
 #include "Network/Socket/Socket.h"
-#include "MediaPlayer/MediaPlayer.h"
+#include "Interfaces/IMediaPlayer.h"
 #include "ImageProvider/ImageProvider.h"
 
-struct EParams
+struct Params
 {
-	EParams() :
-		m_pSocket(Q_NULLPTR),
-		m_pEngine(Q_NULLPTR),
-		m_pRootContext(Q_NULLPTR),
-		m_pRootImageProvider(Q_NULLPTR),
-		m_pSettings(Q_NULLPTR),
-		m_pMediaPlayer(Q_NULLPTR)
-	{
-	}
+	Params() {};
 
-	QQmlApplicationEngine* m_pEngine;
-	QQmlContext* m_pRootContext;
-	Socket* m_pSocket;
-	ImageProvider* m_pRootImageProvider;
-	QSettings* m_pSettings;
-	MediaPlayer* m_pMediaPlayer;
+	QQmlApplicationEngine*	pEngine;
+	QQmlContext*			pRootContext ;
+	Socket*					pSocket;
+	ImageProvider*			pRootImageProvider;
+	QSettings*				pSettings;
+	IMediaPlayer*			pMediaPlayer;
 };
+
+extern Params* gParams;
 
 #endif

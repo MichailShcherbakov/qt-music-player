@@ -1,8 +1,6 @@
 #ifndef _FWINDOW_H_
 #define _FWINDOW_H_
 
-#include "Tools/StdAfx.h"
-
 #include <QObject>
 #include <QScreen>
 #include <QQuickWindow>

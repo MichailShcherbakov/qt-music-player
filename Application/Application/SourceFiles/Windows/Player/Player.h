@@ -1,11 +1,9 @@
 #ifndef _PLAYER_H_
 #define _PLAYER_H_
 
-#include "StdAfx.h"
-
 #include "Interfaces/IWindow.h"
+
 #include "Screens/ListSongsScreen/ListSongsScreen.h"
-#include "MediaPlayer/MediaPlayer.h"
 
 class Player : public IWindow
 {
@@ -18,7 +16,7 @@ enum class ETypeScreen : int
 };
 
 public:
-	Player(const EParams* const params, QQuickWindow* window = Q_NULLPTR);
+	Player(QQuickWindow* window = Q_NULLPTR);
 	~Player() override;
 
 public:

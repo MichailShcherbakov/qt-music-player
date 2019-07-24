@@ -1,3 +1,4 @@
+#include "StdAfx.h"
 #include "Ver1List.h"
 
 using namespace VerticalModel1;

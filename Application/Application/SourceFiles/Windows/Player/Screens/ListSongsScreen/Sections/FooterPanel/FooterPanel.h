@@ -20,7 +20,7 @@ class FooterPanel : public ISectionObject
 	Q_PROPERTY(QString coverID MEMBER m_coverID NOTIFY coverIDChanged);
 
 public:
-	FooterPanel(const EParams* const params);
+	FooterPanel();
 	~FooterPanel();
 
 public slots:
@@ -43,7 +43,6 @@ private:
 	QString m_time;
 	QString m_currentTime;
 	QString m_coverID;
-	const EParams* const m_pParams;
 };
 
 #endif

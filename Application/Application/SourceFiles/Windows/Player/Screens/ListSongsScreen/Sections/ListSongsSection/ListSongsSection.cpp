@@ -1,24 +1,29 @@
+#include "StdAfx.h"
 #include "ListSongsSection.h"
 
-ListSongsSection::ListSongsSection(const EParams* const params) : 
-	ISectionListView(params->m_pSocket, params->m_pRootImageProvider, Q_NULLPTR, Q_NULLPTR, Q_NULLPTR, Q_NULLPTR),
-	m_pParams(params)
+ListSongsSection::ListSongsSection() : 
+	ISectionListView(gParams->pSocket)
 {
 	m_pModel = new VerticalModel1::List;
-	params->m_pRootContext->setContextProperty(QStringLiteral("songsModelList"), m_pModel);
-	params->m_pRootContext->setContextProperty(QStringLiteral("listSongsSection"), this);
+	gParams->pRootContext->setContextProperty(QStringLiteral("songsModelList"), m_pModel);
+	gParams->pRootContext->setContextProperty(QStringLiteral("listSongsSection"), this);
 }
 
 ListSongsSection::~ListSongsSection()
 {
+	m_pThread->terminate();
+
+	SAFE_DELETE(m_pThread);
+	SAFE_DELETE(m_pImageManager);
+	SAFE_DELETE(m_pModel);
+	SAFE_DELETE(m_pTable);
 }
 
 void ListSongsSection::Initialize()
 {
-	connect(this, &ListSongsSection::initializeList, this, &ListSongsSection::InitializeList);
 	connect(this, &ListSongsSection::clickedItem, this, &ListSongsSection::ClickedItem);
 
-	m_pImageManager = new ImageManager(m_pParams, m_pModel, &m_listIndex);
+	m_pImageManager = new VerticalModel1::ImageLoader(m_pModel, &m_listIndex, QStringLiteral("imageProvider"));
 	m_pImageManager->Initialize();
 
 	m_pThread = new QThread;
@@ -32,6 +37,15 @@ void ListSongsSection::ReadyRead(QByteArray package)
 {
 }
 
+void ListSongsSection::GottenData(QByteArray data)
+{
+	Query q;
+	q.fromByteArray(data);
+
+	GetMediaMergedTable(q);
+	InitializeList();
+}
+
 void ListSongsSection::InitializeList()
 {
 	m_pImageManager->Clear();
@@ -39,18 +53,18 @@ void ListSongsSection::InitializeList()
 
 	m_pModel->ClearList();
 	
-	for (int i = 0; i < m_pMediaTable->Rows(); ++i)
+	for (int i = 0; i < m_pTable->Rows(); ++i)
 	{
 		VerticalModel1::Item item;
-		item.id = m_pMediaTable->ValueAt("id_media", i).toInt();
+		item.id = m_pTable->ValueAt("id_media", i).toInt();
 		item.coverKey = "default";
-		item.textLineFirst = m_pMediaTable->ValueAt("title", i).toString();
-		item.textLineSecond = m_pMediaTable->ValueAt("artist", i).toString();
-		item.textLineThird = m_pAlbumsTable->ValueAt("album", i).toString();
+		item.textLineFirst = m_pTable->ValueAt("title", i).toString();
+		item.textLineSecond = m_pTable->ValueAt("artist", i).toString();
+		item.textLineThird = m_pTable->ValueAt("album", i).toString();
 		item.expression = false;
 		item.expression2 = false;
 
-		int duration = m_pMediaTable->ValueAt("duration", i).toInt();
+		int duration = m_pTable->ValueAt("duration", i).toInt();
 
 		int minutes = 0;
 		while (duration > 59)
@@ -78,88 +92,11 @@ void ListSongsSection::InitializeList()
 	m_pImageManager->SetAvailable(true);
 }
 
-void ListSongsSection::GottenData(QByteArray data)
-{
-	Query q;
-	q.fromByteArray(data);
-
-	switch (m_requests.first())
-	{
-	case ETypeLoad::GetTableMedia:
-	{
-		GetMediaMergedTable(q);
-		break;
-	}
-	case ETypeLoad::GetTableAlbums:
-	{
-		GetAlbumsTable(q);
-		emit initializeList();
-		break;
-	}
-	case ETypeLoad::GetTableArtists:
-	{
-		GetArtistsTable(q);
-		break;
-	}
-	default:
-	{
-		MSG(ETypeMessage::Error, "Unknown Type Loading");
-		return;
-	}
-	}
-	m_requests.removeFirst();
-}
-
 void ListSongsSection::ClickedItem(int id)
 {
-	if (m_pParams->m_pMediaPlayer->GetSection() != this)
-	{
-		m_pParams->m_pMediaPlayer->SetConnnectWithSection(this);
-	}
-
 	SetCurrentItem(id);
 
-	emit hasClicked();
-}
-
-void ListSongsSection::FirstIndex()
-{
-	int id = *m_listIndex.keyBegin();
-	emit onFirstIndex(id);
-}
-
-void ListSongsSection::EndIndex()
-{
-	int id = *m_listIndex.keyEnd();
-	emit onEndIndex(id);
-}
-
-void ListSongsSection::NextIndex(int id)
-{
-	int arrayPosition = m_listIndex.value(id);
-	if (arrayPosition + 1 < m_listIndex.size())
-	{
-		int id = m_listIndex.key(arrayPosition + 1);
-		emit onNextIndex(id);
-	}
-	else
-	{
-		emit onNextIndex(-1);
-	}
-}
-
-void ListSongsSection::PreviousIndex(int id)
-{
-	int arrayPosition = m_listIndex.value(id);
-	if (arrayPosition - 1 >= 0)
-	{
-		int id = m_listIndex.key(arrayPosition - 1);
-		emit onPreviousIndex(id);
-	}
-	else
-	{
-		emit onPreviousIndex(-1);
-	}
+	emit clicked();
 }
 
 void ListSongsSection::SetCurrentItem(int index)
@@ -175,10 +112,10 @@ void ListSongsSection::SetCurrentItem(int index)
 				m_pModel->SetValueItemAt(i, true, VerticalModel1::List::EXPRESSION); // clicked
 				m_pModel->SetValueItemAt(i, false, VerticalModel1::List::EXPRESSION2);
 
-				m_pParams->m_pSettings->setValue("MediaPlayer/id", t->id);
-				m_pParams->m_pSettings->setValue("MediaPlayer/title", t->textLineFirst);
-				m_pParams->m_pSettings->setValue("MediaPlayer/artist", t->textLineSecond);
-				m_pParams->m_pSettings->setValue("MediaPlayer/time", t->textLineFourth);
+				gParams->pSettings->setValue("MediaPlayer/id", t->id);
+				gParams->pSettings->setValue("MediaPlayer/title", t->textLineFirst);
+				gParams->pSettings->setValue("MediaPlayer/artist", t->textLineSecond);
+				gParams->pSettings->setValue("MediaPlayer/time", t->textLineFourth);
 			}
 			else
 			{
@@ -200,19 +137,55 @@ void ListSongsSection::SetCurrentItem(int index)
 void ListSongsSection::LoadData()
 {
 	Query q;
-	q.InsertIntoBody("limit", 0);
-	q.InsertIntoBody("offset", 0);
+	q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Table));
+	q.InsertIntoHeader("type-table", static_cast<int>(ETypeTable::All_Media));
+
+	q.InsertIntoBody("limit", static_cast<int>(m_localSize));
+	q.InsertIntoBody("offset", static_cast<int>(m_localSize + m_sizeCacheBuffer));
 	q.InsertIntoBody("merger", true);
+	q.InsertIntoBody("type-sort", gParams->pSettings->value("SortTables/sortType").toInt());
+	q.InsertIntoBody("state-sort", gParams->pSettings->value("SortTables/sortState").toInt());
+}
 
-	q.InsertIntoBody("type-sort", m_pParams->m_pSettings->value("SortTables/sortType").toInt());
-	q.InsertIntoBody("state-sort", m_pParams->m_pSettings->value("SortTables/sortState").toInt());
+void ListSongsSection::GetMediaMergedTable(Query& data)
+{
+	QJsonArray table = data.GetFromBody("table").toArray();
 
-	Load(ETypeLoad::GetTableMedia, q);
-	m_requests.append(ETypeLoad::GetTableMedia);
+	if (m_pTable)
+	{
+		SAFE_DELETE(m_pTable);
+	}
 
-	Load(ETypeLoad::GetTableArtists, Query());
-	m_requests.append(ETypeLoad::GetTableArtists);
+	m_pTable = new Table;
 
-	Load(ETypeLoad::GetTableAlbums, Query());
-	m_requests.append(ETypeLoad::GetTableAlbums);
+	m_pTable->AddColumn("id_media");
+	m_pTable->AddColumn("title");
+	m_pTable->AddColumn("artist");
+	m_pTable->AddColumn("album");
+	m_pTable->AddColumn("genre");
+	m_pTable->AddColumn("year");
+	m_pTable->AddColumn("duration");
+	m_pTable->AddColumn("bitrate");
+	m_pTable->AddColumn("add_time");
+	m_pTable->AddColumn("last_listened");
+	m_pTable->AddColumn("number_times_listened");
+	m_pTable->AddColumn("lyric");
+	m_pTable->AddColumn("lyrics_translation");
+
+	if (!table.isEmpty())
+	{
+		for (auto row : table)
+		{
+			Row rowMedia;
+			QJsonArray jsonRow = row.toArray();
+
+			for (auto column : jsonRow)
+			{
+				QJsonObject obj = column.toObject();
+				auto value = obj.constBegin();
+				rowMedia.Append(*value);
+			}
+			m_pTable->AddRow(rowMedia);
+		}
+	}
 }

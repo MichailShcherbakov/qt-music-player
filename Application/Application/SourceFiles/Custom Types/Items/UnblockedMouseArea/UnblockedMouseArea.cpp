@@ -1,3 +1,4 @@
+#include "StdAfx.h"
 #include "Items/UnblockedMouseArea/UnblockedMouseArea.h"
 
 UnblockedMouseArea::UnblockedMouseArea(QQuickItem* parent)

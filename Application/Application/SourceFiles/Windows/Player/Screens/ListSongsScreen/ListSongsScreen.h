@@ -1,9 +1,10 @@
 #ifndef _LIST_SONGS_SCREEN_H_
 #define _LIST_SONGS_SCREEN_H_
 
-#include "StdAfx.h"
-
 #include "Interfaces/IScreen.h"
+
+#include "ManagerMediaPlayer/ManagerMediaPlayer.h"
+
 #include "Sections/ListSongsSection/ListSongsSection.h"
 #include "Sections/SortListSection/SortListSection.h"
 #include "Sections/FooterPanel/FooterPanel.h"
@@ -13,7 +14,7 @@ class ListSongsScreen : public IScreen
 	Q_OBJECT
 
 public:
-	enum class ETypeSection : int
+	enum class ETypeSection : uint
 	{
 		Unknown = 0,
 		ListSongsSection,
@@ -22,7 +23,7 @@ public:
 	};
 
 public:
-	ListSongsScreen(const EParams* const params);
+	ListSongsScreen();
 	~ListSongsScreen() override;
 
 public slots:
@@ -32,6 +33,9 @@ public slots:
 
 public:
 	ISection* Section(ETypeSection type);
+
+private:
+	ManagerMediaPlayer* m_pManagerMediaPlayer;
 
 private:
 	// Sections

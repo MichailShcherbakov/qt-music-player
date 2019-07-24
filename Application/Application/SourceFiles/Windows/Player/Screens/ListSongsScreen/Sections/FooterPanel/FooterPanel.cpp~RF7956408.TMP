@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 #include "FooterPanel.h"
 
 FooterPanel::FooterPanel() : 
@@ -63,7 +62,8 @@ void FooterPanel::GottenData(QByteArray data)
 	QImage p;
 	p.loadFromData(image, "JPG");
 
-	m_coverID = gParams->pRootImageProvider->AppendImage(this, p);
+	m_coverID = QString::number(gParams->pRootImageProvider->SafeId());
+	gParams->pRootImageProvider->AppendImage(p, m_coverID);
 
 	emit coverIDChanged();
 }

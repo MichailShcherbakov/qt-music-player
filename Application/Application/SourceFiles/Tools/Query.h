@@ -1,8 +1,6 @@
 #ifndef _QUERY_H_
 #define _QUERY_H_
 
-#include "StdAfx.h"
-
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonArray>

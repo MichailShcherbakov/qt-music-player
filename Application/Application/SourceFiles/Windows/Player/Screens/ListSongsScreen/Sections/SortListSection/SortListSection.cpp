@@ -1,10 +1,10 @@
+#include "StdAfx.h"
 #include "SortListSection.h"
 
-SortListSection::SortListSection(const EParams* const params) : 
-	ISectionObject(params->m_pSocket),
-	m_pParams(params)
+SortListSection::SortListSection() : 
+	ISectionObject(gParams->pSocket)
 {
-	params->m_pRootContext->setContextProperty(QStringLiteral("sortListSection"), this);
+	gParams->pRootContext->setContextProperty(QStringLiteral("sortListSection"), this);
 }
 
 SortListSection::~SortListSection()
@@ -13,9 +13,9 @@ SortListSection::~SortListSection()
 
 void SortListSection::Initialize()
 {
-	connect(this, &SortListSection::onUpdate, this, &SortListSection::Update);
-	connect(this, &SortListSection::onSetType, this, &SortListSection::SetType);
-	connect(this, &SortListSection::onSetState, this, &SortListSection::SetState);
+	connect(this, &SortListSection::update, this, &SortListSection::Update);
+	connect(this, &SortListSection::setType, this, &SortListSection::SetType);
+	connect(this, &SortListSection::setState, this, &SortListSection::SetState);
 }
 
 void SortListSection::ReadyRead(QByteArray package)
@@ -28,28 +28,28 @@ void SortListSection::GottenData(QByteArray data)
 
 void SortListSection::SetType(int type)
 {
-	m_pParams->m_pSettings->beginGroup("SortTables");
-	m_pParams->m_pSettings->setValue("sortType", type);
-	m_pParams->m_pSettings->endGroup();
+	gParams->pSettings->beginGroup("SortTables");
+	gParams->pSettings->setValue("sortType", type);
+	gParams->pSettings->endGroup();
 	
 	emit onSortChanged();
 }
 
 void SortListSection::SetState(int state)
 {
-	m_pParams->m_pSettings->beginGroup("SortTables");
-	m_pParams->m_pSettings->setValue("sortState", state);
-	m_pParams->m_pSettings->endGroup();
+	gParams->pSettings->beginGroup("SortTables");
+	gParams->pSettings->setValue("sortState", state);
+	gParams->pSettings->endGroup();
 
 	emit onSortChanged();
 }
 
 void SortListSection::Update()
 {
-	m_pParams->m_pSettings->beginGroup("SortTables");
-	int type = m_pParams->m_pSettings->value("sortType").toInt();
-	int state = m_pParams->m_pSettings->value("sortState").toInt();
-	m_pParams->m_pSettings->endGroup();
+	gParams->pSettings->beginGroup("SortTables");
+	int type = gParams->pSettings->value("sortType").toInt();
+	int state = gParams->pSettings->value("sortState").toInt();
+	gParams->pSettings->endGroup();
 
 	emit setCheckType(type);
 	emit setCheckState(state);

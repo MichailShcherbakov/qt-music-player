@@ -1,8 +1,6 @@
 #ifndef _SOCKET_H_
 #define _SOCKET_H_
 
-#include "StdAfx.h"
-
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QDataStream>
@@ -30,10 +28,10 @@ public slots:
 	void SendToServer(INetwork* sender, const QByteArray query);
 
 signals:
-	void onGetFromServer(QByteArray data);
-	void onNextLoad(INetwork* sender, const QByteArray query);
-	void onCheckConnect();
-	void onSizeData(int size);
+	void getFromServer(QByteArray data);
+	void nextLoad(INetwork* sender, const QByteArray query);
+	void checkConnect();
+	void sizeData(int size);
 
 private:
 	int			m_port = 6150;

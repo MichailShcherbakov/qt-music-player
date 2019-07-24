@@ -1,8 +1,6 @@
 #ifndef _ISECTION_H_
 #define _ISECTION_H_
 
-#include "StdAfx.h"
-
 #include <QObject>
 
 #include "Interfaces/ISection.h"
@@ -15,8 +13,8 @@ public:
 	ISectionObject(Socket* socket)
 		: ISection(socket)
 	{
-		connect(this, &INetwork::onGetFromSocket, this, &ISectionObject::ReadyRead);
-		connect(this, &ISection::onGottenData, this, &ISectionObject::GottenData);
+		connect(this, &INetwork::getFromSocket, this, &ISectionObject::ReadyRead);
+		connect(this, &ISection::gottenData, this, &ISectionObject::GottenData);
 	}
 	virtual ~ISectionObject() {}
 

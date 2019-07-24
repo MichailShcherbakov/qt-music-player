@@ -4,7 +4,6 @@
 RegistrationSection::RegistrationSection()
 	: ISectionObject(gParams->pSocket)
 {
-	gParams->pRootContext->setContextProperty("RegistrationSection", this);
 }
 
 RegistrationSection::~RegistrationSection()
@@ -13,35 +12,6 @@ RegistrationSection::~RegistrationSection()
 
 void RegistrationSection::Initialize()
 {
-	connect(this, &RegistrationSection::entered, this, [=](){
-
-		QCryptographicHash hash(QCryptographicHash::Keccak_512);
-		int length = hash.hashLength(QCryptographicHash::Keccak_512);
-
-		hash.addData(QString(m_username + m_password).toLatin1());
-
-		Query query;
-		query.InsertIntoHeader("hashCode", QString::fromLatin1(hash.result(), length));
-
-		if (m_type == ETypeEnter::Login)
-		{
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
-		}
-		else if (m_type == ETypeEnter::Registration)
-		{
-			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Create_New_User));
-		}
-
-		emit sendToSocket(this, query.toByteArray());
-
-	});
-
-	m_remember = gParams->pSettings->value("User/remember").toBool();
-
-	if (m_remember)
-	{
-		//...
-	}
 }
 
 void RegistrationSection::ReadyRead(QByteArray package)
@@ -59,13 +29,6 @@ void RegistrationSection::GottenData(QByteArray data)
 	{
 	case ETypeResultQuery::Success:
 	{
-		QCryptographicHash hash(QCryptographicHash::Keccak_512);
-		int length = hash.hashLength(QCryptographicHash::Keccak_512);
-
-		hash.addData(QString(m_username + m_password).toLatin1());
-
-		gParams->pSettings->setValue("User/hashCode", QString::fromLatin1(hash.result(), length));
-
 		emit success();
 		break;
 	}
@@ -81,6 +44,7 @@ void RegistrationSection::GottenData(QByteArray data)
 	}
 	}
 }
+
 
 /*QFile f("C:/Users/User/Desktop/music/" + QString::number(i) + ".mp3");
 				f.open(QIODevice::ReadOnly);

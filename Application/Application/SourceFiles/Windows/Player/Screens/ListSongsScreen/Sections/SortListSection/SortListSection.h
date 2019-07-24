@@ -1,9 +1,6 @@
 #ifndef _SORT_LIST_SECTION_H_
 #define _SORT_LIST_SECTION_H_
 
-#include "StdAfx.h"
-#include "EParams.h"
-
 #include "Interfaces/ISectionObject.h"
 
 class SortListSection : public ISectionObject
@@ -11,7 +8,7 @@ class SortListSection : public ISectionObject
 	Q_OBJECT
 
 public:
-	SortListSection(const EParams* const params);
+	SortListSection();
 	~SortListSection() override;
 
 public slots:
@@ -27,15 +24,12 @@ public slots:
 	void SetState(int state);
 
 signals:
-	void onUpdate();
-	void onSetType(int type);
-	void onSetState(int state);
+	void update();
+	void setType(int type);
+	void setState(int state);
 	void setCheckType(int type);
 	void setCheckState(int state);
 	void onSortChanged();
-
-private:
-	const EParams* const m_pParams;
 };
 
 #endif

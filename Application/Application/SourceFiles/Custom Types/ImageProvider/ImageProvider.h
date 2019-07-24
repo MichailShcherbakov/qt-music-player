@@ -1,6 +1,7 @@
 #ifndef _IMAGE_PROVIDER_H_
 #define _IMAGE_PROVIDER_H_
 
+#include <QFile>
 #include <QQuickImageProvider>
 
 class ImageProvider : public QQuickImageProvider
@@ -11,19 +12,20 @@ public:
 
 public:
 	QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
-	void AppendImage(QImage image, QString id);
-	void DeleteList();
+	QString AppendImage(QObject* const object, QImage image);
+	void Clear();
 	QImage GetImage(QString id);
+	QList<QString> GetId(QObject* const object);
 	QString Find(QImage image);
 	bool Contains(QString id);
-	bool Contains(QImage id);
-	void Remove(QString id);
-	int SafeId();
+	bool Contains(QImage image);
+	void Remove(QObject* const object, QString id);
 	int Size();
 
 private:
 	unsigned long long m_safeId = 0;
-	QMap<QString, QImage> m_list;
+	QMap<QString, QPair<QList<QObject*>, QImage>> m_list;
+	QImage m_defaultImage;
 };
 
 #endif

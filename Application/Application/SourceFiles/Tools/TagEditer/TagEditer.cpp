@@ -1,6 +1,5 @@
+#include "StdAfx.h"
 #include "TagEditer.h"
-
-
 
 CTagEditer::CTagEditer()
 {
