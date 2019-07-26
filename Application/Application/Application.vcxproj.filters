@@ -149,9 +149,6 @@
     <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\ListSongsSection\ListSongsSection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\ListSongsScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -165,6 +162,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SourceFiles\Custom Types\ListViewModels\Vertical\Type 1\Model\Ver1Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Chapters\ChapterUser\ChapterUser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Chapters\ChapterMediaPlayer\ChapterMediaPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Chapters\ChapterSortTables\ChapterSortTables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -264,9 +276,6 @@
     <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\ListSongsSection\ListSongsSection.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\ListSongsScreen.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -280,6 +289,24 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="SourceFiles\Custom Types\ListViewModels\Vertical\Type 1\Model\Ver1Model.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Settings\Settings.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Settings\Chapters\ChapterUser\ChapterUser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Settings\Chapters\ChapterMediaPlayer\ChapterMediaPlayer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Settings\Chapters\ChapterSortTables\ChapterSortTables.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IChapter.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

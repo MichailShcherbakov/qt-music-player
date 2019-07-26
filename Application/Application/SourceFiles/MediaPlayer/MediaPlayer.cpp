@@ -10,7 +10,7 @@ MediaPlayer::MediaPlayer()
 {
 	gParams->pRootContext->setContextProperty(QStringLiteral("mediaPlayer"), this);
 
-	m_playMode = static_cast<EPlayMode>(gParams->pSettings->value("MediaPlayer/playMode").toInt());
+	m_playMode = gParams->pSettings->Chapters()->MediaPlayer()->PlayMode();
 }
 
 MediaPlayer::~MediaPlayer()
@@ -26,7 +26,7 @@ void MediaPlayer::Initialize()
 	m_pBuffer = new QBuffer;
 	m_pBuffer->open(QIODevice::ReadWrite);
 
-	m_currentIndex = gParams->pSettings->value("MediaPlayer/id").toInt();
+	m_currentIndex = gParams->pSettings->Chapters()->MediaPlayer()->Index();
 
 	connect(m_pPlayer, &QMediaPlayer::mediaStatusChanged, this, &MediaPlayer::MediaStatusChanged);
 	connect(m_pPlayer, &QMediaPlayer::positionChanged, this, &MediaPlayer::ChangeCurrentTime);
@@ -139,7 +139,7 @@ void MediaPlayer::MediaStatusChanged(QMediaPlayer::MediaStatus status)
 
 		switch (m_playMode)
 		{
-		case EPlayMode::Sequential:
+		case PlayModeEnum::EPlayMode::Sequential:
 		{
 			m_currentIndex = m_pPlaylist->NextIndex(m_currentIndex);
 
@@ -149,7 +149,7 @@ void MediaPlayer::MediaStatusChanged(QMediaPlayer::MediaStatus status)
 			emit sendToSocket(this, q.toByteArray());
 			break;
 		}
-		case EPlayMode::Loop:
+		case PlayModeEnum::EPlayMode::Loop:
 		{
 			if (m_pPlaylist->IndexOf(m_currentIndex) < m_pPlaylist->Size())
 			{
@@ -166,7 +166,7 @@ void MediaPlayer::MediaStatusChanged(QMediaPlayer::MediaStatus status)
 			emit sendToSocket(this, q.toByteArray());
 			break;
 		}
-		case EPlayMode::Current_item_in_loop:
+		case PlayModeEnum::EPlayMode::CurrentItemInLoop:
 		{
 			m_pPlayer->play();
 			break;

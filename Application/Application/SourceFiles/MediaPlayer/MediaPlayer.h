@@ -28,9 +28,6 @@ public slots:
 	virtual int CurrentIndex() override;
 	// ~IMediaPlayer
 
-public:
-	inline void SetPlayMode(int mode) { m_playMode = static_cast<EPlayMode>(mode); }
-
 private:
 	virtual void MediaStatusChanged(QMediaPlayer::MediaStatus status) override;
 	virtual void ChangeCurrentTime(qint64 position) override;
@@ -41,7 +38,7 @@ private:
 	QBuffer* m_pBuffer;
 	IPlaylist* m_pPlaylist;
 	QMediaPlayer* m_pPlayer;
-	EPlayMode m_playMode;
+	PlayModeEnum::EPlayMode m_playMode;
 	EPlayerState m_playState;
 };
 

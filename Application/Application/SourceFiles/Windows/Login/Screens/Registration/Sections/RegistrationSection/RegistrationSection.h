@@ -5,7 +5,7 @@
 
 #include "Interfaces/ISectionObject.h"
 
-namespace Enum
+namespace Enums
 {
 	Q_NAMESPACE
 
@@ -22,7 +22,7 @@ namespace Enum
 class RegistrationSection : public ISectionObject
 {
 	Q_OBJECT
-	Q_PROPERTY(Enum::ETypeEnter type MEMBER m_type NOTIFY typeChanged)
+	Q_PROPERTY(Enums::ETypeEnter type MEMBER m_type NOTIFY typeChanged)
 	Q_PROPERTY(QString username MEMBER m_username NOTIFY usernameChanged)
 	Q_PROPERTY(QString password MEMBER m_password NOTIFY passwordChanged)
 	Q_PROPERTY(bool remember MEMBER m_remember NOTIFY rememberChanged)
@@ -49,7 +49,7 @@ signals:
 	void userIsNotFound();
 
 private:
-	Enum::ETypeEnter m_type = Enum::ETypeEnter::Unknown;
+	Enums::ETypeEnter m_type = Enums::ETypeEnter::Unknown;
 	QString m_username;
 	QString m_password;
 	bool m_remember = false;

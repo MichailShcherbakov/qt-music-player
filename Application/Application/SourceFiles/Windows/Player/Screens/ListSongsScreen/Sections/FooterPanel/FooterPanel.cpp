@@ -13,10 +13,10 @@ FooterPanel::~FooterPanel()
 
 void FooterPanel::Initialize()
 {
-	m_id = gParams->pSettings->value("MediaPlayer/id").toInt();
-	m_title = gParams->pSettings->value("MediaPlayer/title").toString();
-	m_artist = gParams->pSettings->value("MediaPlayer/artist").toString();
-	m_time = gParams->pSettings->value("MediaPlayer/time").toString();
+	m_id = gParams->pSettings->Chapters()->MediaPlayer()->Index();
+	m_title = gParams->pSettings->Chapters()->MediaPlayer()->Title();
+	m_artist = gParams->pSettings->Chapters()->MediaPlayer()->Artist();
+	m_time = gParams->pSettings->Chapters()->MediaPlayer()->Time();
 
 	connect(this, &FooterPanel::idChanged, this, [=]() {
 		Query q;
@@ -27,16 +27,16 @@ void FooterPanel::Initialize()
 		emit sendToSocket(this, q.toByteArray());
 	});
 	connect(this, &FooterPanel::coverIDChanged, this, [=]() {
-		gParams->pSettings->setValue("MediaPlayer/id", m_id);
+		gParams->pSettings->Chapters()->MediaPlayer()->SetIndex(m_id);
 	});
 	connect(this, &FooterPanel::titleChanged, this, [=]() {
-		gParams->pSettings->setValue("MediaPlayer/title", m_id);
+		gParams->pSettings->Chapters()->MediaPlayer()->SetTitle(m_title);
 	});
 	connect(this, &FooterPanel::artistChanged, this, [=]() {
-		gParams->pSettings->setValue("MediaPlayer/artist", m_id);
+		gParams->pSettings->Chapters()->MediaPlayer()->SetArtist(m_artist);
 	});
 	connect(this, &FooterPanel::timeChanged, this, [=]() {
-		gParams->pSettings->setValue("MediaPlayer/time", m_id);
+		gParams->pSettings->Chapters()->MediaPlayer()->SetTime(m_time);
 	});
 	connect(gParams->pMediaPlayer, &IMediaPlayer::currentTimeChanged, this, [=](QString time) {
 		m_currentTime = time;

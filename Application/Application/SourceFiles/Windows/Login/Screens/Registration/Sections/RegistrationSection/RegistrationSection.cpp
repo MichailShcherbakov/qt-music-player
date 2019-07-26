@@ -23,14 +23,14 @@ void RegistrationSection::Initialize()
 		Query query;
 		query.InsertIntoHeader("hashCode", QString::fromLatin1(hash.result(), length));
 
-		gParams->pSettings->setValue("User/remember", m_remember);
-		gParams->pSettings->setValue("User/hashCode", QString::fromLatin1(hash.result(), length));
+		gParams->pSettings->Chapters()->User()->SetRemember(m_remember);
+		gParams->pSettings->Chapters()->User()->SetHashCode(QString::fromLatin1(hash.result(), length));
 
-		if (m_type == Enum::ETypeEnter::Login)
+		if (m_type == Enums::ETypeEnter::Login)
 		{
 			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
 		}
-		else if (m_type == Enum::ETypeEnter::Registration)
+		else if (m_type == Enums::ETypeEnter::Registration)
 		{
 			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Create_New_User));
 		}
@@ -39,14 +39,14 @@ void RegistrationSection::Initialize()
 
 	});
 
-	qmlRegisterUncreatableMetaObject(Enum::staticMetaObject, "packages.sections.registration", 1, 0, "Enum", QStringLiteral("Cannot create RegistrationSection in QML"));
-	qRegisterMetaType<Enum::ETypeEnter>("ETypeEnter");
+	qmlRegisterUncreatableMetaObject(Enums::staticMetaObject, "packages.sections.registration", 1, 0, "Enum", QStringLiteral("Cannot create RegistrationSection in QML"));
+	qRegisterMetaType<Enums::ETypeEnter>("ETypeEnter");
 
-	m_remember = gParams->pSettings->value("User/remember").toBool();
+	m_remember = gParams->pSettings->Chapters()->User()->Remember();
 
 	if (m_remember)
 	{
-		QString hash = gParams->pSettings->value("User/hashCode").toString();
+		QString hash = gParams->pSettings->Chapters()->User()->HashCode();
 
 		Query query;
 		query.InsertIntoHeader("hashCode", hash);

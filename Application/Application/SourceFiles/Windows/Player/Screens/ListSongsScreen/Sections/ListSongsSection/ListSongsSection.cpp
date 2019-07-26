@@ -126,10 +126,10 @@ void ListSongsSection::SetCurrentItem(int index)
 				m_pModel->SetValueItemAt(i, true, VerticalModel1::List::EXPRESSION); // clicked
 				m_pModel->SetValueItemAt(i, false, VerticalModel1::List::EXPRESSION2);
 
-				gParams->pSettings->setValue("MediaPlayer/id", t->id);
-				gParams->pSettings->setValue("MediaPlayer/title", t->textLineFirst);
-				gParams->pSettings->setValue("MediaPlayer/artist", t->textLineSecond);
-				gParams->pSettings->setValue("MediaPlayer/time", t->textLineFourth);
+				gParams->pSettings->Chapters()->MediaPlayer()->SetIndex(t->id);
+				gParams->pSettings->Chapters()->MediaPlayer()->SetTitle(t->textLineFirst);
+				gParams->pSettings->Chapters()->MediaPlayer()->SetArtist(t->textLineSecond);
+				gParams->pSettings->Chapters()->MediaPlayer()->SetTime(t->textLineFourth);
 			}
 			else
 			{
@@ -182,8 +182,8 @@ void ListSongsSection::LoadData()
 			}
 
 			m_rootLoadQuery.InsertIntoBody("merger", true);
-			m_rootLoadQuery.InsertIntoBody("type-sort", gParams->pSettings->value("SortTables/sortType").toInt());
-			m_rootLoadQuery.InsertIntoBody("state-sort", gParams->pSettings->value("SortTables/sortState").toInt());
+			m_rootLoadQuery.InsertIntoBody("type-sort", static_cast<int>(gParams->pSettings->Chapters()->SortTables()->Type()));
+			m_rootLoadQuery.InsertIntoBody("state-sort", static_cast<int>(gParams->pSettings->Chapters()->SortTables()->State()));
 
 			
 

@@ -19,14 +19,6 @@ protected:
 		Pause,
 	};
 
-	enum class EPlayMode : int
-	{
-		Unknown = 0,
-		Sequential,
-		Loop,
-		Current_item_in_loop,
-	};
-
 public:
 	IMediaPlayer(Socket* socket)
 		: ISection(socket)
