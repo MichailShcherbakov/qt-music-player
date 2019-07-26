@@ -16,7 +16,7 @@ protected:
 	{
 		Unknown = 0,
 		Play,
-		Stop,
+		Pause,
 	};
 
 	enum class EPlayMode : int
@@ -61,7 +61,6 @@ signals:
 protected:
 	virtual void MediaStatusChanged(QMediaPlayer::MediaStatus status) = 0;
 	virtual void ChangeCurrentTime(qint64 position) = 0;
-	virtual void ChangeTime(qint64 position) = 0;
 };
 
 #endif // !_CSOCKET_H_

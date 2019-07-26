@@ -40,10 +40,16 @@ public slots:
 public slots:
 	Query GetLoadQuery() { return m_rootLoadQuery; }
 
+signals:
+	void scrollListener(uint index);
+	void initializeList();
+	void clickedItem(uint index);
+	void clicked(uint index);
+
 protected:
-	unsigned int m_localSize = 0;
-	unsigned int m_fullSize = 0;
-	const unsigned int m_sizeCacheBuffer = 16;
+	uint m_localSize = 0;
+	uint m_fullSize = 0;
+	const uint m_sizeCacheBuffer = 16;
 	Query m_rootLoadQuery;
 };
 

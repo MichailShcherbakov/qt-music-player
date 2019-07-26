@@ -519,7 +519,6 @@ QJsonArray Database::GetTable(const QByteArray& hash, ETypeTable type, const boo
 				q += "media.lyrics_translation";
 				q += " FROM ";
 				q += "media ";
-
 			}
 
 			switch (typeSort)
@@ -785,7 +784,7 @@ QJsonArray Database::GetTable(const QByteArray& hash, ETypeTable type, const boo
 	}
 }
 
-void Database::CoverArt(const QByteArray& hash, const int mediaID, QByteArray* const buffer, TypeResultQuery* res)
+void Database::CoverArt(const QByteArray& hash, const int width, const int height, const int mediaID, QByteArray* const buffer, TypeResultQuery* res)
 {
 	QSqlQuery query;
 
@@ -795,6 +794,7 @@ void Database::CoverArt(const QByteArray& hash, const int mediaID, QByteArray* c
 		res->SetValue(ETypeResultQuery::UserIsNotFound);
 		return;
 	}
+
 	if (!query.exec("SELECT id_album FROM media WHERE id_media=" + QString::number(mediaID) + ";"))
 	{
 		MSG(EMessage::Error, "Is Not Found");
@@ -815,13 +815,26 @@ void Database::CoverArt(const QByteArray& hash, const int mediaID, QByteArray* c
 		res->SetValue(ETypeResultQuery::IsNotFound);
 		return;
 	}
+
 	if (query.next())
 	{
-		QFile img(query.value(0).toString());
-		img.open(QIODevice::ReadOnly);
+		QImage img;
+		img.load(query.value(0).toString());
+
+		QImage imgScaled = img.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
 		buffer->clear();
-		buffer->append(img.readAll());
-		img.close();
+
+		QByteArray scaledImage;
+		QBuffer b;
+		b.setBuffer(&scaledImage);
+		imgScaled.save(&b, "JPG");
+		buffer->append(scaledImage);
+
+		QImage imgE;
+		imgE.loadFromData(*buffer, "JPG");
+		int w = imgE.width();
+
 	}
 	else
 	{
@@ -829,6 +842,7 @@ void Database::CoverArt(const QByteArray& hash, const int mediaID, QByteArray* c
 		res->SetValue(ETypeResultQuery::IsNotFound);
 		return;
 	}
+
 	MSG(EMessage::Success, "Cover art successfully found");
 	res->SetValue(ETypeResultQuery::Success);
 }
@@ -977,4 +991,76 @@ void Database::AddNewMedia(const QByteArray& hash, QByteArray* const buffer, con
 	query.exec(q);
 
 	res->SetValue(ETypeResultQuery::Success);
+}
+
+int Database::FullSizeTable(const QByteArray& hash, ETypeTable type, TypeResultQuery* res)
+{
+	int idUser = UsersID(hash);
+
+	if (idUser != -1)
+	{
+		QSqlQuery query;
+
+		if (!query.exec("USE user_" + QString::number(idUser) + ';'))
+		{
+			MSG(EMessage::Error, "Can't use database");
+			res->SetValue(ETypeResultQuery::CantUseDatabase);
+			return -1;
+		}
+
+		switch (type)
+		{
+		case ETypeTable::All_Media:
+		{
+			MSG(EMessage::Log, "Got type table media");
+
+			query.exec("SELECT COUNT(*) FROM media;");
+			break;
+		}
+		case ETypeTable::All_Albums:
+		{
+			MSG(EMessage::Log, "Got type table album");
+
+			query.exec("SELECT COUNT(*) FROM albums;");
+			break;
+		}
+		case ETypeTable::All_Artists:
+		{
+			MSG(EMessage::Log, "Got type table artist");
+
+			query.exec("SELECT COUNT(*) FROM artists;");
+			break;
+		}
+		case ETypeTable::All_Genres:
+		{
+			MSG(EMessage::Log, "Got type table genres");
+
+			query.exec("SELECT COUNT(*) FROM genres;");
+			break;
+		}
+		}
+
+		int rows = 0;
+
+		if (query.next())
+		{
+			rows = query.value(0).toInt();
+		}
+		else
+		{
+			MSG(EMessage::Error, "Failed to get table size");
+			res->SetValue(ETypeResultQuery::IsNotFound);
+			return -1;
+		}
+
+		MSG(EMessage::Success, "Got successfully table size");
+		res->SetValue(ETypeResultQuery::Success);
+		return rows;
+	}
+	else
+	{
+		res->SetValue(ETypeResultQuery::UserIsNotFound);
+		MSG(EMessage::Error, "User is not found");
+		return -1;
+	}
 }

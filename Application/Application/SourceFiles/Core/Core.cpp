@@ -16,6 +16,10 @@ Core::~Core()
 
 void Core::Run()
 {
+	MSG(ETypeMessage::Log, "Global variable initialization");
+
+	gParams = new Params();
+
 	MSG(ETypeMessage::Log, "Registration custom types");
 	
 	// Windows
@@ -31,7 +35,7 @@ void Core::Run()
 	qmlRegisterType<VerticalModel1::Model>("models.verticalModel1", 1, 0, "VerticalModel1");
 	qmlRegisterUncreatableType<VerticalModel1::List>("models.verticalModel1", 1, 0, "ListVerModel1", QStringLiteral("Upps.. :)"));
 
-	gParams->pSettings = new QSettings("settings.ini", QSettings::IniFormat);
+	gParams->pSettings = new Settings();
 
 	MSG(ETypeMessage::Log, "Qml engine initialization");
 

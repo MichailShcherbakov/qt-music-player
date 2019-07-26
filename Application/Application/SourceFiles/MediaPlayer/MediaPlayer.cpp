@@ -3,7 +3,7 @@
 
 MediaPlayer::MediaPlayer() 
 	: IMediaPlayer(gParams->pSocket),
-	m_playState(EPlayerState::Stop),
+	m_playState(EPlayerState::Pause),
 	m_pPlayer(Q_NULLPTR),
 	m_pPlaylist(Q_NULLPTR),
 	m_pBuffer(Q_NULLPTR)
@@ -15,6 +15,9 @@ MediaPlayer::MediaPlayer()
 
 MediaPlayer::~MediaPlayer()
 {
+	SAFE_DELETE(m_pPlayer);
+	SAFE_DELETE(m_pPlaylist);
+	SAFE_DELETE(m_pBuffer);
 }
 
 void MediaPlayer::Initialize()
@@ -45,20 +48,20 @@ void MediaPlayer::Initialize()
 	connect(this, &MediaPlayer::getSizeData, this, [=](const unsigned int size) {
 		m_pBuffer->buffer().clear();
 		m_pBuffer->buffer().resize(size);
-		oldSize = 0;
+		m_oldSizeBuffer = 0;
 		});
 }
 
 void MediaPlayer::ReadyRead(QByteArray package)
 {
-	m_pBuffer->seek(oldSize);
+	m_pBuffer->seek(m_oldSizeBuffer);
 	m_pBuffer->write(package);
-	oldSize += package.size();
+	m_oldSizeBuffer += package.size();
 
-	if (m_playState == EPlayerState::Stop)
+	if (m_playState == EPlayerState::Pause)
 	{
 		m_pPlayer->setMedia(QMediaContent(), m_pBuffer);
-		m_pPlayer->setVolume(5);
+		m_pPlayer->setVolume(10);
 		m_pPlayer->play();
 		m_playState = EPlayerState::Play;
 		emit started(m_currentIndex);
@@ -72,17 +75,18 @@ void MediaPlayer::GottenData(QByteArray data)
 void MediaPlayer::Next()
 {
 	emit paused(m_currentIndex);
-	m_playState = EPlayerState::Stop;
+	m_playState = EPlayerState::Pause;
 }
 
 void MediaPlayer::Previous()
 {
 	emit paused(m_currentIndex);
-	m_playState = EPlayerState::Stop;
+	m_playState = EPlayerState::Pause;
 }
 
 void MediaPlayer::SetPlaylist(IPlaylist* const playlist)
 {
+	m_pPlaylist = playlist;
 }
 
 int MediaPlayer::CurrentIndex()
@@ -92,53 +96,74 @@ int MediaPlayer::CurrentIndex()
 
 void MediaPlayer::Play(int id)
 {
-		if (m_currentIndex == id)
+	if (m_currentIndex == id)
+	{
+		if (m_playState == EPlayerState::Play)
 		{
-			if (m_playState == EPlayerState::Play)
-			{
-				m_pPlayer->pause();
-				m_playState = EPlayerState::Stop;
-				emit paused(m_currentIndex);
-			}
-			else
-			{
-				m_pPlayer->play();
-				m_playState = EPlayerState::Play;
-				emit started(m_currentIndex);
-			}
+			m_pPlayer->pause();
+			m_playState = EPlayerState::Pause;
+			emit paused(m_currentIndex);
 		}
 		else
 		{
-			if (m_playState == EPlayerState::Play)
-			{
-				m_playState = EPlayerState::Stop;
-				emit paused(m_currentIndex);
-			}
-
-			m_currentIndex = id;
-
-			Query q;
-			q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
-			q.InsertIntoBody("id-media", m_currentIndex);
-			emit sendToSocket(this, q.toByteArray());
+			m_pPlayer->play();
+			m_playState = EPlayerState::Play;
+			emit started(m_currentIndex);
 		}
+	}
+	else
+	{
+		if (m_playState == EPlayerState::Play)
+		{
+			m_playState = EPlayerState::Pause;
+			emit paused(m_currentIndex);
+		}
+
+		m_currentIndex = id;
+
+		Query q;
+		q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
+		q.InsertIntoBody("id-media", m_currentIndex);
+		emit sendToSocket(this, q.toByteArray());
+	}
 }
 
 void MediaPlayer::MediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
 	if (status == QMediaPlayer::MediaStatus::EndOfMedia)
 	{
-		m_playState = EPlayerState::Stop;
+		m_playState = EPlayerState::Pause;
 		emit paused(m_currentIndex);
+
+		Query q;
 
 		switch (m_playMode)
 		{
 		case EPlayMode::Sequential:
 		{
+			m_currentIndex = m_pPlaylist->NextIndex(m_currentIndex);
+
+			q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
+			q.InsertIntoBody("id-media", m_currentIndex);
+
+			emit sendToSocket(this, q.toByteArray());
 			break;
 		}
 		case EPlayMode::Loop:
 		{
+			if (m_pPlaylist->IndexOf(m_currentIndex) < m_pPlaylist->Size())
+			{
+				m_currentIndex = m_pPlaylist->NextIndex(m_currentIndex);
+			}
+			else
+			{
+				m_currentIndex = m_pPlaylist->FirstIndex();
+			}
+
+			q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Media));
+			q.InsertIntoBody("id-media", m_currentIndex);
+
+			emit sendToSocket(this, q.toByteArray());
 			break;
 		}
 		case EPlayMode::Current_item_in_loop:
@@ -175,10 +200,6 @@ void MediaPlayer::ChangeCurrentTime(qint64 position)
 	currentTime += sec;
 
 	emit currentTimeChanged(currentTime);
-}
-
-void MediaPlayer::ChangeTime(qint64 position)
-{
 }
 
 /*void MediaPlayer::GetID(int newID)

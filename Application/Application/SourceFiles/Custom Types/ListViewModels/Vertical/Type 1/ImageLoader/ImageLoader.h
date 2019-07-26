@@ -14,7 +14,7 @@ namespace VerticalModel1
 		Q_OBJECT
 
 	public:
-		ImageLoader(VerticalModel1::List* model, QHash<int, int>* listIndex, const QString title);
+		ImageLoader(VerticalModel1::List* model, QHash<int, int>* listIndex, const uint width, const uint height, const QString title);
 		~ImageLoader() override;
 
 	public slots:
@@ -35,6 +35,8 @@ namespace VerticalModel1
 		void deleteImageItem(int id);
 
 	private:
+		uint m_width;
+		uint m_height;
 		bool m_isAvailable = true;
 		VerticalModel1::List* m_pModel;
 		QHash<int, int>* m_pListIndex;

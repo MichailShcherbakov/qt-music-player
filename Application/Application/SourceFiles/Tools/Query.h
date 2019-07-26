@@ -15,6 +15,7 @@ enum class ETypeQuery : int
 	Send_Table,
 	Send_Cover_Art,
 	Send_Media,
+	Send_Table_Size
 };
 
 enum class ETypeTable : int

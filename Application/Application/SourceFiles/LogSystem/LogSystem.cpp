@@ -35,7 +35,7 @@ void LogSystem::Msg(ETypeMessage type, QString log, QString file, QString func, 
 	}
 	}
 	WriteLog(msg);
-	qDebug() << msg;
+	//qDebug() << msg;
 }
 
 void LogSystem::WriteLog(QString msg)

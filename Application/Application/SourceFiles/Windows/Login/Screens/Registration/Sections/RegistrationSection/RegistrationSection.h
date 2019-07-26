@@ -5,21 +5,27 @@
 
 #include "Interfaces/ISectionObject.h"
 
-class RegistrationSection : public ISectionObject
+namespace Enum
 {
-	Q_OBJECT
-	Q_PROPERTY(int type MEMBER m_type NOTIFY typeChanged)
-	Q_PROPERTY(QString username MEMBER m_username NOTIFY usernameChanged)
-	Q_PROPERTY(QString password MEMBER m_password NOTIFY passwordChanged)
-	Q_PROPERTY(bool remember MEMBER m_remember NOTIFY rememberChanged)
+	Q_NAMESPACE
 
-private:
-	enum ETypeEnter : uint
+	enum class ETypeEnter : uint
 	{
 		Unknown = 0,
 		Login,
 		Registration,
 	};
+
+	Q_ENUM_NS(ETypeEnter)
+}
+
+class RegistrationSection : public ISectionObject
+{
+	Q_OBJECT
+	Q_PROPERTY(Enum::ETypeEnter type MEMBER m_type NOTIFY typeChanged)
+	Q_PROPERTY(QString username MEMBER m_username NOTIFY usernameChanged)
+	Q_PROPERTY(QString password MEMBER m_password NOTIFY passwordChanged)
+	Q_PROPERTY(bool remember MEMBER m_remember NOTIFY rememberChanged)
 
 public:
 	RegistrationSection();
@@ -43,7 +49,7 @@ signals:
 	void userIsNotFound();
 
 private:
-	int m_type = ETypeEnter::Unknown;
+	Enum::ETypeEnter m_type = Enum::ETypeEnter::Unknown;
 	QString m_username;
 	QString m_password;
 	bool m_remember = false;

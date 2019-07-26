@@ -21,25 +21,26 @@ ListView
 		id: delegate_list;
 		width: parent.width;
 		height: 10 + cover.height + 10;
-
+		
 		Connections
 		{
-			target: imageManager;
+			target: ListSongsSectionImageManager;
 		}
 
 		Connections
 		{
-			target: listSongsSection;
+			target: ListSongsSection;
 		}
 
 		Component.onDestruction:
         {
-            imageManager.DeleteImageItem(model.id);
+            ListSongsSectionImageManager.onDeleteImageItem(model.id);
         }
 
         Component.onCompleted:
         {
-            imageManager.LoadImageItem(model.id);
+        	ListSongsSection.onScrollListener(model.id);
+            ListSongsSectionImageManager.onLoadImageItem(model.id);
         }
 
 		Rectangle
@@ -230,7 +231,7 @@ ListView
 						FooterPanel.artist = model.text_line_second;
 						FooterPanel.time = model.text_line_fourth;
 
-			    		listSongsSection.ClickedItem(model.id);
+			    		ListSongsSection.ClickedItem(model.id);
 			    		mediaPlayer.PlayTheSong(model.id);
 			    	}
 			    }

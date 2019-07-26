@@ -6,7 +6,7 @@
 #include <QBuffer>
 
 #include "Interfaces/IMediaPlayer.h"
-#include "Playlist/Playlist.h"
+#include "Interfaces/IPlaylist.h"
 
 class MediaPlayer : public IMediaPlayer
 {
@@ -34,13 +34,12 @@ public:
 private:
 	virtual void MediaStatusChanged(QMediaPlayer::MediaStatus status) override;
 	virtual void ChangeCurrentTime(qint64 position) override;
-	virtual void ChangeTime(qint64 position) override;
 
 private:
-	int oldSize = 0;
+	int m_oldSizeBuffer = 0;
 	int m_currentIndex = 0;
 	QBuffer* m_pBuffer;
-	Playlist* m_pPlaylist;
+	IPlaylist* m_pPlaylist;
 	QMediaPlayer* m_pPlayer;
 	EPlayMode m_playMode;
 	EPlayerState m_playState;

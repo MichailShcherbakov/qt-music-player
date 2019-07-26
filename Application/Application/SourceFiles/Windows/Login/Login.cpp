@@ -25,4 +25,5 @@ void Login::Initialize()
 		});
 
 	gParams->pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Login/main.qml")));
+	m_pWindow = static_cast<QQuickWindow*>(gParams->pEngine->rootObjects().first());
 }

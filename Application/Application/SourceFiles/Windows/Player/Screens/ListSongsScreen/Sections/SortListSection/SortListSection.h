@@ -29,7 +29,7 @@ signals:
 	void setState(int state);
 	void setCheckType(int type);
 	void setCheckState(int state);
-	void onSortChanged();
+	void sortChanged();
 };
 
 #endif

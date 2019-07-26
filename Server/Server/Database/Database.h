@@ -2,9 +2,11 @@
 #define _DATABASE_H_
 
 #include <QDir>
+#include <QImage>
 #include <QObject>
-#include <QSqlQuery>
+#include <QBuffer>
 #include <QVariant>
+#include <QSqlQuery>
 #include <QSqlDatabase>
 #include <QCoreApplication>
 
@@ -148,8 +150,9 @@ public:
 	int UsersID(const QByteArray& hash);
 	void Media(const QByteArray& hash, const int id, QByteArray* const buffer, TypeResultQuery* res);
 	QJsonArray GetTable(const QByteArray& hash, ETypeTable type, const bool merger, const int limit, const int offset, const ETypeSort typeSort, const EStateSort stateSort, TypeResultQuery* res);
-	void CoverArt(const QByteArray& hash, const int mediaID, QByteArray* const buffer, TypeResultQuery* res);
+	void CoverArt(const QByteArray& hash, const int width, const int height, const int mediaID, QByteArray* const buffer, TypeResultQuery* res);
 	void AddNewMedia(const QByteArray& hash, QByteArray* const buffer, const Tags& tags, bool newArtist, bool newAlbum, TypeResultQuery* res);
+	int FullSizeTable(const QByteArray& hash, ETypeTable type, TypeResultQuery* res);
 
 private:
 	QSqlDatabase* m_pDatabase;

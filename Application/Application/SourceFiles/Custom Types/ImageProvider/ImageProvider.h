@@ -16,7 +16,7 @@ public:
 	void Clear();
 	QImage GetImage(QString id);
 	QList<QString> GetId(QObject* const object);
-	QString Find(QImage image);
+	QString Find(const QImage& image);
 	bool Contains(QString id);
 	bool Contains(QImage image);
 	void Remove(QObject* const object, QString id);
@@ -24,7 +24,7 @@ public:
 
 private:
 	unsigned long long m_safeId = 0;
-	QMap<QString, QPair<QList<QObject*>, QImage>> m_list;
+	QHash<QString, QPair<QList<QObject*>, QImage>*> m_list;
 	QImage m_defaultImage;
 };
 

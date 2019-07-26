@@ -176,6 +176,23 @@ void CServer::SocketReady()
 			}
 			break;
 		}
+		case ETypeQuery::Send_Table_Size:
+		{
+			MSG(EMessage::Log, "The request for sending the table size");
+
+			if (m_users[id].isProven)
+			{
+				ETypeTable typeTable = static_cast<ETypeTable>(header["type-table"].toInt());
+				int tableSize = m_pDatabase->FullSizeTable(m_users[id].m_hashUsers, typeTable, res);
+				sendBody.insert("table-size", tableSize);
+			}
+			else
+			{
+				res->SetValue(ETypeResultQuery::UserIsNotAuthorized);
+				MSG(EMessage::Error, "User is not authorized");
+			}
+			break;
+		}
 		case ETypeQuery::Send_Cover_Art:
 		{
 			MSG(EMessage::Log, "The request for sending the art cover");
@@ -183,7 +200,9 @@ void CServer::SocketReady()
 			if (m_users[id].isProven)
 			{
 				QByteArray coverArt;
-				m_pDatabase->CoverArt(m_users[id].m_hashUsers, body["id-media"].toInt(), &coverArt, res);
+				const int width = body["width"].toInt();
+				const int height = body["height"].toInt();
+				m_pDatabase->CoverArt(m_users[id].m_hashUsers, width, height, body["id-media"].toInt(), &coverArt, res);
 				QString t = QString::fromLatin1(coverArt, coverArt.size());
 				sendBody.insert("cover-art", t);
 			}

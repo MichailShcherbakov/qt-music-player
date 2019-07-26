@@ -12,20 +12,20 @@ class IWindow : public QObject
 
 public:
 	IWindow(QQuickWindow* window = Q_NULLPTR) :
-		m_window(window)
+		m_pWindow(window)
 	{}
 
-	virtual ~IWindow() { SAFE_DELETE(m_window); }
+	virtual ~IWindow() { SAFE_DELETE(m_pWindow); }
 
 public:
 	virtual void Initialize(void) = 0;
-	inline QQuickWindow* Window() { return m_window; }
+	inline QQuickWindow* Window() { return m_pWindow; }
 
 signals:
 	void closing();
 
 protected:
-	QQuickWindow* m_window;
+	QQuickWindow* m_pWindow;
 };
 
 #endif

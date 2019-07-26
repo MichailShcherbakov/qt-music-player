@@ -28,20 +28,16 @@ void SortListSection::GottenData(QByteArray data)
 
 void SortListSection::SetType(int type)
 {
-	gParams->pSettings->beginGroup("SortTables");
-	gParams->pSettings->setValue("sortType", type);
-	gParams->pSettings->endGroup();
+	gParams->pSettings->setValue("SortTables/sortType", type);
 	
-	emit onSortChanged();
+	emit sortChanged();
 }
 
 void SortListSection::SetState(int state)
 {
-	gParams->pSettings->beginGroup("SortTables");
-	gParams->pSettings->setValue("sortState", state);
-	gParams->pSettings->endGroup();
+	gParams->pSettings->setValue("SortTables/sortState", state);
 
-	emit onSortChanged();
+	emit sortChanged();
 }
 
 void SortListSection::Update()

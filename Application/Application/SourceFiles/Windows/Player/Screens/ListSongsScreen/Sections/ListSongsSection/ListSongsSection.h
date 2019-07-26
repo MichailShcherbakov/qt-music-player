@@ -28,11 +28,6 @@ public slots:
 	void LoadData();
 	void GetMediaMergedTable(Query& data);
 
-signals:
-	void initializeList();
-	void clickedItem(int id);
-	void clicked();
-
 private:
 	VerticalModel1::ImageLoader* m_pImageManager;
 	VerticalModel1::List* m_pModel;

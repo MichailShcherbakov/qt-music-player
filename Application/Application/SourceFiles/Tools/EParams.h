@@ -9,6 +9,7 @@
 #include "Network/Socket/Socket.h"
 #include "Interfaces/IMediaPlayer.h"
 #include "ImageProvider/ImageProvider.h"
+#include "Settings/Settings.h"
 
 struct Params
 {
@@ -18,7 +19,7 @@ struct Params
 	QQmlContext*			pRootContext ;
 	Socket*					pSocket;
 	ImageProvider*			pRootImageProvider;
-	QSettings*				pSettings;
+	Settings*				pSettings;
 	IMediaPlayer*			pMediaPlayer;
 };
 

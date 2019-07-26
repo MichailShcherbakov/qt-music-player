@@ -6,6 +6,7 @@ import QtQuick.Controls 2.12
 import "../../Styles/TextInputs"
 
 import windows.fwindow 1.0
+import packages.sections.registration 1.0
 
 FWindow
 {
@@ -24,17 +25,6 @@ FWindow
     Connections
     {
         target: wlRoot
-        onDuplicateUsername:
-        {
-        	label_errors.visible = true;
-        	label_errors.text = qsTr("That username is taken. Try another.");
-        	field_username.m_colorUnderline = "red";
-        }
-        onUserIsNotFound:
-        {
-        	label_errors.visible = true;
-        	label_errors.text = qsTr("Incorrect username or password.");
-        }
     }
 
     Item
@@ -330,6 +320,22 @@ FWindow
                             radius: 12;
                             anchors.verticalCenter: parent.verticalCenter;
 
+                            Connections
+                            {
+                                target: RegistrationSection;
+                                onDuplicateUsername:
+                                {
+                                    label_errors.visible = true;
+                                    label_errors.text = qsTr("That username is taken. Try another.");
+                                    field_username.m_colorUnderline = "red";
+                                }
+                                onUserIsNotFound:
+                                {
+                                    label_errors.visible = true;
+                                    label_errors.text = qsTr("Incorrect username or password.");
+                                }
+                            }
+
                             Label
                             {
                             	id: button_text;
@@ -361,10 +367,20 @@ FWindow
                                 	}
                                 	else
                                 	{
+                                        RegistrationSection.username = field_username.m_text;
+                                        RegistrationSection.password = field_password.m_text;
+                                        RegistrationSection.remember = true;
+
                                 		if (button_text.text == "Log in")
-                                			wlRoot.getLoginAndPassword(field_username.m_text, field_password.m_text, 0);
+                                        {
+                                            RegistrationSection.type = Enum.Login;
+                                			RegistrationSection.onEntered();
+                                        }
                                 		else
-                                			wlRoot.getLoginAndPassword(field_username.m_text, field_password.m_text, 1);
+                                        {
+                                            RegistrationSection.type = Enum.Registration;
+                                			RegistrationSection.onEntered();
+                                        }
                                 	}
                                 }
                             }

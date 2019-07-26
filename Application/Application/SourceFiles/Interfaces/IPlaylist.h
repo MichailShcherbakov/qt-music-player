@@ -22,12 +22,14 @@ public slots:
 	virtual void Initialize() = 0;
 	virtual void ReadyRead(QByteArray package) = 0;
 	virtual void GottenData(QByteArray data) = 0;
-	virtual void LoadData(uint index) = 0;
+	virtual void LoadData() = 0;
 	virtual uint FirstIndex() = 0;
 	virtual uint EndIndex() = 0;
 	virtual uint NextIndex(uint index) = 0;
 	virtual uint PreviousIndex(uint index) = 0;
 	virtual bool Contains(uint index) = 0;
+	virtual uint Size() = 0;
+	virtual uint IndexOf(uint index) = 0;
 };
 
 #endif

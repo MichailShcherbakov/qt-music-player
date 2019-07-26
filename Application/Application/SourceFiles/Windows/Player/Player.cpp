@@ -24,4 +24,5 @@ void Player::Initialize()
 	m_typeScreen = ETypeScreen::ListSongs;
 
 	gParams->pEngine->load(QUrl(QStringLiteral("qrc:/SourceFiles/Qml Files/Windows/Player/main.qml")));
+	m_pWindow = static_cast<QQuickWindow*>(gParams->pEngine->rootObjects().first());
 }

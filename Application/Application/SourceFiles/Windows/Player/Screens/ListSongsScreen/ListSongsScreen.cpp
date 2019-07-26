@@ -26,19 +26,27 @@ ISection* ListSongsScreen::Section(ETypeSection type)
 
 void ListSongsScreen::Initialize()
 {
+	MSG(ETypeMessage::Log, "List song section initialization");
+
 	m_pListSongsSection = new ListSongsSection();
 	m_pListSongsSection->Initialize();
 	m_listSections.insert(ETypeSection::ListSongsSection, m_pListSongsSection);
+
+	MSG(ETypeMessage::Log, "Sort list section initialization");
 
 	m_pSortListSection = new SortListSection();
 	m_pSortListSection->Initialize();
 	m_listSections.insert(ETypeSection::SortListSection, m_pSortListSection);
 
+	MSG(ETypeMessage::Log, "Footer Panel initialization");
+
 	m_pFooterPanel = new FooterPanel();
 	m_pFooterPanel->Initialize();
 	m_listSections.insert(ETypeSection::FooterPanel, m_pFooterPanel);
 
-	connect(m_pSortListSection, &SortListSection::onSortChanged, m_pListSongsSection, &ListSongsSection::LoadData);
+	connect(m_pSortListSection, &SortListSection::sortChanged, m_pListSongsSection, &ListSongsSection::LoadData);
+
+	MSG(ETypeMessage::Log, "Manager media player initialization");
 
 	m_pManagerMediaPlayer = new ManagerMediaPlayer();
 	m_pManagerMediaPlayer->SetConnectionWithSection(m_pListSongsSection);

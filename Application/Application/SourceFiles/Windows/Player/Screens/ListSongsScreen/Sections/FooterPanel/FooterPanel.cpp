@@ -22,6 +22,8 @@ void FooterPanel::Initialize()
 		Query q;
 		q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Cover_Art));
 		q.InsertIntoBody("id-media", m_id);
+		q.InsertIntoBody("width", static_cast<int>(196));
+		q.InsertIntoBody("height", static_cast<int>(196));
 		emit sendToSocket(this, q.toByteArray());
 	});
 	connect(this, &FooterPanel::coverIDChanged, this, [=]() {
@@ -46,6 +48,8 @@ void FooterPanel::Initialize()
 		Query q;
 		q.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Send_Cover_Art));
 		q.InsertIntoBody("id-media", m_id);
+		q.InsertIntoBody("width", static_cast<int>(196));
+		q.InsertIntoBody("height", static_cast<int>(196));
 		emit sendToSocket(this, q.toByteArray());
 	}
 }

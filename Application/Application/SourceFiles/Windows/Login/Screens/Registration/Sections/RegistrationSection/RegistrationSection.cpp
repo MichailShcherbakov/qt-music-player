@@ -23,11 +23,14 @@ void RegistrationSection::Initialize()
 		Query query;
 		query.InsertIntoHeader("hashCode", QString::fromLatin1(hash.result(), length));
 
-		if (m_type == ETypeEnter::Login)
+		gParams->pSettings->setValue("User/remember", m_remember);
+		gParams->pSettings->setValue("User/hashCode", QString::fromLatin1(hash.result(), length));
+
+		if (m_type == Enum::ETypeEnter::Login)
 		{
 			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
 		}
-		else if (m_type == ETypeEnter::Registration)
+		else if (m_type == Enum::ETypeEnter::Registration)
 		{
 			query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Create_New_User));
 		}
@@ -36,11 +39,20 @@ void RegistrationSection::Initialize()
 
 	});
 
+	qmlRegisterUncreatableMetaObject(Enum::staticMetaObject, "packages.sections.registration", 1, 0, "Enum", QStringLiteral("Cannot create RegistrationSection in QML"));
+	qRegisterMetaType<Enum::ETypeEnter>("ETypeEnter");
+
 	m_remember = gParams->pSettings->value("User/remember").toBool();
 
 	if (m_remember)
 	{
-		//...
+		QString hash = gParams->pSettings->value("User/hashCode").toString();
+
+		Query query;
+		query.InsertIntoHeader("hashCode", hash);
+		query.InsertIntoHeader("type-query", static_cast<int>(ETypeQuery::Check_This_User));
+		
+		emit sendToSocket(this, query.toByteArray());
 	}
 }
 
@@ -59,13 +71,6 @@ void RegistrationSection::GottenData(QByteArray data)
 	{
 	case ETypeResultQuery::Success:
 	{
-		QCryptographicHash hash(QCryptographicHash::Keccak_512);
-		int length = hash.hashLength(QCryptographicHash::Keccak_512);
-
-		hash.addData(QString(m_username + m_password).toLatin1());
-
-		gParams->pSettings->setValue("User/hashCode", QString::fromLatin1(hash.result(), length));
-
 		emit success();
 		break;
 	}
