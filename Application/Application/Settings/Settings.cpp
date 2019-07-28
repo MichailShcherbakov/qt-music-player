@@ -3,7 +3,6 @@
 
 Settings::Settings()
 {
-	m_pChapters = new IniChapters();
 }
 
 Settings::~Settings()

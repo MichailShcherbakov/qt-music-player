@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "ChapterUser.h"
 
-ChapterUser::ChapterUser(QSettings* settings)
+ChapterUser::ChapterUser()
 {
-	m_pAppSettings = settings;
+	m_pAppSettings = new QSettings("settings.ini", QSettings::IniFormat);
 
 	m_pAppSettings->beginGroup("User");
 	m_remember = m_pAppSettings->value("remember").toBool();

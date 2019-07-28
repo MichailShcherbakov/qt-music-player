@@ -1,0 +1,71 @@
+#ifndef _SETTINGS_H_
+#define _SETTINGS_H_
+
+#include <QObject>
+
+#include "Chapters/ChapterUser/ChapterUser.h"
+#include "Chapters/ChapterSortTables/ChapterSortTables.h"
+#include "Chapters/ChapterMediaPlayer/ChapterMediaPlayer.h"
+
+#include "Pallete/WhiteTheme.h"
+
+class ThemeManager
+{
+public:
+	enum class ETypeTheme : uint
+	{
+		Unknown = 0,
+		White,
+		Dark
+	};
+
+public:
+	ThemeManager() 
+	{
+		m_pAppSettings = new QSettings("settings.ini", QSettings::IniFormat);
+		m_typeTheme = static_cast<ETypeTheme>(m_pAppSettings->value("Theme/type").toInt());
+
+		switch (m_typeTheme)
+		{
+		case ThemeManager::ETypeTheme::White:
+		{
+			m_pTheme = new WhiteTheme();
+			break;
+		}
+		case ThemeManager::ETypeTheme::Dark:
+		{
+			break;
+		}
+		}
+	}
+	~ThemeManager() {}
+
+public:
+	inline void SetTheme(ITheme* theme) { m_pTheme = theme; }
+	inline void SetTheme(ETypeTheme theme) { m_typeTheme = theme; }
+	inline ITheme* Theme() { return m_pTheme; }
+
+private:
+	ITheme* m_pTheme;
+	QSettings* m_pAppSettings;
+	ETypeTheme m_typeTheme = ETypeTheme::Unknown;
+};
+
+class Settings : public QObject
+{
+	Q_OBJECT
+
+public:
+	Settings();
+	~Settings();
+
+public:
+	inline IChaptersManager* Chapters() { return m_pChapters; }
+	inline IThemeManager* Themes() { return m_pThemeManager; }
+
+private:
+	IChaptersManager* m_pChapters;
+	IThemeManager* m_pThemeManager;
+};
+
+#endif

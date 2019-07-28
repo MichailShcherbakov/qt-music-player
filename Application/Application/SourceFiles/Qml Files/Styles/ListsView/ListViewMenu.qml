@@ -15,7 +15,7 @@ ListView
     width: m_width;
     height: 32 * m_countItems + 10 * (m_countItems - 1);
     spacing: 10;
-    interactive: false
+    interactive: false;
 
     model: m_model;
 

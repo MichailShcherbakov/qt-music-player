@@ -2,6 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtGraphicalEffects 1.12
 
+
+
 ListView
 {
 	property var m_model: ListModel{}
@@ -47,7 +49,7 @@ ListView
 		{
 			id: list_item;
 			anchors.fill: parent;
-			color: "#111";
+			color: Themes.FoneColor;
 			radius: 8;
 
 			function points(str, size)
@@ -75,7 +77,7 @@ ListView
 		        id: item_background;
 		        anchors.fill: parent;
 		        radius: 8;
-		        color: "#000";
+		        color: Themes.HoveredColor;
 		        opacity: 0;
 		    }
 
@@ -103,6 +105,8 @@ ListView
 
 					hover_animation_background_cover_play.start();
                 	hover_animation.start();
+
+                	first_title.color = Themes.FontHoveredColor;
                 }
 
                 onExited:
@@ -128,6 +132,8 @@ ListView
 
                 	hover_animation_background_cover_play.start();
                 	hover_animation.start();
+
+                	first_title.color = Themes.FontColor;
                 }
             }
 
@@ -575,7 +581,7 @@ ListView
 		        font.pixelSize: 13;
 		        font.family: "Gilroy";
 		        text: list_item.points(model.text_line_first, (parent.width/4 + 24)/second_title.font.pixelSize);
-		        color: "#fff";
+		        color: Themes.FontColor;
 
 		        anchors.left: cover.right;
 		        anchors.leftMargin: 24;

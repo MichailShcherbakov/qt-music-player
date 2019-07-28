@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "ChapterMediaPlayer.h"
 
-ChapterMediaPlayer::ChapterMediaPlayer(QSettings* settings)
+ChapterMediaPlayer::ChapterMediaPlayer()
 {
-	m_pAppSettings = settings;
+	m_pAppSettings = new QSettings("settings.ini", QSettings::IniFormat);
 
 	qmlRegisterUncreatableType<PlayModeEnum>("packages.enums.playmode", 1, 0, "PlayModeEnum", "");
 	qRegisterMetaType<PlayModeEnum::EPlayMode>("EPlayMode");

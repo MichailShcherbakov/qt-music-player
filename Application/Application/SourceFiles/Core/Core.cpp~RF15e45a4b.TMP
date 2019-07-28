@@ -41,8 +41,7 @@ void Core::Run()
 	gParams->pRootContext = gParams->pEngine->rootContext();
 
 	gParams->pSettings = new Settings();
-	gParams->pSettings->SetThemeManager(new ThemeManager());
-	gParams->pSettings->SetChaptersManager(new ChaptersManager());
+
 
 	MSG(ETypeMessage::Log, "Root image provider initialization");
 

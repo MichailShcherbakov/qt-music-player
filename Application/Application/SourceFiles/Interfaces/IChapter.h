@@ -8,9 +8,6 @@ struct IÑhapter : public QObject
 {
 	Q_OBJECT
 
-public:
-	virtual ~IÑhapter() {}
-
 protected:
 	QSettings* m_pAppSettings;
 };

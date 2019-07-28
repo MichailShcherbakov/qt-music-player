@@ -179,6 +179,15 @@
     <ClCompile Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Settings\Pallete\WhiteTheme\WhiteTheme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Chapters\Manager\ChaptersManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings\Pallete\Manager\ThemeManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="settings.ini" />
@@ -206,6 +215,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SourceFiles\Tools\TagEditer\TagEditer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings\Chapters\Manager\ChaptersManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -307,6 +319,30 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="SourceFiles\Windows\Player\Screens\ListSongsScreen\Sections\SortListSection\SortListSection.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\ITheme.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IChapterMediaPlayer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IChapterSortTables.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IChapterUser.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Settings\Pallete\WhiteTheme\WhiteTheme.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IChaptersManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SourceFiles\Interfaces\IThemeManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Settings\Pallete\Manager\ThemeManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

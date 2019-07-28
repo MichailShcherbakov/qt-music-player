@@ -56,5 +56,25 @@
         <file>SourceFiles/Qml Files/Styles/ListsView/Ver1ListView.qml</file>
         <file>Resources/Icons/dotted_button_item.png</file>
         <file>Resources/Icons/pause.png</file>
+        <file>SourceFiles/Qml Files/Windows/Player/LeftField.qml</file>
+        <file>Resources/Icons/list-menu.png</file>
+        <file>Resources/Fonts/Poppins-Black.ttf</file>
+        <file>Resources/Fonts/Poppins-BlackItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-Bold.ttf</file>
+        <file>Resources/Fonts/Poppins-BoldItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-ExtraBold.ttf</file>
+        <file>Resources/Fonts/Poppins-ExtraBoldItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-ExtraLight.ttf</file>
+        <file>Resources/Fonts/Poppins-ExtraLightItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-Light.ttf</file>
+        <file>Resources/Fonts/Poppins-LightItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-Medium.ttf</file>
+        <file>Resources/Fonts/Poppins-MediumItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-Regular.ttf</file>
+        <file>Resources/Fonts/Poppins-RegularItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-SemiBold.ttf</file>
+        <file>Resources/Fonts/Poppins-SemiBoldItalic.ttf</file>
+        <file>Resources/Fonts/Poppins-Thin.ttf</file>
+        <file>Resources/Fonts/Poppins-ThinItalic.ttf</file>
     </qresource>
 </RCC>

@@ -19,6 +19,9 @@
 
 #include "MediaPlayer/MediaPlayer.h"
 
+#include "Settings/Pallete/Manager/ThemeManager.h"
+#include "Settings/Chapters/Manager/ChaptersManager.h"
+
 class Core : public QObject
 {
 	Q_OBJECT

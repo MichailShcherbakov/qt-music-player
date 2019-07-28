@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "ChapterSortTables.h"
 
-ChapterSortTables::ChapterSortTables(QSettings* settings)
+ChapterSortTables::ChapterSortTables()
 {
-	m_pAppSettings = settings;
+	m_pAppSettings = new QSettings("settings.ini", QSettings::IniFormat);
 
 	qmlRegisterUncreatableType<SortTypeEnum>("packages.enums.sorttables", 1, 0, "SortTypeEnum", "");
 	qRegisterMetaType<SortTypeEnum::ESortType>("ESortType");

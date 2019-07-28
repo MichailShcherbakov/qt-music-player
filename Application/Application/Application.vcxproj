@@ -134,6 +134,9 @@
     <ClCompile Include="Settings\Chapters\ChapterMediaPlayer\ChapterMediaPlayer.cpp" />
     <ClCompile Include="Settings\Chapters\ChapterSortTables\ChapterSortTables.cpp" />
     <ClCompile Include="Settings\Chapters\ChapterUser\ChapterUser.cpp" />
+    <ClCompile Include="Settings\Chapters\Manager\ChaptersManager.cpp" />
+    <ClCompile Include="Settings\Pallete\Manager\ThemeManager.cpp" />
+    <ClCompile Include="Settings\Pallete\WhiteTheme\WhiteTheme.cpp" />
     <ClCompile Include="Settings\Settings.cpp" />
     <ClCompile Include="SourceFiles\Core\Core.cpp" />
     <ClCompile Include="SourceFiles\Custom Types\FWindow\FWindow.cpp" />
@@ -178,6 +181,12 @@
     <QtMoc Include="Settings\Chapters\ChapterUser\ChapterUser.h" />
     <QtMoc Include="Settings\Chapters\ChapterSortTables\ChapterSortTables.h" />
     <QtMoc Include="Settings\Chapters\ChapterMediaPlayer\ChapterMediaPlayer.h" />
+    <QtMoc Include="Settings\Pallete\WhiteTheme\WhiteTheme.h" />
+    <QtMoc Include="SourceFiles\Interfaces\IChapterMediaPlayer.h" />
+    <QtMoc Include="SourceFiles\Interfaces\IChapterSortTables.h" />
+    <QtMoc Include="SourceFiles\Interfaces\IChapterUser.h" />
+    <ClInclude Include="Settings\Chapters\Manager\ChaptersManager.h" />
+    <QtMoc Include="Settings\Pallete\Manager\ThemeManager.h" />
     <ClInclude Include="SourceFiles\Custom Types\ImageProvider\ImageProvider.h" />
     <QtMoc Include="SourceFiles\MediaPlayer\MediaPlayer.h" />
     <QtMoc Include="SourceFiles\Interfaces\IMediaPlayer.h" />
@@ -195,6 +204,9 @@
     <QtMoc Include="SourceFiles\Custom Types\ListViewModels\Vertical\Type 1\List\Ver1List.h" />
     <QtMoc Include="SourceFiles\Custom Types\ListViewModels\Vertical\Type 1\Model\Ver1Model.h" />
     <QtMoc Include="SourceFiles\Interfaces\IChapter.h" />
+    <QtMoc Include="SourceFiles\Interfaces\ITheme.h" />
+    <QtMoc Include="SourceFiles\Interfaces\IChaptersManager.h" />
+    <QtMoc Include="SourceFiles\Interfaces\IThemeManager.h" />
     <ClInclude Include="SourceFiles\LogSystem\LogSystem.h" />
     <ClInclude Include="SourceFiles\Tools\BaseTypes.h" />
     <ClInclude Include="SourceFiles\Tools\EParams.h" />
